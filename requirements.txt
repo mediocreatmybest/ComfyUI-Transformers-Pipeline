@@ -1,0 +1,6 @@
+torch
+transformers
+accelerate
+pillow
+bitsandbytes
+exifread
