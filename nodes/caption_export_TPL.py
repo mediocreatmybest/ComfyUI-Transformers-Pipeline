@@ -40,13 +40,13 @@ class CaptionExportTpl:
         """
         try:
             if not captions:
-                return ("No captions, skipping.",)
+                return ("No captions, skipping...",)
 
             saved_count = 0
             skipped_count = 0
 
+            # Skip saving if caption is empty and allow_empty_files is False
             for caption, image_path in zip(captions, image_paths):
-                # Skip saving if caption is empty and allow_empty_files is False, we may want blank files for some reason
                 if not caption.strip() and not allow_empty_files:
                     skipped_count += 1
                     continue
@@ -61,11 +61,12 @@ class CaptionExportTpl:
                     skipped_count += 1
                     continue
 
-                # Save caption file at utf-8 to allow special characters
+                # Save caption file in UTF-8 for special characters, emojis, etc.
                 with open(caption_path, "w", encoding="utf-8") as f:
                     f.write(caption.strip() + "\n")
                     saved_count += 1
 
+            # Return the status message - Try to move this into a text box in future.
             return (f"Saved {saved_count}, Skipped {skipped_count}",)
 
         except Exception as e:
