@@ -1,0 +1,15 @@
+[project]
+name = "transformers-pipeline"
+description = "Some additional ComfyUI nodes allowing tasks via the Huggingface Transformers Pipeline."
+version = "1.0.0"
+license = {file = "LICENSE"}
+dependencies = ["torch", "transformers", "accelerate", "pillow", "bitsandbytes", "exifread"]
+
+[project.urls]
+Repository = "https://github.com/mediocreatmybest/ComfyUI-Transformers-Pipeline"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = ""
+DisplayName = "ComfyUI-Transformers-Pipeline"
+Icon = ""
