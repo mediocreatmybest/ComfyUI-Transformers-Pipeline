@@ -1,5 +1,5 @@
 [project]
-name = "transformers-pipeline"
+name = "comfyui-transformers-pipeline"
 description = "Additional ComfyUI nodes to utilise the Transformers pipeline in a simple and modular way."
 version = "0.0.1"
 license = {file = "LICENSE"}
@@ -11,5 +11,5 @@ Repository = "https://github.com/mediocreatmybest/ComfyUI-Transformers-Pipeline"
 
 [tool.comfy]
 PublisherId = "mediocre"
-DisplayName = "ComfyUI-Transformers-Pipeline"
+DisplayName = "Transformers-Pipeline"
 Icon = "🚰"  # emoji for now, might be replaced with a logo later.
