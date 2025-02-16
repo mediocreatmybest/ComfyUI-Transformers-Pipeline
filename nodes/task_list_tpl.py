@@ -26,7 +26,8 @@ class TaskListTpl:
         """ Returns a list of supported tasks. """
         return [
             "image-to-text",
-            "image-to-text-to-text",
+            "image-text-to-text",
+            "visual-question-answering",
         ]
 
     def select_task(self, task_list):  # fix for task_name to task_list

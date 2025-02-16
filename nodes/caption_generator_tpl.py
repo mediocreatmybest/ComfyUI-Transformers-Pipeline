@@ -13,21 +13,12 @@ class CaptionGeneratorTpl:
                 "image_batches": ("LIST",),  # List of image in batches
             },
             "optional": {
-                "question": ("STRING", {"default": ""}),  # Optional question input for some models. Need to test...
+                #"question": ("STRING", {"default": ""}),  # Optional question input for some models. Need to test...
                 "prepend_text": ("STRING", {"default": ""}),  # Text before caption...
                 "append_text": ("STRING", {"default": ""}),  # Text after caption...
-                "max_new_tokens": ("INT", {"default": 75, "min": 1}),  # Token limit from pipeline to prevent warnings and limit output
+                "max_new_tokens": ("INT", {"default": 75, "min": 15}),  # Token limit from pipeline to prevent warnings and limit output
             }
         }
-
-    INPUT_LABELS = {
-        "model_pipeline": "Loaded Transformer Model",
-        "image_batches": "Batched Images",
-        "question": "Question (Optional)",
-        "prepend_text": "Prepend Text",
-        "append_text": "Append Text",
-        "max_new_tokens": "Max Tokens",
-    }
 
     RETURN_TYPES = ("LIST",)  # Output: List of complete generated captions
     RETURN_NAMES = ("captions",)
