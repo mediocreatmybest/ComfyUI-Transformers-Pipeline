@@ -1,44 +1,49 @@
-from ctypes import util
-import os
-import importlib
-from .config import be_quiet  # Import global config
+# ComfyUI-Transformers-Pipeline - Explicit Node Registration
 
+from .config import be_quiet  # Import the global config - fix this later
 
-# Lets automagic import all node files inside the main "nodes" directory
-NODE_CLASS_MAPPINGS = {}
-NODE_DISPLAY_NAME_MAPPINGS = {}
+# Import all nodes manually since I couldn't get the names to map correctly
+from .nodes.batch_processor_tpl import BatchProcessorTpl
+from .nodes.caption_export_tpl import CaptionExportTpl
+from .nodes.caption_generator_tpl import CaptionGeneratorTpl
+from .nodes.florence2_node_tpl import Florence2NodeTpl
+from .nodes.image_loader_tpl import ImageLoaderTpl
+from .nodes.model_loader_tpl import ModelLoaderTpl
+from .nodes.preset_model_list_tpl import PresetModelListTpl
+from .nodes.task_list_tpl import TaskListTpl
 
-# Specify the main nodes and util nodes directory.
-nodes_dir = os.path.dirname(__file__) + "/nodes"
-utils_dir = os.path.dirname(__file__) + "/util_nodes"
+# Import all utility nodes manually since I couldn't get the names to map correctly
+from .util_nodes.debug_node_tpl import DebugNodeTpl
+from .util_nodes.exif_metadata_extractor_tpl import ExifMetadataExtractorTpl
 
-# Load all nodes from two directories and add them to the mappings
-for filename in os.listdir(nodes_dir):
-    if filename.endswith(".py") and filename != "__init__.py":
-        module_name = filename[:-3]  # Remove .py extension
-        try:
-            module = importlib.import_module(f".nodes.{module_name}", package=__name__)
-            class_name = "".join(word.capitalize() for word in module_name.split("_"))  # Convert to PascalCase
-            if hasattr(module, class_name):
-                NODE_CLASS_MAPPINGS[class_name] = getattr(module, class_name)
-                NODE_DISPLAY_NAME_MAPPINGS[class_name] = class_name.replace("_", " ")
-        # Throw an error if the modules can't be loaded
-        except Exception as e:
-            print(f"Error loading {module_name}: {e}")
+# Define node class mappings manually
+NODE_CLASS_MAPPINGS = {
+    "BatchProcessorTpl": BatchProcessorTpl,
+    "CaptionExportTpl": CaptionExportTpl,
+    "CaptionGeneratorTpl": CaptionGeneratorTpl,
+    "Florence2NodeTpl": Florence2NodeTpl,
+    "ImageLoaderTpl": ImageLoaderTpl,
+    "ModelLoaderTpl": ModelLoaderTpl,
+    "PresetModelListTpl": PresetModelListTpl,
+    "TaskListTpl": TaskListTpl,
+    "DebugNodeTpl": DebugNodeTpl,
+    "ExifMetadataExtractorTpl": ExifMetadataExtractorTpl,
+}
 
-# Quick and lazy way to load the util nodes for now.
-for filename in os.listdir(utils_dir):
-    if filename.endswith(".py") and filename != "__init__.py":
-        module_name = filename[:-3]  # Remove .py extension
-        try:
-            module = importlib.import_module(f".util_nodes.{module_name}", package=__name__)
-            class_name = "".join(word.capitalize() for word in module_name.split("_"))  # Convert to PascalCase
-            if hasattr(module, class_name):
-                NODE_CLASS_MAPPINGS[class_name] = getattr(module, class_name)
-                NODE_DISPLAY_NAME_MAPPINGS[class_name] = class_name.replace("_", " ")
-        # Throw an error if the modules can't be loaded
-        except Exception as e:
-            print(f"Error loading {module_name}: {e}")
+#  Define node display names manually
+NODE_DISPLAY_NAME_MAPPINGS = {
+    "BatchProcessorTpl": "Batch Processor",
+    "CaptionExportTpl": "Caption Export",
+    "CaptionGeneratorTpl": "Caption Generator",
+    "Florence2NodeTpl": "Florence-2 Node",
+    "ImageLoaderTpl": "Image Loader",
+    "ModelLoaderTpl": "Model Loader",
+    "PresetModelListTpl": "Preset Model List",
+    "TaskListTpl": "Task List",
+    "DebugNodeTpl": "Debug Node",
+    "ExifMetadataExtractorTpl": "EXIF Metadata Extractor",
+}
 
 # Lets expose the mappings to comfyui like a person in a coat selling watches.
 __all__ = ['NODE_CLASS_MAPPINGS', 'NODE_DISPLAY_NAME_MAPPINGS']
+
