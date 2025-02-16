@@ -14,7 +14,7 @@ class CaptionExportTpl:
                 "image_paths": ("LIST",),  # List of all image file paths
             },
             "optional": {
-                "keep_extension": ("BOOLEAN", {"default": True}),  # Toggle for filename format
+                "keep_extension": ("BOOLEAN", {"default": False}),  # Toggle for filename format
                 "overwrite_existing": ("BOOLEAN", {"default": False}),  # Overwrite or skip
                 "allow_empty_files": ("BOOLEAN", {"default": False}),  # Do we want to allow empty files or skip
             }
@@ -28,8 +28,9 @@ class CaptionExportTpl:
         "allow_empty_files": "Allow Saving Empty Files",
     }
 
-    RETURN_TYPES = ("STRING",)  # Outputs a message confirming save status - success or not - Make this optional?
+    RETURN_TYPES = ("STRING",)
     RETURN_NAMES = ("status",)
+    OUTPUT_NODE = True # This is an output node, so this will run even if it's not connected to anything.
     FUNCTION = "save_captions"
     CATEGORY = "Transformers Pipeline"
 
@@ -40,6 +41,7 @@ class CaptionExportTpl:
         """
         try:
             if not captions:
+                print ("No captions, skipping...")
                 return ("No captions, skipping...",)
 
             saved_count = 0
@@ -67,7 +69,10 @@ class CaptionExportTpl:
                     saved_count += 1
 
             # Return the status message - Try to move this into a text box in future.
+            print (f"Saved {saved_count}, Skipped {skipped_count}")
             return (f"Saved {saved_count}, Skipped {skipped_count}",)
 
         except Exception as e:
+            print (f"Error saving captions: {e}")
             return (f"Error saving captions: {e}",)
+

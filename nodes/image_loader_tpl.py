@@ -61,3 +61,4 @@ class ImageLoaderTpl:
         except Exception as e:
             print(f"Error loading images: {e}")
             return ([], {})
+

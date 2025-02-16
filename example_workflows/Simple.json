@@ -1,0 +1,314 @@
+{
+  "last_node_id": 7,
+  "last_link_id": 8,
+  "nodes": [
+    {
+      "id": 6,
+      "type": "CaptionGeneratorTpl",
+      "pos": [
+        1358.8673095703125,
+        -195.1468048095703
+      ],
+      "size": [
+        315,
+        150
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model_pipeline",
+          "type": "MODEL",
+          "link": 2
+        },
+        {
+          "name": "image_batches",
+          "type": "LIST",
+          "link": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "captions",
+          "type": "LIST",
+          "links": [
+            3
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CaptionGeneratorTpl"
+      },
+      "widgets_values": [
+        "",
+        "",
+        "",
+        75
+      ]
+    },
+    {
+      "id": 4,
+      "type": "ModelLoaderTpl",
+      "pos": [
+        859.9013061523438,
+        -266.5953369140625
+      ],
+      "size": [
+        315,
+        202
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model_name_or_path",
+          "type": "STRING",
+          "link": 5,
+          "widget": {
+            "name": "model_name_or_path"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model_pipeline",
+          "type": "MODEL",
+          "links": [
+            2
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ModelLoaderTpl"
+      },
+      "widgets_values": [
+        "Salesforce/blip-image-captioning-base",
+        "image-to-text",
+        "cuda",
+        false,
+        "8bit",
+        false,
+        true
+      ]
+    },
+    {
+      "id": 2,
+      "type": "BatchProcessorTpl",
+      "pos": [
+        872.7859497070312,
+        39.10912322998047
+      ],
+      "size": [
+        315,
+        58
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image_paths",
+          "type": "LIST",
+          "link": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "batches",
+          "type": "LIST",
+          "links": [
+            4
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BatchProcessorTpl"
+      },
+      "widgets_values": [
+        1
+      ]
+    },
+    {
+      "id": 3,
+      "type": "CaptionExportTpl",
+      "pos": [
+        1740.70556640625,
+        204.2600860595703
+      ],
+      "size": [
+        315,
+        126
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "captions",
+          "type": "LIST",
+          "link": 3
+        },
+        {
+          "name": "image_paths",
+          "type": "LIST",
+          "link": 8
+        }
+      ],
+      "outputs": [
+        {
+          "name": "status",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CaptionExportTpl"
+      },
+      "widgets_values": [
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "id": 5,
+      "type": "PresetModelListTpl",
+      "pos": [
+        432.38568115234375,
+        30.910398483276367
+      ],
+      "size": [
+        315,
+        58
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "selected_model",
+          "type": "STRING",
+          "links": [
+            5
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PresetModelListTpl"
+      },
+      "widgets_values": [
+        "Salesforce/blip-image-captioning-base"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "ImageLoaderTpl",
+      "pos": [
+        459.3251953125,
+        231.19921875
+      ],
+      "size": [
+        315,
+        102
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "image_paths",
+          "type": "LIST",
+          "links": [
+            7,
+            8
+          ]
+        },
+        {
+          "name": "image_directories",
+          "type": "DICT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ImageLoaderTpl"
+      },
+      "widgets_values": [
+        "./images",
+        false
+      ]
+    }
+  ],
+  "links": [
+    [
+      2,
+      4,
+      0,
+      6,
+      0,
+      "MODEL"
+    ],
+    [
+      3,
+      6,
+      0,
+      3,
+      0,
+      "LIST"
+    ],
+    [
+      4,
+      2,
+      0,
+      6,
+      1,
+      "LIST"
+    ],
+    [
+      5,
+      5,
+      0,
+      4,
+      0,
+      "STRING"
+    ],
+    [
+      7,
+      7,
+      0,
+      2,
+      0,
+      "LIST"
+    ],
+    [
+      8,
+      7,
+      0,
+      3,
+      1,
+      "LIST"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.6830134553650705,
+      "offset": [
+        552.660870866394,
+        511.3924287437448
+      ]
+    },
+    "node_versions": {
+      "ComfyUI-Transformers-Pipeline": "e69c019561f4cc6edcaa9f6266950146ef694b74"
+    }
+  },
+  "version": 0.4
+}

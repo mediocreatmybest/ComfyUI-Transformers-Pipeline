@@ -84,5 +84,3 @@ class CaptionGeneratorTpl:
             print(f"Error generating captions: {e}")
             return ([],)
 
-
-

@@ -110,3 +110,4 @@ class ModelLoaderTpl:
         except Exception as e:
             print(f"Error loading model {model_name_or_path}: {e}")
             return (None,)
+

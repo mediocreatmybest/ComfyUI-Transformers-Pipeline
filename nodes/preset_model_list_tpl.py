@@ -49,3 +49,4 @@ class PresetModelListTpl:
     def select_model(self, model_name):
         """ Returns the model as a simple string. """
         return (model_name,)
+
