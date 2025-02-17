@@ -1,3 +1,5 @@
+# https://github.com/huggingface/transformers/issues/36106
+# Current issue with pipeline and florence2, so skipping pipeline for the moment on this one 
 from transformers import AutoProcessor, AutoModelForCausalLM
 import torch
 from PIL import Image
