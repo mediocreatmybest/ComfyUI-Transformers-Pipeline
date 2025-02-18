@@ -15,6 +15,7 @@ from .nodes.task_list_tpl import TaskListTpl
 # Import all utility nodes manually since I couldn't get the names to map correctly
 from .util_nodes.debug_node_tpl import DebugNodeTpl
 from .util_nodes.exif_metadata_extractor_tpl import ExifMetadataExtractorTpl
+from .util_nodes.debug_model_node_tpl import DebugModelNodeTpl
 
 # Define node class mappings manually
 NODE_CLASS_MAPPINGS = {
@@ -27,6 +28,7 @@ NODE_CLASS_MAPPINGS = {
     "PresetModelListTpl": PresetModelListTpl,
     "TaskListTpl": TaskListTpl,
     "DebugNodeTpl": DebugNodeTpl,
+    "DebugModelNodeTpl": DebugModelNodeTpl,
     "ExifMetadataExtractorTpl": ExifMetadataExtractorTpl,
 }
 
@@ -38,9 +40,10 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "Florence2NodeTpl": "Florence-2 Node",
     "ImageLoaderTpl": "Image Loader",
     "ModelLoaderTpl": "Model Loader",
-    "PresetModelListTpl": "Preset Model List",
+    "PresetModelListTpl": "Caption Model List",
     "TaskListTpl": "Task List",
     "DebugNodeTpl": "Debug Node",
+    "DebugModelNodeTpl": "Debug Pipeline Node",
     "ExifMetadataExtractorTpl": "EXIF Metadata Extractor",
 }
 
