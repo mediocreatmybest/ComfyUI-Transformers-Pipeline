@@ -1,5 +1,5 @@
 # https://github.com/huggingface/transformers/issues/36106
-# Current issue with pipeline and florence2, so skipping pipeline for the moment on this one 
+# Current issue with pipeline and florence2, so skipping pipeline for the moment on this one
 from transformers import AutoProcessor, AutoModelForCausalLM
 import torch
 from PIL import Image
@@ -24,13 +24,6 @@ class Florence2NodeTpl:
                 "max_new_tokens": ("INT", {"default": 1024, "min": 32, "max": 2048}),  # Max output length
             }
         }
-
-    INPUT_LABELS = {
-        "model_name": "Model Name or Path",
-        "image_paths": "Image File Paths",
-        "task_prompt": "Caption Type",
-        "max_new_tokens": "Max New Tokens",
-    }
 
     RETURN_TYPES = ("LIST",)
     RETURN_NAMES = ("generated_captions",)

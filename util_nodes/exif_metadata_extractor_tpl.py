@@ -14,10 +14,6 @@ class ExifMetadataExtractorTpl:
             }
         }
 
-    INPUT_LABELS = {
-        "image_paths": "Image Paths",
-    }
-
     RETURN_TYPES = ("LIST", "LIST")  # Returns extracted metadata as a list
     RETURN_NAMES = ("metadata", "formatted_metadata")
     FUNCTION = "extract_exif_metadata"

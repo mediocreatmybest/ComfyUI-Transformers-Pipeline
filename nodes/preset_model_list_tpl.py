@@ -15,10 +15,6 @@ class PresetModelListTpl:
             }
         }
 
-    INPUT_LABELS = {
-        "model_name": "Model List",
-    }
-
     RETURN_TYPES = ("STRING",)
     RETURN_NAMES = ("selected_model",)
     FUNCTION = "select_model"

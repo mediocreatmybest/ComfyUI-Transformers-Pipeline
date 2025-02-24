@@ -18,11 +18,6 @@ class ImageLoaderTpl:
             }
         }
 
-    INPUT_LABELS = {
-        "directory_path": "Image Directory",
-        "skip_existing_captions": "Skip Images with Existing Captions"
-    }
-
     RETURN_TYPES = ("LIST", "DICT")  # Outputs: Image list and Image directory mapping if we need it later.
     RETURN_NAMES = ("image_paths", "image_directories")
     FUNCTION = "load_images"
@@ -61,4 +56,3 @@ class ImageLoaderTpl:
         except Exception as e:
             print(f"Error loading images: {e}")
             return ([], {})
-

@@ -24,16 +24,6 @@ class ModelLoaderTpl:
             }
         }
 
-    INPUT_LABELS = {
-        "model_name_or_path": "Model Name or Path",
-        "task": "Task Type",
-        "device_mode": "Device Mode (CUDA/CPU/Auto)",
-        "use_bitsandbytes": "Enable BitsAndBytes Quantisation",
-        "quantization_type": "Quantisation Type (4-bit/8-bit)",
-        "trust_remote_code": "Trust Remote Code",
-        "use_fast_tokenizer": "Use Fast Tokenizer",
-    }
-
     RETURN_TYPES = ("MODEL",)
     RETURN_NAMES = ("model_pipeline",)
     FUNCTION = "load_model"

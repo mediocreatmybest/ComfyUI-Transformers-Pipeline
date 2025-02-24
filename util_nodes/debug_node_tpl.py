@@ -11,10 +11,6 @@ class DebugNodeTpl:
             }
         }
 
-    INPUT_LABELS = {
-        "input_list": "Data to Debug",
-    }
-
     RETURN_TYPES = ("LIST", "STRING")  # Returns both raw and readable data
     RETURN_NAMES = ("debug_list", "debug_text")
     FUNCTION = "debug_data"

@@ -12,11 +12,6 @@ class BatchProcessorTpl:
             }
         }
 
-    INPUT_LABELS = {
-        "image_paths": "Image Paths",
-        "batch_size": "Batch Size",
-    }
-
     RETURN_TYPES = ("LIST",)  # Output: List of image in the batch size
     RETURN_NAMES = ("batches",)
     FUNCTION = "process_batches"
