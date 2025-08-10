@@ -28,6 +28,9 @@ class TaskListTpl:
             "image-to-text",
             "image-text-to-text",
             "visual-question-answering",
+            "question-answering",
+            "summarization",
+            "translation",
         ]
 
     def select_task(self, task_list):  # fix for task_name to task_list
