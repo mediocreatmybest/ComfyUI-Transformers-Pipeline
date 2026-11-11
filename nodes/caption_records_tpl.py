@@ -14,14 +14,14 @@ class CaptionRecordsTpl:
         return {"required": {
             "model_pipeline": ("MODEL",), "image_paths": ("LIST",),
             "profile_ids": ("STRING", {"default": "factual,artistic_analysis",
-                "tooltip": "Comma-separated IDs: factual, natural_language, subject_tags, artistic_analysis, lora_training"}),
+                "tooltip": "Comma-separated profile IDs. Built-in instruction profiles need an instruction-following VLM. For BLIP/Florence, supply raw profiles as shown in the examples."}),
         }, "optional": {
-            "profiles_file": ("STRING", {"default": ""}),
-            "profiles_json": ("STRING", {"default": "", "multiline": True}),
-            "pipeline_kwargs": ("STRING", {"default": "{}", "multiline": True}),
-            "supplied_author": ("STRING", {"default": ""}),
-            "records_path": ("STRING", {"default": ""}),
-            "overwrite_records": ("BOOLEAN", {"default": False}),
+            "profiles_file": ("STRING", {"default": "", "tooltip": "Optional profiles JSON file. Choose a file or inline JSON, not both."}),
+            "profiles_json": ("STRING", {"default": "", "multiline": True, "tooltip": "Editable versioned profiles JSON. Use prompt_mode raw for Florence task tokens or BLIP prefixes. Blank uses built-in profiles."}),
+            "pipeline_kwargs": ("STRING", {"default": "{}", "multiline": True, "tooltip": "Additional JSON generation options; reserved image/prompt inputs cannot be overridden."}),
+            "supplied_author": ("STRING", {"default": "", "tooltip": "Known author metadata, stored separately. Never infer authorship from visual style."}),
+            "records_path": ("STRING", {"default": "", "tooltip": "Optional native JSONL checkpoint for review and later export without inference. Relative paths use the ComfyUI process working directory."}),
+            "overwrite_records": ("BOOLEAN", {"default": False, "tooltip": "Allow replacing an existing checkpoint. Leave disabled to protect saved records."}),
         }}
 
     RETURN_TYPES = ("LIST", "STRING")

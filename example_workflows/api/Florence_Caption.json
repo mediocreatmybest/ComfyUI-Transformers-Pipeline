@@ -1,0 +1,49 @@
+{
+  "1": {
+    "class_type": "ImageLoaderTpl",
+    "inputs": {
+      "directory_path": "./input/transformers_pipeline",
+      "skip_existing_captions": false
+    },
+    "_meta": {
+      "title": "1. Choose image directory"
+    }
+  },
+  "2": {
+    "class_type": "Florence2NodeTpl",
+    "inputs": {
+      "model_name": "florence-community/Florence-2-base",
+      "task_prompt": "<MORE_DETAILED_CAPTION>",
+      "max_new_tokens": 192,
+      "device_mode": "auto",
+      "trust_remote_code": false,
+      "image_paths": [
+        "1",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "2. Florence community - Desktop 4.57.3"
+    }
+  },
+  "3": {
+    "class_type": "CaptionExportTpl",
+    "inputs": {
+      "file_extension": "txt",
+      "keep_extension": true,
+      "overwrite_existing": false,
+      "allow_empty_files": false,
+      "image_paths": [
+        "1",
+        0
+      ],
+      "captions": [
+        "2",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "3. Legacy TXT beside source images"
+    }
+  }
+}

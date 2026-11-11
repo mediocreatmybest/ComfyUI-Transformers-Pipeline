@@ -8,16 +8,16 @@ class DatasetExportTpl:
     @classmethod
     def INPUT_TYPES(cls):
         return {"required": {
-            "destination": ("STRING", {"default": "./caption_exports"}),
-            "format": (["txt", "imagefolder", "native"],),
-            "profile_id": ("STRING", {"default": "factual"}),
+            "destination": ("STRING", {"default": "./caption_exports", "tooltip": "Separate export directory; source images are unchanged. Use a fresh directory for a different dataset selection."}),
+            "format": (["txt", "imagefolder", "native"], {"tooltip": "txt copies images with UTF-8 sidecars; imagefolder copies images with metadata.jsonl; native preserves rich records in JSONL."}),
+            "profile_id": ("STRING", {"default": "factual", "tooltip": "Select the profile ID stored in the caption records."}),
         }, "optional": {
             "caption_records": ("LIST",),
-            "records_file": ("STRING", {"default": ""}),
-            "caption_type": ("STRING", {"default": ""}),
-            "candidate_ids": ("STRING", {"default": "{}", "multiline": True}),
-            "approved_only": ("BOOLEAN", {"default": False}),
-            "overwrite_existing": ("BOOLEAN", {"default": False}),
+            "records_file": ("STRING", {"default": "", "tooltip": "Saved native JSONL records, for export without loading a model. Use this or connected caption_records, not both."}),
+            "caption_type": ("STRING", {"default": "", "tooltip": "Optional additional caption type filter. Blank selects by profile only."}),
+            "candidate_ids": ("STRING", {"default": "{}", "multiline": True, "tooltip": "Optional JSON mapping from image ID to chosen candidate ID, for explicit review selections."}),
+            "approved_only": ("BOOLEAN", {"default": False, "tooltip": "Export only human-approved candidates. Rejected or failed candidates are excluded from training exports regardless."}),
+            "overwrite_existing": ("BOOLEAN", {"default": False, "tooltip": "Allow updates to an existing matching export. Disabled by default to protect files."}),
         }}
 
     RETURN_TYPES = ("STRING",)

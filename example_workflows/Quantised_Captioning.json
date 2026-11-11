@@ -1,0 +1,261 @@
+{
+  "last_node_id": 4,
+  "last_link_id": 3,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "ModelLoaderTpl",
+      "title": "1. BLIP INT8 + CPU offload - RTX 4090 tested",
+      "pos": [
+        30,
+        80
+      ],
+      "size": [
+        450,
+        650
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "model_pipeline",
+          "type": "MODEL",
+          "links": [
+            1
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "loading_diagnostics",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ModelLoaderTpl"
+      },
+      "widgets_values": [
+        "Salesforce/blip-image-captioning-base",
+        "image-to-text",
+        "cuda",
+        false,
+        "8bit",
+        false,
+        true,
+        "float16",
+        "",
+        false,
+        "{}",
+        "int8",
+        "offload",
+        0,
+        "600MiB",
+        "4GiB"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "ImageLoaderTpl",
+      "title": "2. Choose image directory",
+      "pos": [
+        30,
+        800
+      ],
+      "size": [
+        450,
+        160
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "image_paths",
+          "type": "LIST",
+          "links": [
+            2
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "image_directories",
+          "type": "DICT",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ImageLoaderTpl"
+      },
+      "widgets_values": [
+        "./input/transformers_pipeline",
+        false
+      ]
+    },
+    {
+      "id": 3,
+      "type": "CaptionRecordsTpl",
+      "title": "3. BLIP raw caption profile + structured records",
+      "pos": [
+        540,
+        80
+      ],
+      "size": [
+        520,
+        650
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model_pipeline",
+          "type": "MODEL",
+          "link": 1
+        },
+        {
+          "name": "image_paths",
+          "type": "LIST",
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "links": [
+            3
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "status",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CaptionRecordsTpl"
+      },
+      "widgets_values": [
+        "factual",
+        "",
+        "{\n  \"schema_version\": 1,\n  \"profiles\": [\n    {\n      \"id\": \"factual\",\n      \"caption_type\": \"factual\",\n      \"prompt\": \"\",\n      \"prompt_mode\": \"raw\",\n      \"max_new_tokens\": 64\n    }\n  ]\n}",
+        "{}",
+        "",
+        "./output/transformers_pipeline/quantised_records.jsonl",
+        false
+      ]
+    },
+    {
+      "id": 4,
+      "type": "DatasetExportTpl",
+      "title": "4. Copy images + TXT to separate export",
+      "pos": [
+        1120,
+        80
+      ],
+      "size": [
+        440,
+        450
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "link": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "export_result",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DatasetExportTpl"
+      },
+      "widgets_values": [
+        "./output/transformers_pipeline/quantised_txt",
+        "txt",
+        "factual",
+        "",
+        "",
+        "{}",
+        false,
+        false
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      3,
+      0,
+      "MODEL"
+    ],
+    [
+      2,
+      2,
+      0,
+      3,
+      1,
+      "LIST"
+    ],
+    [
+      3,
+      3,
+      0,
+      4,
+      0,
+      "LIST"
+    ]
+  ],
+  "groups": [
+    {
+      "title": "Quantised BLIP | Desktop 4.57.3 | bitsandbytes + Accelerate | RTX 4090 validated",
+      "bounding": [
+        0,
+        0,
+        1590,
+        990
+      ],
+      "color": "#3f789e",
+      "font_size": 22,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.7,
+      "offset": [
+        30,
+        50
+      ]
+    },
+    "transformers_pipeline": {
+      "runtime": "Desktop Transformers 4.57.3",
+      "instructions": [
+        "Requires CUDA, bitsandbytes and Accelerate. No full-precision fallback or disk offload.",
+        "600MiB GPU / 4GiB CPU are weight-placement budgets, not total process-memory limits; inference needs additional headroom.",
+        "Adjust budgets and GPU index for your hardware. The shown configuration was physically validated on RTX 4090.",
+        "Choose an image directory and new output paths before queueing; overwrite protection is enabled.",
+        "Model Loader loading_diagnostics output contains actual runtime, quantisation, device map and memory measurements."
+      ]
+    }
+  },
+  "version": 0.4
+}

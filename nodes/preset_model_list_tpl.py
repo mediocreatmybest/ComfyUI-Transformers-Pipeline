@@ -10,7 +10,7 @@ class PresetModelListTpl:
             "required": {
                 "model_name": (cls.get_model_list(), {
                     "default": "Salesforce/blip-image-captioning-base",
-                    "tooltip": "Model candidates, not a compatibility guarantee. Match the task and installed Transformers version."
+                    "tooltip": "Model candidates, not a compatibility guarantee. BLIP and Florence community are tested on Desktop Transformers 4.57.3. Qwen3.5 needs the isolated 5.22.2 runtime; choosing it does not switch runtimes."
                 }),
             }
         }

@@ -1,0 +1,59 @@
+{
+  "1": {
+    "class_type": "ModelLoaderTpl",
+    "inputs": {
+      "model_name_or_path": "florence-community/Florence-2-base",
+      "task": "image-text-to-text",
+      "device_mode": "cuda",
+      "use_bitsandbytes": false,
+      "quantization_type": "8bit",
+      "trust_remote_code": false,
+      "use_fast_tokenizer": true,
+      "dtype": "float32",
+      "revision": "",
+      "local_files_only": false,
+      "model_kwargs": "{}",
+      "quantization": "native",
+      "placement": "gpu_preferred",
+      "gpu_index": 0,
+      "gpu_memory": "",
+      "cpu_memory": ""
+    },
+    "_meta": {
+      "title": "1. Florence community - Desktop 4.57.3"
+    }
+  },
+  "2": {
+    "class_type": "ImageLoaderTpl",
+    "inputs": {
+      "directory_path": "./input/transformers_pipeline",
+      "skip_existing_captions": false
+    },
+    "_meta": {
+      "title": "2. Choose image directory"
+    }
+  },
+  "3": {
+    "class_type": "CaptionRecordsTpl",
+    "inputs": {
+      "profile_ids": "factual,natural_language",
+      "profiles_file": "",
+      "profiles_json": "{\n  \"schema_version\": 1,\n  \"profiles\": [\n    {\n      \"id\": \"factual\",\n      \"caption_type\": \"factual\",\n      \"prompt\": \"<CAPTION>\",\n      \"prompt_mode\": \"raw\",\n      \"max_new_tokens\": 96\n    },\n    {\n      \"id\": \"natural_language\",\n      \"caption_type\": \"natural_language\",\n      \"prompt\": \"<MORE_DETAILED_CAPTION>\",\n      \"prompt_mode\": \"raw\",\n      \"max_new_tokens\": 192\n    }\n  ]\n}",
+      "pipeline_kwargs": "{}",
+      "supplied_author": "",
+      "records_path": "./output/transformers_pipeline/florence_records.jsonl",
+      "overwrite_records": false,
+      "model_pipeline": [
+        "1",
+        0
+      ],
+      "image_paths": [
+        "2",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "3. Two editable Florence task profiles + saved records"
+    }
+  }
+}

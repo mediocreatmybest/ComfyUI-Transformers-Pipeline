@@ -1,0 +1,34 @@
+{
+  "1": {
+    "class_type": "DatasetExportTpl",
+    "inputs": {
+      "destination": "./output/transformers_pipeline/dataset_txt",
+      "format": "txt",
+      "profile_id": "factual",
+      "records_file": "./output/transformers_pipeline/florence_records.jsonl",
+      "caption_type": "",
+      "candidate_ids": "{}",
+      "approved_only": false,
+      "overwrite_existing": false
+    },
+    "_meta": {
+      "title": "1. Select saved profile -> copied images + TXT"
+    }
+  },
+  "2": {
+    "class_type": "DatasetExportTpl",
+    "inputs": {
+      "destination": "./output/transformers_pipeline/dataset_imagefolder",
+      "format": "imagefolder",
+      "profile_id": "factual",
+      "records_file": "./output/transformers_pipeline/florence_records.jsonl",
+      "caption_type": "",
+      "candidate_ids": "{}",
+      "approved_only": false,
+      "overwrite_existing": false
+    },
+    "_meta": {
+      "title": "2. Select saved profile -> ImageFolder metadata"
+    }
+  }
+}

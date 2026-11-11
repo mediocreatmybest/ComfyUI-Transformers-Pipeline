@@ -1,0 +1,206 @@
+{
+  "last_node_id": 3,
+  "last_link_id": 2,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "ModelLoaderTpl",
+      "title": "1. Florence community - Desktop 4.57.3",
+      "pos": [
+        30,
+        80
+      ],
+      "size": [
+        430,
+        650
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "model_pipeline",
+          "type": "MODEL",
+          "links": [
+            1
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "loading_diagnostics",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ModelLoaderTpl"
+      },
+      "widgets_values": [
+        "florence-community/Florence-2-base",
+        "image-text-to-text",
+        "cuda",
+        false,
+        "8bit",
+        false,
+        true,
+        "float32",
+        "",
+        false,
+        "{}",
+        "native",
+        "gpu_preferred",
+        0,
+        "",
+        ""
+      ]
+    },
+    {
+      "id": 2,
+      "type": "ImageLoaderTpl",
+      "title": "2. Choose image directory",
+      "pos": [
+        30,
+        800
+      ],
+      "size": [
+        430,
+        160
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "image_paths",
+          "type": "LIST",
+          "links": [
+            2
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "image_directories",
+          "type": "DICT",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ImageLoaderTpl"
+      },
+      "widgets_values": [
+        "./input/transformers_pipeline",
+        false
+      ]
+    },
+    {
+      "id": 3,
+      "type": "CaptionRecordsTpl",
+      "title": "3. Two editable Florence task profiles + saved records",
+      "pos": [
+        520,
+        80
+      ],
+      "size": [
+        560,
+        880
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model_pipeline",
+          "type": "MODEL",
+          "link": 1
+        },
+        {
+          "name": "image_paths",
+          "type": "LIST",
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "links": [],
+          "slot_index": 0
+        },
+        {
+          "name": "status",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CaptionRecordsTpl"
+      },
+      "widgets_values": [
+        "factual,natural_language",
+        "",
+        "{\n  \"schema_version\": 1,\n  \"profiles\": [\n    {\n      \"id\": \"factual\",\n      \"caption_type\": \"factual\",\n      \"prompt\": \"<CAPTION>\",\n      \"prompt_mode\": \"raw\",\n      \"max_new_tokens\": 96\n    },\n    {\n      \"id\": \"natural_language\",\n      \"caption_type\": \"natural_language\",\n      \"prompt\": \"<MORE_DETAILED_CAPTION>\",\n      \"prompt_mode\": \"raw\",\n      \"max_new_tokens\": 192\n    }\n  ]\n}",
+        "{}",
+        "",
+        "./output/transformers_pipeline/florence_records.jsonl",
+        false
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      3,
+      0,
+      "MODEL"
+    ],
+    [
+      2,
+      2,
+      0,
+      3,
+      1,
+      "LIST"
+    ]
+  ],
+  "groups": [
+    {
+      "title": "Multiple profiles | Desktop 4.57.3 | Save once, export later",
+      "bounding": [
+        0,
+        0,
+        1110,
+        990
+      ],
+      "color": "#3f789e",
+      "font_size": 22,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.7,
+      "offset": [
+        30,
+        50
+      ]
+    },
+    "transformers_pipeline": {
+      "runtime": "Desktop Transformers 4.57.3",
+      "instructions": [
+        "Choose an image directory and a new records_path before queueing.",
+        "Florence uses raw task tokens for brief and detailed captions. These are not instruction-following artistic-analysis profiles.",
+        "Built-in instruction profiles require a suitable VLM; Qwen3.5 requires the isolated Transformers 5.22.2 worker, not this Desktop runtime.",
+        "Open Dataset_Export.json to select a saved profile without repeating inference."
+      ]
+    }
+  },
+  "version": 0.4
+}

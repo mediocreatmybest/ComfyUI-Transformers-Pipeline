@@ -1,0 +1,194 @@
+{
+  "last_node_id": 3,
+  "last_link_id": 3,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "ImageLoaderTpl",
+      "title": "1. Choose image directory",
+      "pos": [
+        30,
+        80
+      ],
+      "size": [
+        390,
+        180
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "image_paths",
+          "type": "LIST",
+          "links": [
+            1,
+            2
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "image_directories",
+          "type": "DICT",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ImageLoaderTpl"
+      },
+      "widgets_values": [
+        "./input/transformers_pipeline",
+        false
+      ]
+    },
+    {
+      "id": 2,
+      "type": "Florence2NodeTpl",
+      "title": "2. Florence community - Desktop 4.57.3",
+      "pos": [
+        470,
+        80
+      ],
+      "size": [
+        390,
+        330
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image_paths",
+          "type": "LIST",
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "generated_captions",
+          "type": "LIST",
+          "links": [
+            3
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Florence2NodeTpl"
+      },
+      "widgets_values": [
+        "florence-community/Florence-2-base",
+        "<MORE_DETAILED_CAPTION>",
+        192,
+        "auto",
+        false
+      ]
+    },
+    {
+      "id": 3,
+      "type": "CaptionExportTpl",
+      "title": "3. Legacy TXT beside source images",
+      "pos": [
+        910,
+        80
+      ],
+      "size": [
+        390,
+        250
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "captions",
+          "type": "LIST",
+          "link": 3
+        },
+        {
+          "name": "image_paths",
+          "type": "LIST",
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "status",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CaptionExportTpl"
+      },
+      "widgets_values": [
+        "txt",
+        true,
+        false,
+        false
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "LIST"
+    ],
+    [
+      2,
+      1,
+      0,
+      3,
+      1,
+      "LIST"
+    ],
+    [
+      3,
+      2,
+      0,
+      3,
+      0,
+      "LIST"
+    ]
+  ],
+  "groups": [
+    {
+      "title": "Florence captions | Desktop 4.57.3 | Legacy sidecar export",
+      "bounding": [
+        0,
+        0,
+        1330,
+        440
+      ],
+      "color": "#3f789e",
+      "font_size": 22,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.7,
+      "offset": [
+        30,
+        50
+      ]
+    },
+    "transformers_pipeline": {
+      "runtime": "Desktop Transformers 4.57.3",
+      "instructions": [
+        "Choose an image directory before queueing. Relative paths use the ComfyUI process working directory.",
+        "Legacy export writes image.jpg.txt beside each source image; overwrite protection is enabled.",
+        "For exports to a separate directory use Caption_Profiles then Dataset_Export."
+      ]
+    }
+  },
+  "version": 0.4
+}

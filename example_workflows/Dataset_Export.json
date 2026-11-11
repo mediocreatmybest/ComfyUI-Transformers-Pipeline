@@ -1,0 +1,129 @@
+{
+  "last_node_id": 2,
+  "last_link_id": 0,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "DatasetExportTpl",
+      "title": "1. Select saved profile -> copied images + TXT",
+      "pos": [
+        30,
+        80
+      ],
+      "size": [
+        510,
+        450
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "export_result",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DatasetExportTpl"
+      },
+      "widgets_values": [
+        "./output/transformers_pipeline/dataset_txt",
+        "txt",
+        "factual",
+        "./output/transformers_pipeline/florence_records.jsonl",
+        "",
+        "{}",
+        false,
+        false
+      ]
+    },
+    {
+      "id": 2,
+      "type": "DatasetExportTpl",
+      "title": "2. Select saved profile -> ImageFolder metadata",
+      "pos": [
+        600,
+        80
+      ],
+      "size": [
+        510,
+        450
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "export_result",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DatasetExportTpl"
+      },
+      "widgets_values": [
+        "./output/transformers_pipeline/dataset_imagefolder",
+        "imagefolder",
+        "factual",
+        "./output/transformers_pipeline/florence_records.jsonl",
+        "",
+        "{}",
+        false,
+        false
+      ]
+    }
+  ],
+  "links": [],
+  "groups": [
+    {
+      "title": "Export saved records | Run Caption_Profiles first | No model required",
+      "bounding": [
+        0,
+        0,
+        1140,
+        560
+      ],
+      "color": "#3f789e",
+      "font_size": 22,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.7,
+      "offset": [
+        30,
+        50
+      ]
+    },
+    "transformers_pipeline": {
+      "runtime": "Desktop Transformers 4.57.3",
+      "instructions": [
+        "Run Caption_Profiles.json first, or select your own saved records_file in both nodes.",
+        "Choose profile_id factual or natural_language and a separate destination for each export.",
+        "Both output nodes run when queued. Bypass one if only one format is needed.",
+        "Original images are unchanged. Overwrite protection is enabled; use fresh destinations for new selections."
+      ]
+    }
+  },
+  "version": 0.4
+}
