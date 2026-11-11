@@ -116,7 +116,6 @@
       ]
     },
     "transformers_pipeline": {
-      "runtime": "Desktop Transformers 4.57.3",
       "instructions": [
         "Run Caption_Profiles.json first, or select your own saved records_file in both nodes.",
         "Choose profile_id factual or natural_language and a separate destination for each export.",

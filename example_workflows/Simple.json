@@ -307,9 +307,6 @@
         552.660870866394,
         511.3924287437448
       ]
-    },
-    "node_versions": {
-      "ComfyUI-Transformers-Pipeline": "e69c019561f4cc6edcaa9f6266950146ef694b74"
     }
   },
   "version": 0.4

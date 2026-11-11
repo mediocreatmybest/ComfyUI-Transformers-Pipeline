@@ -5,7 +5,7 @@
     {
       "id": 1,
       "type": "ModelLoaderTpl",
-      "title": "1. BLIP INT8 + CPU offload - RTX 4090 tested",
+      "title": "1. BLIP INT8 - allow CPU offloading",
       "pos": [
         30,
         80
@@ -52,8 +52,8 @@
         "int8",
         "offload",
         0,
-        "600MiB",
-        "4GiB"
+        "",
+        ""
       ]
     },
     {
@@ -225,7 +225,7 @@
   ],
   "groups": [
     {
-      "title": "Quantised BLIP | Desktop 4.57.3 | bitsandbytes + Accelerate | RTX 4090 validated",
+      "title": "Quantised BLIP | bitsandbytes + Accelerate | Automatic memory budgets",
       "bounding": [
         0,
         0,
@@ -247,11 +247,10 @@
       ]
     },
     "transformers_pipeline": {
-      "runtime": "Desktop Transformers 4.57.3",
       "instructions": [
         "Requires CUDA, bitsandbytes and Accelerate. No full-precision fallback or disk offload.",
-        "600MiB GPU / 4GiB CPU are weight-placement budgets, not total process-memory limits; inference needs additional headroom.",
-        "Adjust budgets and GPU index for your hardware. The shown configuration was physically validated on RTX 4090.",
+        "Blank memory budgets use automatic limits with reserved headroom. Optional explicit budgets constrain weight placement, not total memory use; inference needs additional headroom.",
+        "CPU offloading is enabled, but CPU placement is not guaranteed: layers may remain entirely on GPU when they fit. Actual placement depends on the model and memory budgets; inspect loading_diagnostics.",
         "Choose an image directory and new output paths before queueing; overwrite protection is enabled.",
         "Model Loader loading_diagnostics output contains actual runtime, quantisation, device map and memory measurements."
       ]

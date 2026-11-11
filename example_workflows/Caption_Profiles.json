@@ -5,7 +5,7 @@
     {
       "id": 1,
       "type": "ModelLoaderTpl",
-      "title": "1. Florence community - Desktop 4.57.3",
+      "title": "1. Load Florence community",
       "pos": [
         30,
         80
@@ -171,7 +171,7 @@
   ],
   "groups": [
     {
-      "title": "Multiple profiles | Desktop 4.57.3 | Save once, export later",
+      "title": "Multiple profiles | Save once, export later",
       "bounding": [
         0,
         0,
@@ -193,12 +193,12 @@
       ]
     },
     "transformers_pipeline": {
-      "runtime": "Desktop Transformers 4.57.3",
       "instructions": [
         "Choose an image directory and a new records_path before queueing.",
         "Florence uses raw task tokens for brief and detailed captions. These are not instruction-following artistic-analysis profiles.",
-        "Built-in instruction profiles require a suitable VLM; Qwen3.5 requires the isolated Transformers 5.22.2 worker, not this Desktop runtime.",
-        "Open Dataset_Export.json to select a saved profile without repeating inference."
+        "Built-in instruction profiles require an instruction-following VLM and a Transformers release supporting its architecture. Florence uses the raw task profiles shown here.",
+        "Open Dataset_Export.json to select a saved profile without repeating inference.",
+        "Requires a Transformers release with native Florence support and the florence-community checkpoint."
       ]
     }
   },

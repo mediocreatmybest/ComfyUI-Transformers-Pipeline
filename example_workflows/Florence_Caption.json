@@ -46,7 +46,7 @@
     {
       "id": 2,
       "type": "Florence2NodeTpl",
-      "title": "2. Florence community - Desktop 4.57.3",
+      "title": "2. Generate Florence captions",
       "pos": [
         470,
         80
@@ -160,7 +160,7 @@
   ],
   "groups": [
     {
-      "title": "Florence captions | Desktop 4.57.3 | Legacy sidecar export",
+      "title": "Florence captions | Legacy sidecar export",
       "bounding": [
         0,
         0,
@@ -182,11 +182,11 @@
       ]
     },
     "transformers_pipeline": {
-      "runtime": "Desktop Transformers 4.57.3",
       "instructions": [
         "Choose an image directory before queueing. Relative paths use the ComfyUI process working directory.",
         "Legacy export writes image.jpg.txt beside each source image; overwrite protection is enabled.",
-        "For exports to a separate directory use Caption_Profiles then Dataset_Export."
+        "For exports to a separate directory use Caption_Profiles then Dataset_Export.",
+        "Requires a Transformers release with native Florence support and the florence-community checkpoint."
       ]
     }
   },

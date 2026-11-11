@@ -16,11 +16,11 @@
       "quantization": "int8",
       "placement": "offload",
       "gpu_index": 0,
-      "gpu_memory": "600MiB",
-      "cpu_memory": "4GiB"
+      "gpu_memory": "",
+      "cpu_memory": ""
     },
     "_meta": {
-      "title": "1. BLIP INT8 + CPU offload - RTX 4090 tested"
+      "title": "1. BLIP INT8 - allow CPU offloading"
     }
   },
   "2": {

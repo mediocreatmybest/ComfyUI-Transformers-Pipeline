@@ -31,6 +31,8 @@ class WorkflowTests(unittest.TestCase):
                 self.assertGreaterEqual(workflow['last_link_id'], max([link[0] for link in workflow['links']], default=0))
 
     def test_api_exports_match_editor_graphs_including_legacy_defaults(self):
+        self.assertEqual({p.name for p in self.folder.glob('*.json')},
+                         {p.name for p in (self.folder / 'api').glob('*.json')})
         for file in self.folder.glob('*.json'):
             with self.subTest(workflow=file.name):
                 api_file = self.folder / 'api' / file.name
@@ -87,7 +89,7 @@ class WorkflowTests(unittest.TestCase):
             self.assertEqual(node['inputs']['records_file'], records['records_path'])
             self.assertIn(node['inputs']['profile_id'], {p.id for p in selected})
 
-    def test_quantised_example_uses_physically_validated_policy(self):
+    def test_quantised_example_allows_offload_with_automatic_memory_budgets(self):
         file = self.folder / 'Quantised_Captioning.json'
         self.assertTrue(file.exists())
         prompt = editor_to_api(json.loads(file.read_text()), self.definitions)
@@ -97,7 +99,7 @@ class WorkflowTests(unittest.TestCase):
                                placement=settings['placement'], dtype=settings['dtype'],
                                gpu_memory=settings['gpu_memory'], cpu_memory=settings['cpu_memory'])
         self.assertEqual((policy.model_id, policy.mode, policy.placement, policy.gpu_memory, policy.cpu_memory),
-                         ('Salesforce/blip-image-captioning-base', 'int8', 'offload', '600MiB', '4GiB'))
+                         ('Salesforce/blip-image-captioning-base', 'int8', 'offload', '', ''))
 
 
 if __name__ == '__main__':
