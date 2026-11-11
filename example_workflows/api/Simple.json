@@ -98,5 +98,26 @@
     "_meta": {
       "title": "ImageLoaderTpl"
     }
+  },
+  "8": {
+    "class_type": "CaptionPreviewTpl",
+    "inputs": {
+      "records_file": "",
+      "profile_id": "",
+      "offset": 0,
+      "limit": 4,
+      "show_images": true,
+      "captions": [
+        "6",
+        0
+      ],
+      "image_paths": [
+        "7",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Inspect captions and source images"
+    }
   }
 }

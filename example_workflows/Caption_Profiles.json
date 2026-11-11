@@ -1,6 +1,6 @@
 {
-  "last_node_id": 3,
-  "last_link_id": 2,
+  "last_node_id": 4,
+  "last_link_id": 3,
   "nodes": [
     {
       "id": 1,
@@ -11,8 +11,8 @@
         80
       ],
       "size": [
-        430,
-        650
+        450,
+        800
       ],
       "flags": {},
       "order": 0,
@@ -62,11 +62,11 @@
       "title": "2. Choose image directory",
       "pos": [
         30,
-        800
+        950
       ],
       "size": [
         430,
-        160
+        300
       ],
       "flags": {},
       "order": 1,
@@ -101,12 +101,12 @@
       "type": "CaptionRecordsTpl",
       "title": "3. Two editable Florence task profiles + saved records",
       "pos": [
-        520,
+        540,
         80
       ],
       "size": [
         560,
-        880
+        1000
       ],
       "flags": {},
       "order": 2,
@@ -127,7 +127,9 @@
         {
           "name": "caption_records",
           "type": "LIST",
-          "links": [],
+          "links": [
+            3
+          ],
           "slot_index": 0
         },
         {
@@ -149,6 +151,57 @@
         "./output/transformers_pipeline/florence_records.jsonl",
         false
       ]
+    },
+    {
+      "id": 4,
+      "type": "CaptionPreviewTpl",
+      "title": "Inspect candidates, profiles and failures",
+      "pos": [
+        1160,
+        80
+      ],
+      "size": [
+        580,
+        850
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "link": 3
+        },
+        {
+          "name": "image_paths",
+          "type": "LIST",
+          "link": null
+        },
+        {
+          "name": "captions",
+          "type": "LIST",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "preview_text",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CaptionPreviewTpl"
+      },
+      "widgets_values": [
+        "",
+        "",
+        0,
+        4,
+        true
+      ]
     }
   ],
   "links": [
@@ -167,6 +220,14 @@
       3,
       1,
       "LIST"
+    ],
+    [
+      3,
+      3,
+      0,
+      4,
+      0,
+      "LIST"
     ]
   ],
   "groups": [
@@ -175,8 +236,8 @@
       "bounding": [
         0,
         0,
-        1110,
-        990
+        1770,
+        1280
       ],
       "color": "#3f789e",
       "font_size": 22,
@@ -198,7 +259,8 @@
         "Florence uses raw task tokens for brief and detailed captions. These are not instruction-following artistic-analysis profiles.",
         "Built-in instruction profiles require an instruction-following VLM and a Transformers release supporting its architecture. Florence uses the raw task profiles shown here.",
         "Open Dataset_Export.json to select a saved profile without repeating inference.",
-        "Requires a Transformers release with native Florence support and the florence-community checkpoint."
+        "Requires a Transformers release with native Florence support and the florence-community checkpoint.",
+        "Preview is read-only. To inspect saved records without regenerating, use Dataset_Export or a separate Preview with records_file. Existing checkpoint protection remains enabled."
       ]
     }
   },

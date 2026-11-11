@@ -2,8 +2,10 @@
 
 import os
 import re
+from .ui_feedback import feedback
 
 class CaptionExportTpl:
+    DESCRIPTION = "Legacy sidecars beside source images. Existing files and empty captions are skipped by default. Use Dataset Export for a separate output directory."
     def __init__(self):
         pass
 
@@ -15,17 +17,17 @@ class CaptionExportTpl:
                 "image_paths": ("LIST",),  # List of all image file paths
             },
             "optional": {
-                "file_extension": ("STRING", {"default": "txt"}),  # Allow custom file extension
-                "keep_extension": ("BOOLEAN", {"default": False}),  # Toggle for filename format
-                "overwrite_existing": ("BOOLEAN", {"default": False}),  # Overwrite or skip
-                "allow_empty_files": ("BOOLEAN", {"default": False}),  # Do we want to allow empty files or skip
+                "file_extension": ("STRING", {"default": "txt", "tooltip": "Caption extension only, normally txt. Sidecars are written beside the source images."}),
+                "keep_extension": ("BOOLEAN", {"default": False, "tooltip": "False: image.txt. True: image.jpg.txt, avoiding collisions across source extensions."}),
+                "overwrite_existing": ("BOOLEAN", {"default": False, "tooltip": "False skips existing sidecars safely. True explicitly replaces them."}),
+                "allow_empty_files": ("BOOLEAN", {"default": False, "tooltip": "False skips empty captions. Caption/image counts must always match."}),
             }
         }
 
     RETURN_TYPES = ("STRING",)
     RETURN_NAMES = ("status",)
     OUTPUT_NODE = True # This is an output node, so this will run even if it's not connected to anything.
-    FUNCTION = "save_captions"
+    FUNCTION = "execute"
     CATEGORY = "Transformers Pipeline"
 
     def save_captions(self, captions, image_paths, file_extension="txt",
@@ -63,3 +65,7 @@ class CaptionExportTpl:
             else:
                 saved += 1
         return (f"Saved {saved}, Skipped {skipped}",)
+
+    def execute(self, **kwargs):
+        result = self.save_captions(**kwargs)
+        return feedback(result, result[0] + '\nDestination: sidecars beside source images. Skips mean existing-file protection or empty captions, not inference failures.')

@@ -1,6 +1,6 @@
 {
-  "last_node_id": 4,
-  "last_link_id": 3,
+  "last_node_id": 5,
+  "last_link_id": 4,
   "nodes": [
     {
       "id": 1,
@@ -12,7 +12,7 @@
       ],
       "size": [
         450,
-        650
+        800
       ],
       "flags": {},
       "order": 0,
@@ -62,11 +62,11 @@
       "title": "2. Choose image directory",
       "pos": [
         30,
-        800
+        950
       ],
       "size": [
         450,
-        160
+        300
       ],
       "flags": {},
       "order": 1,
@@ -105,8 +105,8 @@
         80
       ],
       "size": [
-        520,
-        650
+        560,
+        1000
       ],
       "flags": {},
       "order": 2,
@@ -128,7 +128,8 @@
           "name": "caption_records",
           "type": "LIST",
           "links": [
-            3
+            3,
+            4
           ],
           "slot_index": 0
         },
@@ -157,12 +158,12 @@
       "type": "DatasetExportTpl",
       "title": "4. Copy images + TXT to separate export",
       "pos": [
-        1120,
+        1160,
         80
       ],
       "size": [
-        440,
-        450
+        510,
+        540
       ],
       "flags": {},
       "order": 3,
@@ -195,6 +196,57 @@
         false,
         false
       ]
+    },
+    {
+      "id": 5,
+      "type": "CaptionPreviewTpl",
+      "title": "Inspect candidates, profiles and failures",
+      "pos": [
+        1160,
+        700
+      ],
+      "size": [
+        580,
+        850
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "link": 4
+        },
+        {
+          "name": "image_paths",
+          "type": "LIST",
+          "link": null
+        },
+        {
+          "name": "captions",
+          "type": "LIST",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "preview_text",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CaptionPreviewTpl"
+      },
+      "widgets_values": [
+        "",
+        "",
+        0,
+        4,
+        true
+      ]
     }
   ],
   "links": [
@@ -221,6 +273,14 @@
       4,
       0,
       "LIST"
+    ],
+    [
+      4,
+      3,
+      0,
+      5,
+      0,
+      "LIST"
     ]
   ],
   "groups": [
@@ -229,8 +289,8 @@
       "bounding": [
         0,
         0,
-        1590,
-        990
+        1770,
+        1580
       ],
       "color": "#3f789e",
       "font_size": 22,
@@ -252,7 +312,8 @@
         "Blank memory budgets use automatic limits with reserved headroom. Optional explicit budgets constrain weight placement, not total memory use; inference needs additional headroom.",
         "CPU offloading is enabled, but CPU placement is not guaranteed: layers may remain entirely on GPU when they fit. Actual placement depends on the model and memory budgets; inspect loading_diagnostics.",
         "Choose an image directory and new output paths before queueing; overwrite protection is enabled.",
-        "Model Loader loading_diagnostics output contains actual runtime, quantisation, device map and memory measurements."
+        "Model Loader loading_diagnostics output contains actual runtime, quantisation, device map and memory measurements.",
+        "Preview is read-only. To inspect saved records without regenerating, use Dataset_Export or a separate Preview with records_file. Existing checkpoint protection remains enabled."
       ]
     }
   },

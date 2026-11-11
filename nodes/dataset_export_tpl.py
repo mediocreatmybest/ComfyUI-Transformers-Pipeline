@@ -2,6 +2,7 @@ import json
 
 from ..captioning.export import export_records
 from ..captioning.records import CaptionRecord, read_records
+from .ui_feedback import feedback
 
 
 class DatasetExportTpl:
@@ -22,7 +23,7 @@ class DatasetExportTpl:
 
     RETURN_TYPES = ("STRING",)
     RETURN_NAMES = ("export_result",)
-    FUNCTION = "export"
+    FUNCTION = "execute"
     OUTPUT_NODE = True
     CATEGORY = "Transformers Pipeline/Datasets"
 
@@ -39,3 +40,15 @@ class DatasetExportTpl:
                                 caption_type=caption_type or None, candidate_ids=json.loads(candidate_ids),
                                 approved_only=approved_only, overwrite=overwrite_existing)
         return (json.dumps(result, ensure_ascii=False),)
+
+    def execute(self, **kwargs):
+        try:
+            result = self.export(**kwargs)
+        except FileExistsError as exc:
+            status = {'status': 'protected', 'destination': kwargs['destination'], 'message': str(exc)}
+            return feedback((json.dumps(status, ensure_ascii=False),),
+                            f'Protected existing export: {exc}\nChoose a new destination or explicitly enable overwrite_existing.')
+        report = json.loads(result[0])
+        reasons = '\n'.join(str(item['reason'])[:200] for item in report['skipped'][:5])
+        return feedback(result, f"Saved {report['exported']}, Skipped {len(report['skipped'])}; format {report['format']}.\n"
+                        f"Destination: {report['destination']}\n{reasons}")

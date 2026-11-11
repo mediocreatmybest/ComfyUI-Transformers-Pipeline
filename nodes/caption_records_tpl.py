@@ -6,9 +6,11 @@ from ..captioning.generation import generate_records
 from ..captioning import profiles as profile_module
 from ..captioning.profiles import select_profiles
 from ..captioning.records import write_records
+from .ui_feedback import feedback
 
 
 class CaptionRecordsTpl:
+    DESCRIPTION = "Generate one candidate per selected profile and image, keeping failures aligned. Built-in IDs: factual, natural_language, subject_tags, artistic_analysis, lora_training. Use Preview or Dataset Export with records_file to reuse saved records without inference."
     @classmethod
     def INPUT_TYPES(cls):
         return {"required": {
@@ -26,7 +28,7 @@ class CaptionRecordsTpl:
 
     RETURN_TYPES = ("LIST", "STRING")
     RETURN_NAMES = ("caption_records", "status")
-    FUNCTION = "generate"
+    FUNCTION = "execute"
     OUTPUT_NODE = True
     CATEGORY = "Transformers Pipeline/Datasets"
 
@@ -40,7 +42,7 @@ class CaptionRecordsTpl:
     def generate(self, model_pipeline, image_paths, profile_ids="factual,artistic_analysis", profiles_file="",
                  profiles_json="", pipeline_kwargs="{}", supplied_author="", records_path="", overwrite_records=False):
         if records_path and Path(records_path).exists() and not overwrite_records:
-            raise FileExistsError(f"Record output already exists: {records_path}")
+            raise FileExistsError(f"Protected record output already exists: {records_path}. Use Caption / Image Preview or Dataset Export with records_file to reuse it without inference; choose a new records_path or explicitly enable overwrite_records to regenerate.")
         if profiles_file and profiles_json:
             raise ValueError("Choose a profiles file or inline profiles JSON")
         profiles = select_profiles(profile_ids, profiles_file or None, json.loads(profiles_json) if profiles_json else None)
@@ -52,3 +54,8 @@ class CaptionRecordsTpl:
         failures = sum(c.status == "failure" for record in records for c in record.candidates)
         status = f"Images {len(records)}, Candidates {sum(len(r.candidates) for r in records)}, Failures {failures}"
         return ([r.to_dict() for r in records], status)
+
+    def execute(self, **kwargs):
+        result = self.generate(**kwargs)
+        path = kwargs.get('records_path')
+        return feedback(result, result[1] + (f'\nSaved records: {path}' if path else '\nRecords are connected in memory only; set records_path to save for later reuse.'))

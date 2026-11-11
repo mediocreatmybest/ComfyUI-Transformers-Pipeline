@@ -1,71 +1,42 @@
-from PIL import Image
-import os
+from ..nodes.ui_feedback import feedback
+
 
 class ExifMetadataExtractorTpl:
-    def __init__(self):
-        pass
+    DESCRIPTION = "Extract camera EXIF without decoding pixels. Each input keeps one output position: empty metadata is {}, and read failures contain Error. Requires optional exifread."
 
     @classmethod
     def INPUT_TYPES(cls):
-        return {
-            "required": {
-                "image_paths": ("LIST",),  # List of image file paths
-            }
-        }
+        return {"required": {"image_paths": ("LIST",)}}
 
-    RETURN_TYPES = ("LIST", "LIST")  # Returns extracted metadata as a list
+    RETURN_TYPES = ("LIST", "LIST")
     RETURN_NAMES = ("metadata", "formatted_metadata")
-    FUNCTION = "extract_exif_metadata"
+    FUNCTION = "execute"
     CATEGORY = "Transformers Pipeline"
 
     def extract_exif_metadata(self, image_paths):
-        """
-        Extracts EXIF metadata from a list of image files using the image loader node.
-        Skips tags with no data and writing empty files.
-        """
         try:
             import exifread
         except ImportError as exc:
             raise RuntimeError("EXIF extraction requires the optional exifread package.") from exc
+        fields = {"EXIF ISOSpeedRatings": "ISO", "EXIF FNumber": "Aperture",
+                  "EXIF ExposureTime": "Shutter Speed", "EXIF FocalLength": "Focal Length",
+                  "Image Model": "Camera Model", "EXIF LensModel": "Lens Model"}
+        metadata_list, formatted_list = [], []
+        for path in image_paths:
+            try:
+                with open(path, 'rb') as stream:
+                    tags = exifread.process_file(stream)
+                metadata = {label: tags[tag] for tag, label in fields.items() if tag in tags}
+                formatted = ', '.join(f'{key}: {value}' for key, value in metadata.items())
+            except Exception as exc:
+                metadata = {'Error': f'{path}: {exc}'}
+                formatted = f'Error extracting metadata: {path}: {exc}'
+            metadata_list.append(metadata)
+            formatted_list.append(formatted)
+        return (metadata_list, formatted_list)
 
-        metadata_list = []
-        formatted_list = []
-
-        try:
-            for image_path in image_paths:
-                metadata = {}
-
-                # Open the image and extract EXIF data with exifread
-                with open(image_path, "rb") as img_file:
-                    tags = exifread.process_file(img_file)
-
-                # Extract EXIF fields and add if data is available, what other tags we should collect? Make a bool option?
-                if "EXIF ISOSpeedRatings" in tags:
-                    metadata["ISO"] = tags["EXIF ISOSpeedRatings"]
-                if "EXIF FNumber" in tags:
-                    metadata["Aperture"] = tags["EXIF FNumber"]
-                if "EXIF ExposureTime" in tags:
-                    metadata["Shutter Speed"] = tags["EXIF ExposureTime"]
-                if "EXIF FocalLength" in tags:
-                    metadata["Focal Length"] = tags["EXIF FocalLength"]
-                if "Image Model" in tags:
-                    metadata["Camera Model"] = tags["Image Model"]
-                if "EXIF LensModel" in tags:
-                    metadata["Lens Model"] = tags["EXIF LensModel"]
-                #if "EXIF DateTimeOriginal" in tags:
-                #    metadata["Date Taken"] = tags["EXIF DateTimeOriginal"]
-
-                # If no metadata is found, skip the image
-                if not metadata:
-                    continue
-
-                metadata_list.append(metadata)
-
-                # Create a formatted string output
-                formatted = ", ".join(f"{key}: {value}" for key, value in metadata.items())
-                formatted_list.append(formatted)
-
-            return (metadata_list, formatted_list)
-
-        except Exception as e:
-            return ([{"Error": str(e)}], [f"Error extracting metadata: {e}"])
+    def execute(self, image_paths):
+        result = self.extract_exif_metadata(image_paths)
+        failed = sum('Error' in item for item in result[0])
+        empty = sum(not item for item in result[0])
+        return feedback(result, f'Images {len(image_paths)}, With metadata {len(image_paths)-empty-failed}, Empty {empty}, Failed {failed}. Output positions match input positions.')

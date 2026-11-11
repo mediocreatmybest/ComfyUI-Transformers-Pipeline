@@ -1,6 +1,7 @@
 # A preset list of image-to-text models for the transformers pipeline
 
 class PresetModelListTpl:
+    DESCRIPTION = "Convenient model IDs, not automatic task selection or a compatibility guarantee. Connect selected_model to Model Loader; arbitrary IDs can also be typed there."
     def __init__(self):
         pass
 
@@ -23,7 +24,7 @@ class PresetModelListTpl:
     # Need to find additional models that work with pipeline like this.
     @staticmethod
     def get_model_list():
-        """ Returns a list of supported models. """
+        """Return model candidates; architecture support depends on the runtime."""
         return [
             ("Salesforce/blip-image-captioning-base"),
             ("Salesforce/blip-image-captioning-large"),

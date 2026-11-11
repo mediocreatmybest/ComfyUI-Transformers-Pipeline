@@ -4,6 +4,7 @@ import json
 from .pipeline_utils import CAPTION_TASKS, caption_image
 
 class CaptionGeneratorTpl:
+    DESCRIPTION = "Generate legacy caption strings in input order, one image at a time. Use Caption / Image Preview with matching image_paths to inspect them, or Caption Records for multiple profiles and per-image failure records."
     def __init__(self):
         pass
 
@@ -15,10 +16,10 @@ class CaptionGeneratorTpl:
                 "image_batches": ("LIST",),  # List of image in batches
             },
             "optional": {
-                "prepend_text": ("STRING", {"default": ""}),  # Text before caption...
-                "append_text": ("STRING", {"default": ""}),  # Text after caption...
-                "max_new_tokens": ("INT", {"default": 75, "min": 15}),  # Token limit from pipeline to prevent warnings and limit output
-                "question": ("STRING", {"default": "", "multiline": True}),
+                "prepend_text": ("STRING", {"default": "", "tooltip": "Text added to each result after inference; not part of the model prompt."}),
+                "append_text": ("STRING", {"default": "", "tooltip": "Text appended after inference; not part of the model prompt."}),
+                "max_new_tokens": ("INT", {"default": 75, "min": 15, "tooltip": "Maximum generated tokens per image."}),
+                "question": ("STRING", {"default": "", "multiline": True, "tooltip": "Model prompt: BLIP prefix, Florence task token such as <CAPTION>, or a question/instruction for a compatible VLM."}),
                 "pipeline_kwargs": ("STRING", {"default": "{}", "multiline": True, "tooltip": "Model-specific inference JSON, e.g. {\"enable_thinking\":false,\"generate_kwargs\":{\"do_sample\":false}} for Qwen3.5."}),
             }
         }

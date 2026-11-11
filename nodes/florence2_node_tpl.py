@@ -3,6 +3,7 @@ from .caption_generator_tpl import CaptionGeneratorTpl
 
 
 class Florence2NodeTpl:
+    DESCRIPTION = "Convenience loader and caption generator for Florence task tokens. For quantisation, memory placement or multiple profiles, use Model Loader with Caption Generator or Caption Records."
     def __init__(self):
         self.loader = ModelLoaderTpl()
 
@@ -12,7 +13,7 @@ class Florence2NodeTpl:
             "required": {
                 "model_name": ("STRING", {"default": "florence-community/Florence-2-base"}),  # Editable model name
                 "image_paths": ("LIST",),  # List of image paths
-                "task_prompt": (["<CAPTION>", "<DETAILED_CAPTION>", "<MORE_DETAILED_CAPTION>"], {"default": "<CAPTION>"}),  # Caption Type
+                "task_prompt": (["<CAPTION>", "<DETAILED_CAPTION>", "<MORE_DETAILED_CAPTION>"], {"default": "<CAPTION>", "tooltip": "Brief, detailed or more detailed Florence captions. These task tokens are not free-form instruction profiles."}),
             },
             "optional": {
                 "max_new_tokens": ("INT", {"default": 1024, "min": 32, "max": 2048}),  # Max output length

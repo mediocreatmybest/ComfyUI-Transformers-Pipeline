@@ -78,14 +78,15 @@ class WorkflowTests(unittest.TestCase):
         file = self.folder / 'Dataset_Export.json'
         self.assertTrue(file.exists())
         prompt = editor_to_api(json.loads(file.read_text()), self.definitions)
-        self.assertEqual({n['class_type'] for n in prompt.values()}, {'DatasetExportTpl'})
-        self.assertEqual({n['inputs']['format'] for n in prompt.values()}, {'txt', 'imagefolder'})
+        self.assertEqual({n['class_type'] for n in prompt.values()}, {'DatasetExportTpl', 'CaptionPreviewTpl'})
+        exporters = [n for n in prompt.values() if n['class_type'] == 'DatasetExportTpl']
+        self.assertEqual({n['inputs']['format'] for n in exporters}, {'txt', 'imagefolder'})
         profiles = editor_to_api(json.loads((self.folder / 'Caption_Profiles.json').read_text()), self.definitions)
         records = next(n['inputs'] for n in profiles.values() if n['class_type'] == 'CaptionRecordsTpl')
         from captioning.profiles import select_profiles
         selected = select_profiles(records['profile_ids'], data=json.loads(records['profiles_json']))
         self.assertGreaterEqual(len(selected), 2)
-        for node in prompt.values():
+        for node in exporters:
             self.assertEqual(node['inputs']['records_file'], records['records_path'])
             self.assertIn(node['inputs']['profile_id'], {p.id for p in selected})
 
@@ -100,6 +101,30 @@ class WorkflowTests(unittest.TestCase):
                                gpu_memory=settings['gpu_memory'], cpu_memory=settings['cpu_memory'])
         self.assertEqual((policy.model_id, policy.mode, policy.placement, policy.gpu_memory, policy.cpu_memory),
                          ('Salesforce/blip-image-captioning-base', 'int8', 'offload', '', ''))
+
+    def test_previews_cover_live_records_and_saved_records(self):
+        for name, source in [('Caption_Profiles.json', 'caption_records'), ('Dataset_Export.json', 'records_file')]:
+            prompt = editor_to_api(json.loads((self.folder / name).read_text()), self.definitions)
+            previews = [n['inputs'] for n in prompt.values() if n['class_type'] == 'CaptionPreviewTpl']
+            self.assertEqual(len(previews), 1)
+            self.assertTrue(previews[0][source])
+
+    def test_example_node_rectangles_do_not_overlap_and_simple_has_widget_space(self):
+        for file in self.folder.glob('*.json'):
+            nodes = json.loads(file.read_text())['nodes']
+            for i, a in enumerate(nodes):
+                for b in nodes[i+1:]:
+                    separated = (a['pos'][0] + a['size'][0] + 20 <= b['pos'][0] or
+                                 b['pos'][0] + b['size'][0] + 20 <= a['pos'][0] or
+                                 a['pos'][1] + a['size'][1] + 30 <= b['pos'][1] or
+                                 b['pos'][1] + b['size'][1] + 30 <= a['pos'][1])
+                    self.assertTrue(separated, (file.name, a['id'], b['id']))
+            if file.name == 'Simple.json':
+                for node in nodes:
+                    minimum = {'ModelLoaderTpl': (430, 750), 'CaptionGeneratorTpl': (400, 380)}.get(node['type'])
+                    if minimum:
+                        self.assertGreaterEqual(node['size'][0], minimum[0])
+                        self.assertGreaterEqual(node['size'][1], minimum[1])
 
 
 if __name__ == '__main__':

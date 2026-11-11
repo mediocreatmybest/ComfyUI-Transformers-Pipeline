@@ -115,16 +115,19 @@ class CaptionRecord:
         return cls(image, candidates)
 
 
-def read_records(path):
-    records = []
+def iter_records(path):
+    """Stream validated records so preview need not retain a whole dataset."""
     with open(path, encoding="utf-8") as stream:
         for number, line in enumerate(stream, 1):
             if line.strip():
                 try:
-                    records.append(CaptionRecord.from_dict(json.loads(line)))
+                    yield CaptionRecord.from_dict(json.loads(line))
                 except (ValueError, TypeError, KeyError) as exc:
                     raise ValueError(f"Invalid caption record at line {number}: {exc}") from exc
-    return records
+
+
+def read_records(path):
+    return list(iter_records(path))
 
 
 def write_records(records, path, overwrite=False):

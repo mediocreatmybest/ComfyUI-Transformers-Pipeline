@@ -1,6 +1,7 @@
 # A preset list of tasks that have been tested and seem to work with the transformers pipeline in these nodes.
 
 class TaskListTpl:
+    DESCRIPTION = "Select a Transformers task string for Model Loader. Text-only tasks remain available for general pipelines, but Caption Generator requires an image-captioning or visual-QA task."
     def __init__(self):
         pass
 
@@ -23,7 +24,7 @@ class TaskListTpl:
     # Need to look at additional tasks that we can break down.
     @staticmethod
     def get_task_list():
-        """ Returns a list of supported tasks. """
+        """Return task candidates; not every model or caption node supports every task."""
         return [
             "image-to-text",
             "image-text-to-text",

@@ -1,51 +1,26 @@
-# Debug the Pipeline
-import pprint
-from transformers import Pipeline
+from ..nodes.ui_feedback import feedback
+
 
 class DebugModelNodeTpl:
-    def __init__(self):
-        pass
+    DESCRIPTION = "Pass through the pipeline and show model, task and device only. Full structured loading details are available from Model Loader's loading_diagnostics output."
 
     @classmethod
     def INPUT_TYPES(cls):
-        return {
-            "required": {
-                "model_pipeline": ("MODEL",),  # Expecting a loaded pipeline
-            }
-        }
+        return {"required": {"model_pipeline": ("MODEL",)}}
 
-    RETURN_TYPES = ("MODEL", "STRING")  # Returns the model and string
+    RETURN_TYPES = ("MODEL", "STRING")
     RETURN_NAMES = ("debug_model", "debug_text")
-    FUNCTION = "debug_pipeline"
+    FUNCTION = "execute"
     CATEGORY = "Transformers Pipeline/Debug"
 
     def debug_pipeline(self, model_pipeline):
-        """
-        debug the pipeline and display all details including config.
-        """
-        try:
-            if not isinstance(model_pipeline, Pipeline):
-                debug_text = "Warning: Input is not a Transformers pipeline..."
-            else:
-                debug_text = (
-                    f"\n|====================>\n"
-                    f"Debugging Pipeline:\n"
-                    f"Model: {model_pipeline.model.name_or_path}\n"
-                    f"Task Type: {model_pipeline.task}\n"
-                    f"Device: {model_pipeline.device}\n"
-                    f"Config: {model_pipeline.model.config.to_dict()}"
-                    f"\n<====================|\n"
-                )
+        model = getattr(model_pipeline, 'model', None)
+        text = '\n'.join(f'{label}: {str(value)[:500]}' for label, value in (
+            ('Model', getattr(model, 'name_or_path', 'unknown')),
+            ('Task', getattr(model_pipeline, 'task', 'unknown')),
+            ('Device', getattr(model_pipeline, 'device', 'unknown'))))
+        return (model_pipeline, text)
 
-            # Print to console
-            print(debug_text)
-            # auto import and use pretty print
-            #pprint.pprint(debug_text)
-
-            return (model_pipeline, debug_text)
-
-        except Exception as e:
-            error_msg = f"Error in Debug Pipeline Node: {e}"
-            print(error_msg)  # Throw error to the console
-            return (model_pipeline, error_msg)
-
+    def execute(self, model_pipeline):
+        result = self.debug_pipeline(model_pipeline)
+        return feedback(result, result[1])

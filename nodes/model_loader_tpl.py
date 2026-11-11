@@ -1,15 +1,16 @@
 import json
 
 from ..captioning.loading import PipelineCache, legacy_policy
+from .ui_feedback import feedback
 
 class ModelLoaderTpl:
-    DESCRIPTION = "Load a Transformers pipeline. BLIP and Florence community checkpoints work with Desktop Transformers 4.57.3. Qwen3.5 requires the separate 5.22.2 runtime; selecting it does not switch environments."
+    DESCRIPTION = "Load a Transformers pipeline. Everyday controls: model, task, dtype, quantization and placement. Legacy modes use the older advanced switches; explicit quantization requires use_bitsandbytes off. Advanced controls remain available and saved workflows keep their values. Selecting a model does not switch the installed runtime."
     def __init__(self):
         self.model_cache = PipelineCache()
 
     @classmethod
     def INPUT_TYPES(cls):
-        return {
+        inputs = {
             "required": {
                 "model_name_or_path": ("STRING", {"default": "Salesforce/blip-image-captioning-base", "multiline": False, "tooltip": "Hugging Face model ID or local model directory. Model architecture must be supported by the running Transformers version."}),
                 "task": ("STRING", {"default": "image-to-text", "multiline": False, "tooltip": "Transformers pipeline task. BLIP: image-to-text; Florence and conversational VLMs: image-text-to-text. Legacy image-to-text is adapted on Transformers 5."}),
@@ -31,11 +32,16 @@ class ModelLoaderTpl:
                 "cpu_memory": ("STRING", {"default": "", "tooltip": "Weight placement budget, e.g. 4GiB; blank uses at most half available RAM / 8GiB."}),
             }
         }
+        for name in ('device_mode', 'use_bitsandbytes', 'quantization_type', 'trust_remote_code',
+                     'use_fast_tokenizer', 'revision', 'local_files_only', 'model_kwargs',
+                     'gpu_index', 'gpu_memory', 'cpu_memory'):
+            inputs['optional'][name][1]['advanced'] = True
+        return inputs
 
     RETURN_TYPES = ("MODEL", "STRING")
     RETURN_NAMES = ("model_pipeline", "loading_diagnostics")
     OUTPUT_TOOLTIPS = ("Transformers pipeline for captioning nodes.", "JSON diagnostics: runtime, requested and actual precision, quantisation, placement, memory and warnings.")
-    FUNCTION = "load_model"
+    FUNCTION = "execute"
     CATEGORY = "Transformers Pipeline"
 
     def load_model(self, model_name_or_path, task="image-to-text", device_mode="cuda",
@@ -52,3 +58,16 @@ class ModelLoaderTpl:
 
     def release_model(self):
         self.model_cache.clear()
+
+    def execute(self, **kwargs):
+        result = self.load_model(**kwargs)
+        diagnostics = json.loads(result[1])
+        actual = diagnostics.get('actual', {})
+        requested = diagnostics.get('requested', {})
+        devices = ', '.join(sorted(set(actual.get('device_map', {}).values())))
+        text = (f"Model: {actual.get('model_id', kwargs['model_name_or_path'])}\n"
+                f"Requested: {requested.get('mode', 'native')} / {requested.get('placement', 'unknown')}\n"
+                f"Actual: {actual.get('backend', 'unknown')} / {actual.get('mode', 'unknown')}, {actual.get('weight_dtype', 'unknown')}\n"
+                f"Placement: {devices or 'unknown'}\n"
+                'Full details: loading_diagnostics output.')
+        return feedback(result, text)

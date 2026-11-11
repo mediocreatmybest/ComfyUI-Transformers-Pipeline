@@ -30,5 +30,18 @@
     "_meta": {
       "title": "2. Select saved profile -> ImageFolder metadata"
     }
+  },
+  "3": {
+    "class_type": "CaptionPreviewTpl",
+    "inputs": {
+      "records_file": "./output/transformers_pipeline/florence_records.jsonl",
+      "profile_id": "",
+      "offset": 0,
+      "limit": 4,
+      "show_images": true
+    },
+    "_meta": {
+      "title": "Inspect saved records without inference"
+    }
   }
 }
