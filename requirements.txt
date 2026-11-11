@@ -1,6 +1,4 @@
 torch
-transformers
+transformers>=4.57.3
 accelerate
 pillow
-bitsandbytes
-exifread

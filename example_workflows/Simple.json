@@ -44,8 +44,9 @@
       "widgets_values": [
         "",
         "",
+        75,
         "",
-        75
+        "{}"
       ]
     },
     {
@@ -170,6 +171,7 @@
         "Node name for S&R": "CaptionExportTpl"
       },
       "widgets_values": [
+        "txt",
         false,
         false,
         false

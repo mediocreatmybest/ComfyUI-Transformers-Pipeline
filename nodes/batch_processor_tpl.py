@@ -18,15 +18,6 @@ class BatchProcessorTpl:
     CATEGORY = "Transformers Pipeline"
 
     def process_batches(self, image_paths, batch_size=1):
-        """
-        Splits a list of images into batches for the pipeline.
-        """
-        try:
-            # Create batches of images
-            batches = [image_paths[i:i + batch_size] for i in range(0, len(image_paths), batch_size)]
-            return (batches,)
-        # Throw an error when there is an error...
-        except Exception as e:
-            print(f"Error processing batches: {e}")
-            return ([],)
-
+        if not isinstance(batch_size, int) or isinstance(batch_size, bool) or batch_size < 1:
+            raise ValueError("batch_size must be a positive integer")
+        return ([image_paths[i:i + batch_size] for i in range(0, len(image_paths), batch_size)],)

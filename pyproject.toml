@@ -3,7 +3,11 @@ name = "comfyui-transformers-pipeline"
 description = "Additional ComfyUI nodes to utilise the Transformers pipeline in a simple and modular way."
 version = "0.0.1"
 license = {file = "LICENSE"}
-dependencies = ["torch", "transformers", "accelerate", "pillow", "bitsandbytes", "exifread"]
+dependencies = ["torch", "transformers>=4.57.3", "accelerate", "pillow"]
+
+[project.optional-dependencies]
+quantization = ["bitsandbytes"]
+exif = ["exifread"]
 
 [project.urls]
 Repository = "https://github.com/mediocreatmybest/ComfyUI-Transformers-Pipeline"

@@ -10,7 +10,7 @@ class PresetModelListTpl:
             "required": {
                 "model_name": (cls.get_model_list(), {
                     "default": "Salesforce/blip-image-captioning-base",
-                    "tooltip": "List of image captioning models."
+                    "tooltip": "Model candidates, not a compatibility guarantee. Match the task and installed Transformers version."
                 }),
             }
         }
@@ -27,6 +27,9 @@ class PresetModelListTpl:
         return [
             ("Salesforce/blip-image-captioning-base"),
             ("Salesforce/blip-image-captioning-large"),
+            ("florence-community/Florence-2-base"),
+            ("microsoft/Florence-2-base"),
+            ("Qwen/Qwen3.5-4B"),
             ("Salesforce/blip2-opt-2.7b"),
             ("ybelkada/blip2-opt-2.7b-fp16-sharded"),
             ("Salesforce/blip2-opt-2.7b-coco"),

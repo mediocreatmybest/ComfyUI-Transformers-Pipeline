@@ -1,7 +1,7 @@
 # Caption Exporter - Save captions to text file
 
 import os
-from .. import be_quiet  # Import global quiet mode setting
+import re
 
 class CaptionExportTpl:
     def __init__(self):
@@ -30,54 +30,36 @@ class CaptionExportTpl:
 
     def save_captions(self, captions, image_paths, file_extension="txt",
                       keep_extension=True, overwrite_existing=False, allow_empty_files=False):
-        """
-        Saves captions as text files next to their paired image.
-        Skips empty captions set as default unless 'allow_empty_files' is true.
-        Allows custom file extensions, and will defaults to .txt.
-        """
-        try:
-            if not captions:
-                if not be_quiet:
-                    print("No captions, skipping...")
-                return ("No captions, skipping...",)
-
-            saved_count = 0
-            skipped_count = 0
-
-            # Check that extension is not something odd
-            file_extension = file_extension.strip().lower().lstrip(".")
-            if not file_extension or any(ext in file_extension for ext in ["bin", "exe", "bat", "sh", "dll"]):
-                file_extension = "txt"  # Default to .txt
-
-            # Skip saving if caption is empty and allow_empty_files is False
-            for caption, image_path in zip(captions, image_paths):
-                if not caption.strip() and not allow_empty_files:
-                    skipped_count += 1
-                    continue
-
-                # Extract filename and use the set extension
-                base_name = os.path.basename(image_path)
-                file_name = f"{base_name}.{file_extension}" if keep_extension else f"{os.path.splitext(base_name)[0]}.{file_extension}"
-                caption_path = os.path.join(os.path.dirname(image_path), file_name)
-
-                # Skip if file exists and overwrite is disabled
-                if os.path.exists(caption_path) and not overwrite_existing:
-                    skipped_count += 1
-                    continue
-
-                # Save caption file in UTF-8 for special characters, emojis, etc.
-                with open(caption_path, "w", encoding="utf-8") as f:
-                    f.write(caption.strip() + "\n")
-                    saved_count += 1
-
-            if not be_quiet:
-                 # Print and Return the status message
-                 # Try to move this into a text box in future.
-                print (f"Saved {saved_count}, Skipped {skipped_count}")
-            # Return this anyway.
-            return (f"Saved {saved_count}, Skipped {skipped_count}",)
-
-        # We want to throw an error if something goes wrong.
-        except Exception as e:
-            print (f"Error saving captions: {e}")
-            return (f"Error saving captions: {e}",)
+        if len(captions) != len(image_paths):
+            raise ValueError(f"Caption/image count mismatch: {len(captions)} captions for {len(image_paths)} images")
+        file_extension = file_extension.strip().lower().lstrip(".")
+        if not re.fullmatch(r"[a-z0-9]+", file_extension) or file_extension in {
+            "png", "jpg", "jpeg", "gif", "bmp", "tif", "tiff", "webp", "exe", "bat", "cmd", "ps1", "sh", "dll", "bin",
+        }:
+            raise ValueError("Use a plain caption file extension, such as txt")
+        destinations = []
+        seen = set()
+        sources = {os.path.normcase(os.path.realpath(path)) for path in image_paths}
+        for caption, path in zip(captions, image_paths):
+            if not isinstance(caption, str):
+                raise ValueError(f"Caption for {path} must be text")
+            destination = (os.fspath(path) if keep_extension else os.path.splitext(path)[0]) + "." + file_extension
+            resolved = os.path.normcase(os.path.realpath(destination))
+            if resolved in sources or resolved in seen:
+                raise ValueError(f"Caption destination collides with an image or another caption: {destination}")
+            seen.add(resolved)
+            destinations.append((caption.strip(), destination))
+        saved = skipped = 0
+        for caption, destination in destinations:
+            if not caption and not allow_empty_files:
+                skipped += 1
+                continue
+            try:
+                # Exclusive creation closes the check-then-write overwrite race.
+                with open(destination, "w" if overwrite_existing else "x", encoding="utf-8") as stream:
+                    stream.write(caption + "\n")
+            except FileExistsError:
+                skipped += 1
+            else:
+                saved += 1
+        return (f"Saved {saved}, Skipped {skipped}",)

@@ -24,35 +24,31 @@ class ImageLoaderTpl:
     CATEGORY = "Transformers Pipeline"
 
     def load_images(self, directory_path, skip_existing_captions=False):
-        """
-        Loads image file paths from the given directory (including subdirectories).
-        also filters out images that have caption files if selected.
-        """
-        try:
-            valid_extensions = ('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff', '.webp')
-            image_files = []
-            image_directories = {}
+        directory_path = os.path.abspath(os.path.expanduser(directory_path))
+        if not os.path.isdir(directory_path):
+            raise ValueError(f"Image directory does not exist: {directory_path}")
+        valid_extensions = ('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tif', '.tiff', '.webp')
+        image_files = []
+        image_directories = {}
 
-            # Let's walk through the directory and find all the images
-            for root, _, files in os.walk(directory_path):
-                for file in files:
-                    if file.lower().endswith(valid_extensions):
-                        full_path = os.path.join(root, file)
+        def fail(error):
+            raise error
 
-                        # Check if a caption file already exists - Need to allow caption extention to be configurable in the future
-                        if skip_existing_captions:
-                            base_name = os.path.splitext(full_path)[0]
-                            caption_txt = base_name + ".txt"
-                            caption_jpg_txt = full_path + ".txt"
+        for root, directories, files in os.walk(directory_path, onerror=fail):
+            directories.sort()
+            for name in sorted(files):
+                if not name.lower().endswith(valid_extensions):
+                    continue
+                path = os.path.join(root, name)
+                if skip_existing_captions and (
+                    os.path.exists(os.path.splitext(path)[0] + ".txt") or os.path.exists(path + ".txt")
+                ):
+                    continue
+                image_files.append(path)
+                image_directories[path] = root
+        return (image_files, image_directories)
 
-                            if os.path.exists(caption_txt) or os.path.exists(caption_jpg_txt):
-                                continue  # Skip, whats that skip? Timmy is in the well?!
-
-                        image_files.append(full_path)
-                        image_directories[full_path] = root  # Store parent folder for later use
-
-            return (image_files, image_directories)
-
-        except Exception as e:
-            print(f"Error loading images: {e}")
-            return ([], {})
+    @classmethod
+    def IS_CHANGED(cls, **kwargs):
+        # Directory contents and sidecar captions can change between queued runs.
+        return float("nan")

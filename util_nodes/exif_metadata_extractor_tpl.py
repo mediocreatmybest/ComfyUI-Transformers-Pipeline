@@ -1,5 +1,4 @@
 from PIL import Image
-import exifread
 import os
 
 class ExifMetadataExtractorTpl:
@@ -24,6 +23,11 @@ class ExifMetadataExtractorTpl:
         Extracts EXIF metadata from a list of image files using the image loader node.
         Skips tags with no data and writing empty files.
         """
+        try:
+            import exifread
+        except ImportError as exc:
+            raise RuntimeError("EXIF extraction requires the optional exifread package.") from exc
+
         metadata_list = []
         formatted_list = []
 

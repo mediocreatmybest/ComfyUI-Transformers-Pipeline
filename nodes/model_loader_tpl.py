@@ -1,12 +1,16 @@
 # Time to use our the model loader node
 
+import json
+from pathlib import Path
+
+import huggingface_hub
 import torch
-from transformers import pipeline, BitsAndBytesConfig
-from .. import be_quiet  # Import as a psudo global config from root __init__.py fix this later
+from transformers import pipeline, BitsAndBytesConfig, __version__ as transformers_version
+from transformers.pipelines import get_supported_tasks
 
 class ModelLoaderTpl:
     def __init__(self):
-        self.model_cache = {}  # Store loaded models to prevent additional loading
+        self.model_cache = {}  # One pipeline per loader; replaced when loading options change.
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -21,6 +25,10 @@ class ModelLoaderTpl:
                 "quantization_type": (["4bit", "8bit"], {"default": "8bit"}),  # 4-bit or 8-bit options for large models like blip2
                 "trust_remote_code": ("BOOLEAN", {"default": False}),  # Enable remote code execution if model requires it (e.g. Florence-2)
                 "use_fast_tokenizer": ("BOOLEAN", {"default": True}),  # Use Fast Tokenizer to prevent warnings, whinge whinge...
+                "dtype": (["auto", "float32", "float16", "bfloat16"], {"default": "auto"}),
+                "revision": ("STRING", {"default": ""}),
+                "local_files_only": ("BOOLEAN", {"default": False}),
+                "model_kwargs": ("STRING", {"default": "{}", "multiline": True, "tooltip": "JSON options passed to model loading, e.g. attn_implementation or cache_dir."}),
             }
         }
 
@@ -31,73 +39,66 @@ class ModelLoaderTpl:
 
     def load_model(self, model_name_or_path, task="image-to-text", device_mode="cuda",
                    use_bitsandbytes=False, quantization_type="4bit", trust_remote_code=False,
-                   use_fast_tokenizer=True):
-        """
-        Loads a model for Transformers a task.
-        added BitsAndBytes quant magic and now with added additional remote execution! Thanks Demtel!.
-        """
+                   use_fast_tokenizer=True, dtype="auto", revision="", local_files_only=False,
+                   model_kwargs="{}"):
+        if not model_name_or_path.strip():
+            raise ValueError("A Hugging Face model ID or local model path is required")
+        supported_tasks = get_supported_tasks()
+        if task == "image-to-text" and task not in supported_tasks:
+            task = "image-text-to-text"
+        if task not in supported_tasks:
+            raise ValueError(f"Task {task!r} is unavailable in the installed Transformers version. Check model requirements in an isolated environment.")
+        if device_mode not in {"auto", "cpu", "cuda"}:
+            raise ValueError(f"Unknown device mode: {device_mode}")
+        if device_mode == "cuda" and not torch.cuda.is_available():
+            raise ValueError("CUDA was requested but is unavailable")
+        device = "cuda:0" if device_mode != "cpu" and torch.cuda.is_available() else "cpu"
+        if dtype not in {"auto", "float32", "float16", "bfloat16"}:
+            raise ValueError(f"Unsupported dtype: {dtype}")
+        options = json.loads(model_kwargs)
+        if not isinstance(options, dict):
+            raise ValueError("model_kwargs must be a JSON object")
+        reserved = {"device", "device_map", "trust_remote_code", "revision", "dtype", "torch_dtype", "quantization_config", "local_files_only"}
+        if reserved.intersection(options):
+            raise ValueError("Use the dedicated controls for device, dtype, revision, trust, offline loading and quantization")
+        key = (model_name_or_path, task, device, use_bitsandbytes, quantization_type,
+               trust_remote_code, use_fast_tokenizer, dtype, revision, local_files_only,
+               json.dumps(options, sort_keys=True))
+        if key in self.model_cache:
+            return (self.model_cache[key],)
+        kwargs = dict(task=task, model=model_name_or_path, model_kwargs=options,
+                      trust_remote_code=trust_remote_code, use_fast=use_fast_tokenizer,
+                      dtype=dtype if dtype == "auto" else getattr(torch, dtype))
+        if int(transformers_version.split(".")[0]) >= 5:
+            kwargs["local_files_only"] = local_files_only
+        else:
+            options["local_files_only"] = local_files_only
+        if revision:
+            kwargs["revision"] = revision
+        if use_bitsandbytes:
+            if device == "cpu":
+                raise ValueError("This node's bitsandbytes mode requires CUDA; disable quantization for CPU")
+            if quantization_type not in {"4bit", "8bit"}:
+                raise ValueError("quantization_type must be 4bit or 8bit")
+            options["quantization_config"] = BitsAndBytesConfig(
+                load_in_4bit=quantization_type == "4bit", load_in_8bit=quantization_type == "8bit",
+                bnb_4bit_compute_dtype=torch.float16,
+            )
+            kwargs["device_map"] = {"": device}
+        else:
+            kwargs["device"] = device
+        # Do not retain every model ever selected by this node.
+        self.model_cache.clear()
         try:
-            # If BitsAndBytes is enabled, configure the quantmagic
-            if use_bitsandbytes:
-                if not be_quiet:
-                    print(f"⚡ Loading {model_name_or_path} with {quantization_type} quantisation...")
-                # Now required for BitsAndBytes when passing 4-bit or 8-bit
-                quant_config = BitsAndBytesConfig(
-                    load_in_4bit=(quantization_type == "4bit"),
-                    load_in_8bit=(quantization_type == "8bit"),
-                    bnb_4bit_compute_dtype=torch.float16,
+            if local_files_only and not Path(model_name_or_path).is_dir():
+                # pipeline() probes config before forwarding model_kwargs on 4.x.
+                config_path = huggingface_hub.hf_hub_download(
+                    model_name_or_path, "config.json", revision=revision or None,
+                    cache_dir=options.get("cache_dir"), local_files_only=True,
                 )
-
-                pipeline_kwargs = {
-                    "task": task,
-                    "model": model_name_or_path,
-                    "model_kwargs": {
-                        "quantization_config": quant_config,
-                        "low_cpu_mem_usage": True,
-                    }
-                }
-
-            else:
-                # Set device mode (Auto, CUDA, or CPU)
-                if device_mode == "auto":
-                    device = "cuda" if torch.cuda.is_available() else "cpu"
-                elif device_mode == "cuda" and torch.cuda.is_available():
-                    device = 0
-                else:
-                    device = "cpu"
-
-                if not be_quiet:
-                    print(f"🛠 Loading Model: {model_name_or_path} on {device}")
-
-                pipeline_kwargs = {
-                    "task": task,
-                    "model": model_name_or_path,
-                    "device": device,
-                    "use_fast": use_fast_tokenizer,  # Enable fast tokenizer to prevent warnings
-                }
-
-                # Only add trust_remote_code if it's explicitly enabled
-                if trust_remote_code:
-                    pipeline_kwargs["trust_remote_code"] = True
-
-            # Prevent redundant model loading
-            if model_name_or_path in self.model_cache:
-                if not be_quiet:
-                    print(f"Using Cached Model: {model_name_or_path}")
-                return (self.model_cache[model_name_or_path],)
-
-            # Load pipeline and pass the kwargs that we have collected along the way
-            model_pipeline = pipeline(**pipeline_kwargs)
-
-            # Cache the model
-            self.model_cache[model_name_or_path] = model_pipeline
-
-            if not be_quiet:
-                print(f"Model Successfully Loaded: {model_name_or_path}")
-
-            return (model_pipeline,)
-
-        except Exception as e:
-            print(f"Error loading model {model_name_or_path}: {e}")
-            return (None,)
-
+                kwargs["model"] = str(Path(config_path).parent)
+            loaded = pipeline(**kwargs)
+        except Exception as exc:
+            raise RuntimeError(f"Could not load {model_name_or_path!r} for {task!r} on {device}: {exc}") from exc
+        self.model_cache[key] = loaded
+        return (loaded,)

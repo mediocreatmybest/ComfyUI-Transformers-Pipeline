@@ -10,7 +10,7 @@ class TaskListTpl:
             "required": {
                 "task_list": (cls.get_task_list(), {
                     "default": "image-to-text",
-                    "tooltip": "List of available tasks."
+                    "tooltip": "Tasks depend on your Transformers version. Caption Generator accepts image captioning and visual QA tasks."
                 }),
             }
         }
@@ -27,6 +27,7 @@ class TaskListTpl:
         return [
             "image-to-text",
             "image-text-to-text",
+            "any-to-any",
             "visual-question-answering",
             "question-answering",
             "summarization",

@@ -3,3 +3,33 @@
 /nodes/__pycache__
 /util_nodes/__pycache__
 /nodes/.vscode
+
+# Python environments, caches and build output
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+build/
+dist/
+*.egg-info/
+
+# Model caches, datasets and generated captions/images
+.cache/
+models/
+datasets/
+images/
+input/
+output/
+outputs/
+captions/
+*.safetensors
+*.ckpt
+*.pt
+*.pth
+*.onnx
+*.gguf
+*.bin
+*.log

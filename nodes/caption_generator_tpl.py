@@ -1,5 +1,7 @@
 # Caption Generator generating the captions using pipeline
-from .. import be_quiet  # Import config from root __init__.py
+import json
+
+from .pipeline_utils import CAPTION_TASKS, caption_image
 
 class CaptionGeneratorTpl:
     def __init__(self):
@@ -13,10 +15,11 @@ class CaptionGeneratorTpl:
                 "image_batches": ("LIST",),  # List of image in batches
             },
             "optional": {
-                #"question": ("STRING", {"default": ""}),  # Optional question input for some models. Need to test...
                 "prepend_text": ("STRING", {"default": ""}),  # Text before caption...
                 "append_text": ("STRING", {"default": ""}),  # Text after caption...
                 "max_new_tokens": ("INT", {"default": 75, "min": 15}),  # Token limit from pipeline to prevent warnings and limit output
+                "question": ("STRING", {"default": "", "multiline": True}),
+                "pipeline_kwargs": ("STRING", {"default": "{}", "multiline": True, "tooltip": "Model-specific inference JSON, e.g. {\"enable_thinking\":false,\"generate_kwargs\":{\"do_sample\":false}} for Qwen3.5."}),
             }
         }
 
@@ -25,53 +28,23 @@ class CaptionGeneratorTpl:
     FUNCTION = "generate_captions"
     CATEGORY = "Transformers Pipeline"
 
-    def generate_captions(self, model_pipeline, image_batches, question="", prepend_text="", append_text="", max_new_tokens=75):
-        """
-        Uses the loaded HF pipeline to generate captions.
-        added questions and text append and prepend.
-        """
-        try:
-            captions = []
-            for batch in image_batches:
-                if not be_quiet:
-                    print(f"Processing Image Batch: {batch} | Question: {question}")
-
-                # Format input for models that support text prompts usually blank
-                input_data = [{"image": img, "text": question} for img in batch] if question else batch
-
-                # Generate caption
-                output = model_pipeline(input_data, max_new_tokens=max_new_tokens)
-
-                if not be_quiet:
-                    print(f"Raw Model Output: {output}")  # Debugging
-
-                # Process different outputs depending on the model.
-                processed_output = []
-                if isinstance(output, str):
-                    processed_output.append(output.strip())
-                elif isinstance(output, list):
-                    for sublist in output:
-                        if isinstance(sublist, dict) and "generated_text" in sublist:
-                            processed_output.append(sublist["generated_text"])
-                        elif isinstance(sublist, list):
-                            for item in sublist:
-                                if isinstance(item, dict) and "generated_text" in item:
-                                    processed_output.append(item["generated_text"])
-                                elif isinstance(item, str):
-                                    processed_output.append(item.strip())
-                        elif isinstance(sublist, str):
-                            processed_output.append(sublist.strip())
-
-                # Apply prepend & append Text
-                final_captions = [f"{prepend_text}{cap}{append_text}".strip() for cap in processed_output]
-                captions.extend(final_captions)
-
-            if not be_quiet:
-                print(f"Extracted Captions: {captions}")  # Final check
-
-            return (captions,)
-
-        except Exception as e:
-            print(f"Error generating captions: {e}")
-            return ([],)
-
+    def generate_captions(self, model_pipeline, image_batches, question="", prepend_text="", append_text="", max_new_tokens=75, pipeline_kwargs="{}"):
+        if model_pipeline is None:
+            raise ValueError("No pipeline supplied; check Model Loader")
+        if model_pipeline.task not in CAPTION_TASKS:
+            raise ValueError(f"Task {model_pipeline.task!r} is not an image captioning task")
+        options = json.loads(pipeline_kwargs)
+        if not isinstance(options, dict):
+            raise ValueError("pipeline_kwargs must be a JSON object")
+        reserved = {"images", "image", "text", "question", "prompt", "max_new_tokens", "return_full_text", "return_tensors", "return_type", "skip_special_tokens"}
+        if reserved.intersection(options):
+            raise ValueError("Use the node inputs for images, prompts and token limit; output format is managed by Caption Generator")
+        captions = []
+        for batch in image_batches:
+            for source in batch:
+                try:
+                    caption = caption_image(model_pipeline, source, question, max_new_tokens, options)
+                except Exception as exc:
+                    raise RuntimeError(f"Caption failed for image {len(captions) + 1} ({source}): {exc}") from exc
+                captions.append(f"{prepend_text}{caption}{append_text}".strip())
+        return (captions,)
