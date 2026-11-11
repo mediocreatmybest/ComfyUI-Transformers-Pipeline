@@ -11,44 +11,17 @@ from .records import read_records, write_records
 
 
 def load_pipeline(args):
-    # Export and review deliberately do not import Torch or Transformers.
-    import huggingface_hub
-    import torch
-    import transformers
-    from transformers.pipelines import get_supported_tasks
-
-    if args.device.startswith("cuda") and not torch.cuda.is_available():
-        raise ValueError("CUDA requested but unavailable")
-    task = args.task
-    tasks = get_supported_tasks()
-    if task == "image-to-text" and task not in tasks:
-        task = "image-text-to-text"
-    if task not in tasks:
-        raise ValueError(f"Task {task} is unavailable in Transformers {transformers.__version__}")
-    model = args.model
-    options = json.loads(args.model_kwargs)
-    if not isinstance(options, dict):
-        raise ValueError("model-kwargs must be a JSON object")
-    if set(options) & {"device", "device_map", "revision", "trust_remote_code", "dtype", "torch_dtype", "local_files_only"}:
-        raise ValueError("Use dedicated loader arguments for device, revision, dtype, trust and offline mode")
-    if args.local_files_only and not Path(model).is_dir():
-        model = str(Path(huggingface_hub.hf_hub_download(
-            model, "config.json", revision=args.revision, cache_dir=options.get("cache_dir"), local_files_only=True
-        )).parent)
-    kwargs = dict(task=task, model=model, device=args.device, dtype=args.dtype, model_kwargs=options,
-                  trust_remote_code=args.trust_remote_code)
-    if args.revision:
-        kwargs["revision"] = args.revision
-    if int(transformers.__version__.split(".")[0]) >= 5:
-        kwargs["local_files_only"] = args.local_files_only
-    else:
-        options["local_files_only"] = args.local_files_only
-    pipe = transformers.pipeline(**kwargs)
-    revision = getattr(pipe.model.config, "_commit_hash", None)
-    if revision is None and Path(model).parent.name == "snapshots":
-        revision = Path(model).name
-    pipe._tpl_model_info = {"model_id": args.model, "revision": revision or args.revision}
-    return pipe
+    from .loading import legacy_policy, load_pipeline as shared_load
+    device = args.device
+    if device not in {"cpu", "auto", "cuda"} and not (device.startswith("cuda:") and device[5:].isdigit()):
+        raise ValueError("Device must be cpu, auto, cuda or cuda:N")
+    policy = legacy_policy(args.model, task=args.task, device_mode=device.split(":")[0],
+        quantization=getattr(args, "quantization", "native"), placement=getattr(args, "placement", "legacy"),
+        gpu_index=int(device.split(":")[1]) if ":" in device else 0,
+        gpu_memory=getattr(args, "gpu_memory", ""), cpu_memory=getattr(args, "cpu_memory", ""),
+        dtype=args.dtype, revision=args.revision, local_files_only=args.local_files_only,
+        trust_remote_code=args.trust_remote_code, model_kwargs=json.loads(args.model_kwargs))
+    return shared_load(policy)
 
 
 def main(argv=None):
@@ -65,6 +38,10 @@ def main(argv=None):
     generate.add_argument("--authors", type=Path, help="JSON mapping of source paths to supplied authors")
     generate.add_argument("--device", default="cpu")
     generate.add_argument("--dtype", choices=["auto", "float32", "float16", "bfloat16"], default="auto")
+    generate.add_argument("--quantization", choices=["native", "int8", "nf4"], default="native")
+    generate.add_argument("--placement", choices=["legacy", "gpu_preferred", "gpu", "offload", "cpu"], default="legacy")
+    generate.add_argument("--gpu-memory", default="", help="Weight placement budget, e.g. 8GiB")
+    generate.add_argument("--cpu-memory", default="", help="Weight placement budget, e.g. 4GiB; defaults reserve system RAM")
     generate.add_argument("--revision")
     generate.add_argument("--local-files-only", action="store_true")
     generate.add_argument("--trust-remote-code", action="store_true")
@@ -124,12 +101,13 @@ def main(argv=None):
             write_records(records, args.output, args.overwrite)
             failures = sum(c.status == "failure" for r in records for c in r.candidates)
             result = {"output": str(args.output), "images": len(records),
-                      "candidates": sum(len(r.candidates) for r in records), "failures": failures}
+                      "candidates": sum(len(r.candidates) for r in records), "failures": failures,
+                      "loading_diagnostics": pipe._tpl_loading_diagnostics}
             print(json.dumps(result, ensure_ascii=True))
             return 2 if failures else 0
         print(json.dumps(result, ensure_ascii=True))
         return 0
-    except (ValueError, TypeError, KeyError, OSError) as exc:
+    except (ValueError, TypeError, KeyError, OSError, RuntimeError) as exc:
         print(f"{type(exc).__name__}: {exc}", file=sys.stderr)
         return 1
 

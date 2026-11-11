@@ -177,9 +177,31 @@ class NodesTests(unittest.TestCase):
 
 
 class ModelTests(unittest.TestCase):
-    @patch("tpl.nodes.model_loader_tpl.torch.cuda.is_available", return_value=True)
-    @patch("tpl.nodes.model_loader_tpl.BitsAndBytesConfig")
-    @patch("tpl.nodes.model_loader_tpl.pipeline")
+    def setUp(self):
+        # Mock external config/weight inspection; retain the real shared policy and loader orchestration.
+        read_text = Path.read_text
+        for mocker in (
+            patch("torch.cuda.device_count", return_value=1),
+            patch("torch.cuda.empty_cache"),
+            patch("tpl.captioning.loading.memory_snapshot", return_value={
+                "system_available_bytes": 16*1024**3, "gpu_free_bytes": 8*1024**3}),
+            patch("tpl.captioning.loading.dependency_versions", return_value={
+                "bitsandbytes": "0.50.1", "accelerate": "1.12.0"}),
+            patch("huggingface_hub.hf_hub_download", return_value="cached-snapshot/config.json"),
+            patch("tpl.captioning.loading.Path.read_text", autospec=True,
+                  side_effect=lambda path, *a, **k: "{}" if path.as_posix() == "cached-snapshot/config.json" else read_text(path, *a, **k)),
+            patch("tpl.captioning.loading.resolve_config", side_effect=lambda policy, model: (
+                SimpleNamespace(to_dict=lambda: {}), dict(policy.model_kwargs))),
+            patch("tpl.captioning.loading.plan_placement", side_effect=lambda policy, *a, **k: {"": "cpu" if policy.placement == "cpu" else "cuda:0"}),
+            patch("tpl.captioning.loading.verify_quantisation"),
+            patch("tpl.captioning.loading.model_diagnostics", return_value={"device_map": {"": "cpu"}}),
+        ):
+            mocker.start()
+            self.addCleanup(mocker.stop)
+
+    @patch("torch.cuda.is_available", return_value=True)
+    @patch("transformers.BitsAndBytesConfig")
+    @patch("transformers.pipeline")
     def test_quantized_load_preserves_trust_tokenizer_and_device_controls(self, factory, quantization, available):
         factory.side_effect = lambda **kwargs: SimpleNamespace(**kwargs)
         pipe = ModelLoaderTpl().load_model("org/model", device_mode="cuda", use_bitsandbytes=True, quantization_type="8bit", trust_remote_code=True, use_fast_tokenizer=False)[0]
@@ -191,21 +213,21 @@ class ModelTests(unittest.TestCase):
         self.assertTrue(quantization.call_args.kwargs["load_in_8bit"])
         self.assertFalse(quantization.call_args.kwargs["load_in_4bit"])
 
-    @patch("tpl.nodes.model_loader_tpl.get_supported_tasks", return_value=["image-text-to-text"])
-    @patch("tpl.nodes.model_loader_tpl.pipeline")
+    @patch("transformers.pipelines.get_supported_tasks", return_value=["image-text-to-text"])
+    @patch("transformers.pipeline")
     def test_unavailable_task_fails_before_model_loading(self, factory, tasks):
         with self.assertRaisesRegex(ValueError, "any-to-any"):
             ModelLoaderTpl().load_model("org/model", "any-to-any", device_mode="cpu")
         factory.assert_not_called()
 
-    @patch("tpl.nodes.model_loader_tpl.get_supported_tasks", return_value=["image-text-to-text"])
-    @patch("tpl.nodes.model_loader_tpl.pipeline")
+    @patch("transformers.pipelines.get_supported_tasks", return_value=["image-text-to-text"])
+    @patch("transformers.pipeline")
     def test_legacy_caption_task_maps_to_modern_task_when_removed(self, factory, tasks):
         factory.side_effect = lambda **kwargs: SimpleNamespace(**kwargs)
         pipe = ModelLoaderTpl().load_model("Salesforce/blip-image-captioning-base", "image-to-text", device_mode="cpu")[0]
         self.assertEqual(pipe.task, "image-text-to-text")
 
-    @patch("tpl.nodes.model_loader_tpl.pipeline")
+    @patch("transformers.pipeline")
     def test_cache_includes_task_device_and_loading_options(self, factory):
         factory.side_effect = lambda **kwargs: SimpleNamespace(**kwargs)
         loader = ModelLoaderTpl()
@@ -216,17 +238,17 @@ class ModelTests(unittest.TestCase):
         self.assertIsNot(loader.load_model("org/model", task="text-generation", device_mode="cpu", trust_remote_code=True)[0], changed)
         self.assertIsNot(loader.load_model("org/model", device_mode="cpu")[0], first)
 
-    @patch("tpl.nodes.model_loader_tpl.pipeline", side_effect=OSError("unavailable model"))
+    @patch("transformers.pipeline", side_effect=OSError("unavailable model"))
     def test_loading_failure_is_not_none(self, factory):
         with self.assertRaisesRegex(RuntimeError, "org/missing"):
             ModelLoaderTpl().load_model("org/missing", device_mode="cpu")
 
-    @patch("tpl.nodes.model_loader_tpl.torch.cuda.is_available", return_value=False)
+    @patch("torch.cuda.is_available", return_value=False)
     def test_explicit_cuda_does_not_silently_fall_back(self, available):
         with self.assertRaisesRegex(ValueError, "CUDA"):
             ModelLoaderTpl().load_model("org/model", device_mode="cuda")
 
-    @patch("tpl.nodes.model_loader_tpl.pipeline")
+    @patch("transformers.pipeline")
     def test_model_loading_options_reach_pipeline(self, factory):
         factory.side_effect = lambda **kwargs: SimpleNamespace(**kwargs)
         pipe = ModelLoaderTpl().load_model("org/model", device_mode="cpu", dtype="float32", revision="abc", model_kwargs='{"attn_implementation":"eager"}')[0]
@@ -235,7 +257,7 @@ class ModelTests(unittest.TestCase):
         self.assertEqual(pipe.model_kwargs["attn_implementation"], "eager")
 
     @patch("huggingface_hub.hf_hub_download", return_value="cached-snapshot/config.json")
-    @patch("tpl.nodes.model_loader_tpl.pipeline")
+    @patch("transformers.pipeline")
     def test_offline_model_uses_resolved_local_snapshot(self, factory, snapshot):
         factory.side_effect = lambda **kwargs: SimpleNamespace(**kwargs)
         pipe = ModelLoaderTpl().load_model("org/model", device_mode="cpu", revision="abc", local_files_only=True)[0]
