@@ -100,5 +100,9 @@ class ModelLoaderTpl:
             loaded = pipeline(**kwargs)
         except Exception as exc:
             raise RuntimeError(f"Could not load {model_name_or_path!r} for {task!r} on {device}: {exc}") from exc
+        resolved_revision = getattr(getattr(getattr(loaded, "model", None), "config", None), "_commit_hash", None)
+        if resolved_revision is None and Path(kwargs["model"]).parent.name == "snapshots":
+            resolved_revision = Path(kwargs["model"]).name
+        loaded._tpl_model_info = {"model_id": model_name_or_path, "revision": resolved_revision or revision or None}
         self.model_cache[key] = loaded
         return (loaded,)

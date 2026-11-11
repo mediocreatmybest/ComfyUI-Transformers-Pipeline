@@ -25,6 +25,7 @@ input/
 output/
 outputs/
 captions/
+caption_exports/
 *.safetensors
 *.ckpt
 *.pt

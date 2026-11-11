@@ -22,7 +22,10 @@ class ImportTests(unittest.TestCase):
     def test_missing_optional_exif_dependency_does_not_hide_caption_nodes(self):
         with patch.dict(sys.modules, {"exifread": None}):
             extension = load_extension()
-        self.assertEqual(len(extension.NODE_CLASS_MAPPINGS), 11)
+        original_ids = {"BatchProcessorTpl", "CaptionExportTpl", "CaptionGeneratorTpl", "Florence2NodeTpl",
+                        "ImageLoaderTpl", "ModelLoaderTpl", "PresetModelListTpl", "TaskListTpl", "DebugNodeTpl",
+                        "DebugModelNodeTpl", "ExifMetadataExtractorTpl"}
+        self.assertTrue(original_ids.issubset(extension.NODE_CLASS_MAPPINGS))
         self.assertIn("ModelLoaderTpl", extension.NODE_CLASS_MAPPINGS)
         self.assertIn("Florence2NodeTpl", extension.NODE_CLASS_MAPPINGS)
 

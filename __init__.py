@@ -11,6 +11,8 @@ from .nodes.image_loader_tpl import ImageLoaderTpl
 from .nodes.model_loader_tpl import ModelLoaderTpl
 from .nodes.preset_model_list_tpl import PresetModelListTpl
 from .nodes.task_list_tpl import TaskListTpl
+from .nodes.caption_records_tpl import CaptionRecordsTpl
+from .nodes.dataset_export_tpl import DatasetExportTpl
 
 # Import all utility nodes manually since I couldn't get the names to map correctly
 from .util_nodes.debug_node_tpl import DebugNodeTpl
@@ -19,6 +21,8 @@ from .util_nodes.debug_model_node_tpl import DebugModelNodeTpl
 
 # Define node class mappings manually
 NODE_CLASS_MAPPINGS = {
+    "CaptionRecordsTpl": CaptionRecordsTpl,
+    "DatasetExportTpl": DatasetExportTpl,
     "BatchProcessorTpl": BatchProcessorTpl,
     "CaptionExportTpl": CaptionExportTpl,
     "CaptionGeneratorTpl": CaptionGeneratorTpl,
@@ -34,6 +38,8 @@ NODE_CLASS_MAPPINGS = {
 
 #  Define node display names manually
 NODE_DISPLAY_NAME_MAPPINGS = {
+    "CaptionRecordsTpl": "Caption Records",
+    "DatasetExportTpl": "Dataset Export",
     "BatchProcessorTpl": "Batch Processor",
     "CaptionExportTpl": "Caption Export",
     "CaptionGeneratorTpl": "Caption Generator",

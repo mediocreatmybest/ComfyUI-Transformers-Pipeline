@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "profiles": [
+    {
+      "id": "factual",
+      "caption_type": "factual",
+      "prompt": "Write one factual sentence of at most 35 words describing only the main visible subjects and setting. Prefer broad, readily visible features. Omit small or ambiguous objects, identities, exact species and speculative actions.",
+      "max_new_tokens": 128
+    },
+    {
+      "id": "natural_language",
+      "caption_type": "natural_language",
+      "prompt": "Write a fluent natural-language caption of at most 50 words describing the scene and its visible atmosphere. Use one or two sentences, without headings, identities, exact species or speculation.",
+      "max_new_tokens": 160
+    },
+    {
+      "id": "subject_tags",
+      "caption_type": "subject_tags",
+      "prompt": "Return only a JSON array of at most ten short strings naming clearly visible main subjects, objects and setting. Omit uncertain details, weather that is not directly visible, identities, exact species, explanations and Markdown.",
+      "max_new_tokens": 192,
+      "output_format": "tags"
+    },
+    {
+      "id": "artistic_analysis",
+      "caption_type": "artistic_analysis",
+      "prompt": "In at most 80 words, describe composition, palette, edge handling, apparent medium and brushwork or mark-making. Use broad terms such as painting-like, illustrated or photographic. Do not assert specific paint types, substrates, camera specifications, time of day or editing techniques. For photographs, describe focus, lighting and visible texture without inventing brushwork. Avoid named artists.",
+      "max_new_tokens": 256
+    },
+    {
+      "id": "lora_training",
+      "caption_type": "lora_training",
+      "prompt": "Write a plain training caption of at most 60 words describing the main visible subject, setting, composition, dominant colours and broad rendering treatment. Omit uncertain small objects, identities, exact species and guessed materials. Do not invent trigger words, artist names, provenance or hidden details.",
+      "max_new_tokens": 192
+    }
+  ]
+}
