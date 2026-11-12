@@ -2,6 +2,7 @@ import { app } from "../../scripts/app.js";
 import { api } from "../../scripts/api.js";
 
 const feedbackNodes = new Set([
+    "ImageMetadataTpl", "RecordMergeTpl",
     "ZeroShotImageClassificationTpl", "ZeroShotTextClassificationTpl",
     "CaptionPreviewTpl", "CaptionRecordsTpl", "DatasetExportTpl", "CaptionExportTpl",
     "ImageLoaderTpl", "ModelLoaderTpl", "ExifMetadataExtractorTpl", "DebugNodeTpl", "DebugModelNodeTpl",

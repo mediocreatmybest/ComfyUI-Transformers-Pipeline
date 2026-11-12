@@ -15,6 +15,7 @@ from .nodes.caption_records_tpl import CaptionRecordsTpl
 from .nodes.dataset_export_tpl import DatasetExportTpl
 from .nodes.caption_preview_tpl import CaptionPreviewTpl
 from .nodes.analysis_nodes_tpl import ZeroShotImageClassificationTpl, ZeroShotTextClassificationTpl
+from .nodes.record_merge_tpl import ImageMetadataTpl, RecordMergeTpl
 
 # Import all utility nodes manually since I couldn't get the names to map correctly
 from .util_nodes.debug_node_tpl import DebugNodeTpl
@@ -23,6 +24,8 @@ from .util_nodes.debug_model_node_tpl import DebugModelNodeTpl
 
 # Define node class mappings manually
 NODE_CLASS_MAPPINGS = {
+    'ImageMetadataTpl': ImageMetadataTpl,
+    'RecordMergeTpl': RecordMergeTpl,
     'ZeroShotImageClassificationTpl': ZeroShotImageClassificationTpl,
     'ZeroShotTextClassificationTpl': ZeroShotTextClassificationTpl,
     "CaptionPreviewTpl": CaptionPreviewTpl,
@@ -43,6 +46,8 @@ NODE_CLASS_MAPPINGS = {
 
 #  Define node display names manually
 NODE_DISPLAY_NAME_MAPPINGS = {
+    'ImageMetadataTpl': 'Image Metadata Records',
+    'RecordMergeTpl': 'Merge / Load Records',
     'ZeroShotImageClassificationTpl': 'Zero-Shot Image Classification',
     'ZeroShotTextClassificationTpl': 'Zero-Shot Text Classification',
     "CaptionPreviewTpl": "Caption / Image Preview",
