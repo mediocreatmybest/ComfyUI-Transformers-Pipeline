@@ -43,3 +43,10 @@ app.nodeOutputs = { '1': { text: ['cached output'], tpl_images: [] } };
 extension.afterConfigureGraph();
 assert.equal(text.value, 'cached output');
 console.log('Preview UI hooks, safe text, image labels, paging and non-serialization passed.');
+const filter = { ...node, id: 2, comfyClass: 'CaptionFilterTpl',
+    widgets: ['group_id', 'label', 'minimum_score', 'no_score'].map(name => ({name})) };
+extension.nodeCreated(filter);
+assert.equal(filter.widgets[0].label, 'Which group of labels?');
+assert.equal(filter.widgets[2].label, 'Minimum Score');
+assert.equal(filter.widgets[3].label, 'No Score Available');
+assert.equal(filter.widgets[4].options.serialize, false);

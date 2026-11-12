@@ -114,7 +114,7 @@ class ModularIntegrationTests(unittest.TestCase):
         self.assertNotEqual(classifiers[0]['inputs']['group_id'],classifiers[1]['inputs']['group_id'])
         self.assertIn('CaptionComposeTpl',{n['class_type'] for n in prompt.values()})
         self.assertNotIn('CaptionSynthesisTpl',{n['class_type'] for n in prompt.values()})
-        self.assertEqual(len(load_extension().NODE_CLASS_MAPPINGS),20)
+        self.assertEqual(len(load_extension().NODE_CLASS_MAPPINGS),21)
 
 
 if __name__=='__main__':

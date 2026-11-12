@@ -2,6 +2,7 @@ import { app } from "../../scripts/app.js";
 import { api } from "../../scripts/api.js";
 
 const feedbackNodes = new Set([
+    "CaptionFilterTpl",
     "CaptionComposeTpl", "CaptionSynthesisTpl",
     "ImageMetadataTpl", "RecordMergeTpl",
     "ZeroShotImageClassificationTpl", "ZeroShotTextClassificationTpl",
@@ -19,6 +20,13 @@ app.registerExtension({
     name: "TransformersPipeline.Feedback",
     nodeCreated(node) {
         if (!feedbackNodes.has(node.comfyClass)) return;
+        if (node.comfyClass === "CaptionFilterTpl") {
+            const labels = { group_id: "Which group of labels?", label: "Keep images matching this label",
+                minimum_score: "Minimum Score", no_score: "No Score Available" };
+            for (const widget of node.widgets ?? []) {
+                if (labels[widget.name]) widget.label = labels[widget.name];
+            }
+        }
         const container = document.createElement("div");
         Object.assign(container.style, { display: "flex", flexDirection: "column", overflow: "auto", height: "100%" });
         const text = document.createElement("textarea");

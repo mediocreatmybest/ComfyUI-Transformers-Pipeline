@@ -1,0 +1,208 @@
+{
+  "1": {
+    "class_type": "ImageLoaderTpl",
+    "inputs": {
+      "directory_path": "./input/transformers_pipeline",
+      "skip_existing_captions": false
+    },
+    "_meta": {
+      "title": "ImageLoaderTpl"
+    }
+  },
+  "2": {
+    "class_type": "ModelLoaderTpl",
+    "inputs": {
+      "model_name_or_path": "openai/clip-vit-base-patch32",
+      "task": "zero-shot-image-classification",
+      "device_mode": "cuda",
+      "use_bitsandbytes": false,
+      "quantization_type": "8bit",
+      "trust_remote_code": false,
+      "use_fast_tokenizer": true,
+      "dtype": "auto",
+      "revision": "",
+      "local_files_only": false,
+      "model_kwargs": "{}",
+      "quantization": "native",
+      "placement": "gpu_preferred",
+      "gpu_index": 0,
+      "gpu_memory": "",
+      "cpu_memory": ""
+    },
+    "_meta": {
+      "title": "ModelLoaderTpl"
+    }
+  },
+  "3": {
+    "class_type": "ZeroShotImageClassificationTpl",
+    "inputs": {
+      "candidate_labels": "[\"photograph\", \"painting\", \"drawing\", \"illustration\"]",
+      "group_id": "medium",
+      "pipeline_kwargs": "{}",
+      "records_path": "",
+      "image_paths": [
+        "1",
+        0
+      ],
+      "model_pipeline": [
+        "2",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "ZeroShotImageClassificationTpl"
+    }
+  },
+  "4": {
+    "class_type": "ModelLoaderTpl",
+    "inputs": {
+      "model_name_or_path": "Salesforce/blip-image-captioning-base",
+      "task": "image-to-text",
+      "device_mode": "cuda",
+      "use_bitsandbytes": false,
+      "quantization_type": "8bit",
+      "trust_remote_code": false,
+      "use_fast_tokenizer": true,
+      "dtype": "auto",
+      "revision": "",
+      "local_files_only": false,
+      "model_kwargs": "{}",
+      "quantization": "native",
+      "placement": "gpu_preferred",
+      "gpu_index": 0,
+      "gpu_memory": "",
+      "cpu_memory": ""
+    },
+    "_meta": {
+      "title": "ModelLoaderTpl"
+    }
+  },
+  "5": {
+    "class_type": "CaptionRecordsTpl",
+    "inputs": {
+      "profile_ids": "factual",
+      "profiles_file": "",
+      "profiles_json": "{\"schema_version\": 1, \"profiles\": [{\"id\": \"factual\", \"caption_type\": \"factual\", \"prompt\": \"\", \"prompt_mode\": \"raw\", \"max_new_tokens\": 64}]}",
+      "pipeline_kwargs": "{}",
+      "supplied_author": "",
+      "records_path": "",
+      "overwrite_records": false,
+      "image_paths": [
+        "1",
+        0
+      ],
+      "model_pipeline": [
+        "4",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Add captions for export"
+    }
+  },
+  "6": {
+    "class_type": "RecordMergeTpl",
+    "inputs": {
+      "records_file": "",
+      "records_path": "",
+      "records_a": [
+        "3",
+        0
+      ],
+      "records_b": [
+        "5",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Keep captions and scores together"
+    }
+  },
+  "7": {
+    "class_type": "CaptionFilterTpl",
+    "inputs": {
+      "group_id": "medium",
+      "label": "photograph",
+      "minimum_score": 0.1,
+      "no_score": "Set aside to look at",
+      "caption_records": [
+        "6",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Caption Filter"
+    }
+  },
+  "8": {
+    "class_type": "CaptionPreviewTpl",
+    "inputs": {
+      "records_file": "",
+      "profile_id": "",
+      "offset": 0,
+      "limit": 4,
+      "show_images": true,
+      "caption_records": [
+        "7",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Images Kept"
+    }
+  },
+  "9": {
+    "class_type": "CaptionPreviewTpl",
+    "inputs": {
+      "records_file": "",
+      "profile_id": "",
+      "offset": 0,
+      "limit": 4,
+      "show_images": true,
+      "caption_records": [
+        "7",
+        1
+      ]
+    },
+    "_meta": {
+      "title": "Images Left Out"
+    }
+  },
+  "10": {
+    "class_type": "CaptionPreviewTpl",
+    "inputs": {
+      "records_file": "",
+      "profile_id": "",
+      "offset": 0,
+      "limit": 4,
+      "show_images": true,
+      "caption_records": [
+        "7",
+        2
+      ]
+    },
+    "_meta": {
+      "title": "Needs a Look"
+    }
+  },
+  "11": {
+    "class_type": "DatasetExportTpl",
+    "inputs": {
+      "destination": "./output/transformers_pipeline/filtered_images",
+      "format": "imagefolder",
+      "profile_id": "factual",
+      "records_file": "",
+      "caption_type": "",
+      "candidate_ids": "{}",
+      "approved_only": false,
+      "overwrite_existing": false,
+      "caption_records": [
+        "7",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Save kept images and captions"
+    }
+  }
+}
