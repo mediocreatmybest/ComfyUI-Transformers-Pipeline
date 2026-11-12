@@ -12,7 +12,7 @@ class CaptionComposeTpl:
             'template': ('STRING', {'default': '{caption} {classifications} {metadata}', 'multiline': True,
                                   'tooltip': 'Fields: {caption}, {tags}, {attributes}, {classifications}, {metadata}, {prefix}. Only selected evidence is used.'})},
             'optional': {'selection': ('STRING', {'default': '{}', 'multiline': True,
-                'tooltip': 'JSON arrays: profile_ids, candidate_ids, analysis_ids, groups, metadata_fields. Optional top_k (default 1) and min_score (default 0). Empty selection uses all eligible sources; rejected/failed results are excluded.'}),
+                'tooltip': 'JSON arrays: profile_ids, candidate_ids, analysis_ids, groups, metadata_fields. Optional top_k (default 1) and min_score (default 0). Default {} uses original captions only. Select profile_ids or candidate_ids explicitly to chain derived captions; empty candidate/profile arrays select none. Stale, rejected or failed sources cannot be reused.'}),
                 'prefix': ('STRING', {'default': ''}), 'profile_id': ('STRING', {'default': 'composed'}),
                 'records_path': ('STRING', {'default': '', 'tooltip': 'Optional new JSONL checkpoint for later review/export; existing files are protected.'})}}
     RETURN_TYPES = ('LIST', 'STRING')
@@ -27,7 +27,7 @@ class CaptionComposeTpl:
 
 
 class CaptionSynthesisTpl:
-    DESCRIPTION = 'Optional text-generation synthesis of selected evidence. Appends an unreviewed synthetic candidate, labelled unverified. Does not verify facts or artist identity; review before training export.'
+    DESCRIPTION = 'Optional text-generation synthesis of selected evidence. Appends clean caption text with unreviewed/unverified metadata, shown separately in Preview. Does not verify facts or artist identity; review before training export.'
     @classmethod
     def INPUT_TYPES(cls):
         schema = CaptionComposeTpl.INPUT_TYPES()

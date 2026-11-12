@@ -4,6 +4,7 @@ from pathlib import Path
 import uuid
 
 from ..captioning.records import CaptionRecord, iter_records
+from ..captioning.provenance import analysis_source_issue, caption_content, is_derived, source_issue
 from .ui_feedback import feedback
 
 
@@ -76,11 +77,19 @@ class CaptionPreviewTpl:
                 for candidate in selected[:6]:
                     lines.append(clipped(f'[{candidate.profile_id} / {candidate.caption_type}] {candidate.status}; '
                                          f'{candidate.approval}; edited={candidate.edited}; id={candidate.id}'))
-                    lines.append(clipped(candidate.text if candidate.status == 'success' else candidate.error))
-                    snapshots = candidate.generation_parameters.get('transformation', {}).get('source_candidate_snapshots', [])
-                    current = {c.id: c for c in candidates}
-                    if any(s['id'] in current and (s['text'] != current[s['id']].text or s['tags'] != current[s['id']].tags) for s in snapshots):
-                        lines.append('Source captions were edited after this derivation; review the stored source snapshots.')
+                    lines.append(clipped(caption_content(candidate) if candidate.status == 'success' else candidate.error))
+                    if is_derived(candidate):
+                        transform = candidate.generation_parameters.get('transformation', {})
+                        if not isinstance(transform, dict):
+                            transform = {}
+                        lines.append('Derived caption; factual verification: ' + clipped(transform.get('verification', 'unverified')) +
+                                     '. Review status is separate from caption text.')
+                        lines.append(clipped('Sources: candidates ' + str(transform.get('source_candidate_ids', [])) +
+                                             '; analyses ' + str(transform.get('source_analysis_ids', []))))
+                    if candidate.status == 'success':
+                        issue = source_issue(candidate, candidates, analyses)
+                        if issue:
+                            lines.append('Unsafe to reuse/export as training text: ' + clipped(issue))
                 if len(selected) > 6:
                     lines.append('Additional candidates omitted; select a profile or inspect the saved records.')
             if show_images:
@@ -90,10 +99,9 @@ class CaptionPreviewTpl:
                     lines.append(f'Image preview unavailable: {clipped(exc, 400)}')
             for analysis in analyses[:12]:
                 lines.append(clipped(f'[{analysis.kind}: {analysis.group_id}] {analysis.status}; id={analysis.id}'))
-                if analysis.source_candidate_id:
-                    source = next(c for c in candidates if c.id == analysis.source_candidate_id)
-                    if analysis.settings.get('source_text') != source.text or source.approval == 'rejected':
-                        lines.append('Stale or rejected source caption: reclassify before using these scores.')
+                issue = analysis_source_issue(analysis, candidates, analyses)
+                if issue:
+                    lines.append('Unsafe analysis source: ' + clipped(issue))
                 if analysis.kind == 'classification' and analysis.status == 'success':
                     lines.append(clipped(', '.join(f'{label}: {score:.6g}' for label, score in
                         zip(analysis.values['labels'], analysis.values['scores'])) + ' (model scores, not calibrated probabilities)'))

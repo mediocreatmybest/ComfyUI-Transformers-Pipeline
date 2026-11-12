@@ -46,7 +46,8 @@ class CompositionTests(unittest.TestCase):
                 return [{'generated_text': 'A concise bird description.'}]
         result = compose_records(self.records, '{caption}', pipe=Generator())
         self.assertEqual(result[0].candidates[-1].generated_text, 'A concise bird description.')
-        self.assertTrue(result[0].candidates[-1].text.startswith('Draft synthesis (unverified):'))
+        self.assertEqual(result[0].candidates[-1].text, 'A concise bird description.')
+        self.assertEqual(result[0].candidates[-1].generation_parameters['transformation']['verification'], 'unverified')
         self.assertEqual(result[0].candidates[-1].model.pipeline_task, 'text-generation')
         failed = compose_records(self.records, '{caption}', selection={'profile_ids': ['missing']})
         self.assertEqual(failed[0].candidates[-1].status, 'failure')

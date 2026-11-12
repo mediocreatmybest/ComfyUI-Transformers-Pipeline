@@ -4,6 +4,7 @@ from string import Formatter
 import uuid
 from .classification import model_info
 from .records import CaptionCandidate, CaptionRecord, ModelInfo
+from .provenance import analysis_source_issue, caption_content, is_derived, source_issue
 
 
 FIELDS = {'caption', 'tags', 'classifications', 'metadata', 'prefix', 'attributes'}
@@ -11,29 +12,33 @@ SELECTIONS = {'profile_ids', 'candidate_ids', 'analysis_ids', 'groups', 'metadat
 
 
 def evidence(record, selection, used):
+    explicit_candidates = 'profile_ids' in selection or 'candidate_ids' in selection
     candidates = [c for c in record.candidates if c.status == 'success' and c.approval != 'rejected'
-        and (not selection.get('profile_ids') or c.profile_id in selection['profile_ids'])
-        and (not selection.get('candidate_ids') or c.id in selection['candidate_ids'])]
+        and (explicit_candidates or not is_derived(c))
+        and ('profile_ids' not in selection or c.profile_id in selection['profile_ids'])
+        and ('candidate_ids' not in selection or c.id in selection['candidate_ids'])]
     analyses = [a for a in record.analyses if a.status == 'success'
         and (not selection.get('analysis_ids') or a.id in selection['analysis_ids'])
         and (not selection.get('groups') or a.group_id in selection['groups'])]
     values = {key: '' for key in FIELDS}
     source_candidates, source_analyses = [], []
     if used & {'caption', 'tags', 'attributes'}:
-        values['caption'] = ' '.join(c.text for c in candidates)
-        values['tags'] = ', '.join(dict.fromkeys(t for c in candidates for t in c.tags))
-        values['attributes'] = ' '.join(c.text for c in candidates if c.caption_type in {'artistic_analysis', 'style'})
-        source_candidates = [c.id for c in candidates if ('caption' in used or
+        contributors = [c for c in candidates if ('caption' in used or
             ('tags' in used and c.tags) or ('attributes' in used and c.caption_type in {'artistic_analysis', 'style'}))]
+        for candidate in contributors:
+            issue = source_issue(candidate, record.candidates, record.analyses)
+            if issue:
+                raise ValueError(issue)
+        values['caption'] = ' '.join(caption_content(c) for c in candidates)
+        values['tags'] = ', '.join(dict.fromkeys(t for c in candidates for t in c.tags))
+        values['attributes'] = ' '.join(caption_content(c) for c in candidates if c.caption_type in {'artistic_analysis', 'style'})
+        source_candidates = [c.id for c in contributors]
     classifications, metadata = [], {}
     for analysis in analyses:
         if analysis.kind == 'classification' and 'classifications' in used:
-            if analysis.source_candidate_id:
-                source = next(c for c in record.candidates if c.id == analysis.source_candidate_id)
-                if source.approval == 'rejected' or source.status != 'success':
-                    continue
-                if analysis.settings.get('source_text') != source.text:
-                    raise ValueError('Stale text classification; reclassify the edited source caption')
+            issue = analysis_source_issue(analysis, record.candidates, record.analyses)
+            if issue:
+                raise ValueError(issue)
             pairs = [(label, score) for label, score in zip(analysis.values['labels'], analysis.values['scores'])
                      if score >= selection['min_score']][:selection['top_k']]
             if pairs:
@@ -81,7 +86,8 @@ def compose_records(records, template, *, selection=None, prefix='', profile_id=
         record = CaptionRecord.from_dict(original.to_dict())
         record.schema_version = 2
         transformation = {'method': 'text-generation' if pipe else 'template', 'template': template,
-                          'selection': deepcopy(selection), 'prefix': prefix, 'source_candidate_ids': [], 'source_analysis_ids': []}
+                          'verification': 'unverified', 'selection': deepcopy(selection), 'prefix': prefix,
+                          'source_candidate_ids': [], 'source_analysis_ids': []}
         params = dict(id=uuid.uuid4().hex, caption_type='synthetic' if pipe else 'composed', profile_id=profile_id,
             prompt=template, generation_parameters={'transformation': transformation, 'pipeline_kwargs': options if pipe else {}},
             model=model_info(pipe) if pipe else ModelInfo('deterministic-template', None, 'template'))
@@ -109,8 +115,7 @@ def compose_records(records, template, *, selection=None, prefix='', profile_id=
                 generated = caption_text(pipe(prompt, return_full_text=False, **deepcopy(options)))
             else:
                 generated = rendered
-            text = ('Draft synthesis (unverified): ' if pipe else '') + generated
-            candidate = CaptionCandidate(**params, status='success', text=text, generated_text=generated)
+            candidate = CaptionCandidate(**params, status='success', text=generated, generated_text=generated)
         except Exception as exc:
             candidate = CaptionCandidate(**params, status='failure', error=f'{type(exc).__name__}: {exc}', generated_text=generated)
         record.candidates.append(candidate)

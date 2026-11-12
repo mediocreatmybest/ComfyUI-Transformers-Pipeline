@@ -10,14 +10,14 @@ class DatasetExportTpl:
     def INPUT_TYPES(cls):
         return {"required": {
             "destination": ("STRING", {"default": "./caption_exports", "tooltip": "Separate export directory; source images are unchanged. Use a fresh directory for a different dataset selection."}),
-            "format": (["txt", "imagefolder", "native"], {"tooltip": "txt copies images with UTF-8 sidecars; imagefolder copies images with metadata.jsonl; native preserves rich records in JSONL."}),
-            "profile_id": ("STRING", {"default": "factual", "tooltip": "Select the profile ID stored in the caption records."}),
+            "format": (["txt", "imagefolder", "native"], {"tooltip": "txt and imagefolder export selected training captions. Native v2 is a per-image JSONL archive: selection filters images, retaining ALL their candidates, analyses and review states. Native v1 retains only the selected candidate."}),
+            "profile_id": ("STRING", {"default": "factual", "tooltip": "Choose training captions by profile. For native v2 archives, chooses images containing that profile; other profiles are also retained."}),
         }, "optional": {
             "caption_records": ("LIST",),
             "records_file": ("STRING", {"default": "", "tooltip": "Saved native JSONL records, for export without loading a model. Use this or connected caption_records, not both."}),
             "caption_type": ("STRING", {"default": "", "tooltip": "Optional additional caption type filter. Blank selects by profile only."}),
             "candidate_ids": ("STRING", {"default": "{}", "multiline": True, "tooltip": "Optional JSON mapping from image ID to chosen candidate ID, for explicit review selections."}),
-            "approved_only": ("BOOLEAN", {"default": False, "tooltip": "Export only human-approved candidates. Rejected or failed candidates are excluded from training exports regardless."}),
+            "approved_only": ("BOOLEAN", {"default": False, "tooltip": "Require approval of the selected candidate. Training exports exclude failed/rejected or stale derived captions. Native v2 archives retain all candidates for each qualifying image, including unreviewed/rejected sources."}),
             "overwrite_existing": ("BOOLEAN", {"default": False, "tooltip": "Allow updates to an existing matching export. Disabled by default to protect files."}),
         }}
 
@@ -51,4 +51,4 @@ class DatasetExportTpl:
         report = json.loads(result[0])
         reasons = '\n'.join(str(item['reason'])[:200] for item in report['skipped'][:5])
         return feedback(result, f"Saved {report['exported']}, Skipped {len(report['skipped'])}; format {report['format']}.\n"
-                        f"Destination: {report['destination']}\n{reasons}")
+                        f"Destination: {report['destination']}\n{report.get('scope', '')}\n{reasons}")

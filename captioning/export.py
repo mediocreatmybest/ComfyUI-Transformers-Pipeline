@@ -7,16 +7,17 @@ import shutil
 import tempfile
 
 from .records import CaptionRecord, publish_file, write_records
+from .provenance import caption_content, source_issue
 
 
 def _txt(items, staging):
     for record, candidate, name in items:
         if name:
-            (staging / Path(name).with_suffix(".txt")).write_text(candidate.text + "\n", encoding="utf-8")
+            (staging / Path(name).with_suffix(".txt")).write_text(caption_content(candidate) + "\n", encoding="utf-8")
 
 
 def _imagefolder(items, staging):
-    rows = [{"file_name": name, "text": candidate.text, "tags": candidate.tags,
+    rows = [{"file_name": name, "text": caption_content(candidate), "tags": candidate.tags,
              "image_id": record.image.id, "candidate_id": candidate.id, "profile_id": candidate.profile_id}
             for record, candidate, name in items]
     (staging / "metadata.jsonl").write_text(
@@ -37,6 +38,11 @@ ADAPTERS = {"txt": _txt, "imagefolder": _imagefolder, "native": _native}
 
 def export_records(records, destination="caption_exports", format="txt", *, profile_id,
                    caption_type=None, candidate_ids=None, overwrite=False, approved_only=False):
+    """Export selected training captions, or archive complete selected v2 image records.
+
+    Native v2 filters determine image eligibility; all candidates/analyses in each
+    eligible record are preserved verbatim. V1 native selection stays unchanged.
+    """
     if format not in ADAPTERS or not profile_id:
         raise ValueError("Select a known export format and an explicit profile identifier")
     destination = Path(destination).resolve()
@@ -69,6 +75,11 @@ def export_records(records, destination="caption_exports", format="txt", *, prof
         )):
             skipped.append({"image_id": record.image.id, "reason": candidate.error or candidate.approval})
             continue
+        if format != 'native':
+            issue = source_issue(candidate, record.candidates, record.analyses)
+            if issue:
+                skipped.append({'image_id': record.image.id, 'reason': 'Unsafe derived caption: ' + issue})
+                continue
         name = None
         if candidate.status == "success":
             if hashlib.sha256(source.read_bytes()).hexdigest() != record.image.sha256:
@@ -83,7 +94,8 @@ def export_records(records, destination="caption_exports", format="txt", *, prof
             names.add(name.casefold())
         items.append((record, candidate, name))
     if not items:
-        raise ValueError(f"No eligible candidates for profile {profile_id!r}; nothing exported")
+        reasons = '; '.join(str(item['reason']) for item in skipped[:5])
+        raise ValueError(f"No eligible candidates for profile {profile_id!r}; nothing exported. {reasons}")
     destination.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="caption-export-", dir=destination.parent) as folder:
         staging = Path(folder)
@@ -116,5 +128,13 @@ def export_records(records, destination="caption_exports", format="txt", *, prof
             for target in created:
                 target.unlink()
             raise
-    return {"format": format, "destination": str(destination), "exported": len(items),
-            "skipped": skipped, "files": [file.name for file in files]}
+    report = {"format": format, "destination": str(destination), "exported": len(items),
+              "skipped": skipped, "files": [file.name for file in files],
+              "semantics": 'record_archive' if format == 'native' else 'selected_training_captions'}
+    if format == 'native':
+        report.update(scope='Native v2: selected images retain all candidates and analyses, including failures and '
+                            'unreviewed/rejected content. Profile/approval filters select images, not archive contents. '
+                            'Native v1 retains the selected candidate only. Use TXT or ImageFolder for selected training captions.',
+                      archived_candidates=sum(len(r.candidates) if r.schema_version == 2 else 1 for r, _, _ in items),
+                      archived_analyses=sum(len(r.analyses) for r, _, _ in items))
+    return report

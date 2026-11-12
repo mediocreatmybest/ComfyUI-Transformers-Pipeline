@@ -50,7 +50,8 @@ def main(argv=None):
     export = commands.add_parser("export", help="Export saved records without running inference")
     export.add_argument("--records", required=True, type=Path)
     export.add_argument("--destination", type=Path, default=Path("caption_exports"))
-    export.add_argument("--format", choices=["txt", "imagefolder", "native"], required=True)
+    export.add_argument("--format", choices=["txt", "imagefolder", "native"], required=True,
+                        help="TXT/ImageFolder: selected training captions. Native v2: complete records for selected images, including other profiles and review states; v1: selected candidate only.")
     export.add_argument("--profile", required=True)
     export.add_argument("--caption-type")
     export.add_argument("--candidate-ids", default="{}", help="JSON image-id to candidate-id selection")
