@@ -373,6 +373,11 @@ def load_pipeline(policy):
         with warnings.catch_warnings(record=True) as caught:
             warnings.simplefilter('always')
             pipe = transformers.pipeline(**kwargs)
+        # Transformers 5.22.2 reads this loading flag without consuming it,
+        # leaving it in task defaults (and then model.generate). Keep the flag
+        # active during loading, but never pass it on to inference.
+        for name in ('_preprocess_params', '_forward_params', '_postprocess_params'):
+            getattr(pipe, name, {}).pop('local_files_only', None)
         verify_quantisation(pipe.model, backend, mode)
         actual = model_diagnostics(pipe)
         if 'disk' in actual['device_map'].values():

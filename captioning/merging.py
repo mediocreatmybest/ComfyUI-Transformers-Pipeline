@@ -20,6 +20,12 @@ def merge_records(*branches):
                 continue
             target = merged[image.id]
             for key in ('source_path', 'sha256', 'width', 'height'):
+                if key in ('width', 'height'):
+                    if getattr(target.image, key) is None:
+                        setattr(target.image, key, getattr(image, key))
+                        continue
+                    if getattr(image, key) is None:
+                        continue
                 if getattr(target.image, key) != getattr(image, key):
                     raise ValueError(f'Incompatible image identity field {key}: {image.id}')
             for key in ('author', 'author_source'):

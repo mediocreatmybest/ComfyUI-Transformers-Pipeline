@@ -1,0 +1,89 @@
+{
+  "1": {
+    "class_type": "RecordMergeTpl",
+    "inputs": {
+      "records_file": "./output/transformers_pipeline/integrated_records.jsonl",
+      "records_path": ""
+    },
+    "_meta": {
+      "title": "RecordMergeTpl"
+    }
+  },
+  "2": {
+    "class_type": "CaptionPreviewTpl",
+    "inputs": {
+      "records_file": "",
+      "profile_id": "",
+      "offset": 0,
+      "limit": 4,
+      "show_images": true,
+      "caption_records": [
+        "1",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "CaptionPreviewTpl"
+    }
+  },
+  "3": {
+    "class_type": "DatasetExportTpl",
+    "inputs": {
+      "destination": "./output/transformers_pipeline/reexport_txt",
+      "format": "txt",
+      "profile_id": "composed",
+      "records_file": "",
+      "caption_type": "",
+      "candidate_ids": "{}",
+      "approved_only": false,
+      "overwrite_existing": false,
+      "caption_records": [
+        "1",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "DatasetExportTpl"
+    }
+  },
+  "4": {
+    "class_type": "DatasetExportTpl",
+    "inputs": {
+      "destination": "./output/transformers_pipeline/reexport_native",
+      "format": "native",
+      "profile_id": "composed",
+      "records_file": "",
+      "caption_type": "",
+      "candidate_ids": "{}",
+      "approved_only": false,
+      "overwrite_existing": false,
+      "caption_records": [
+        "1",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "DatasetExportTpl"
+    }
+  },
+  "5": {
+    "class_type": "DatasetExportTpl",
+    "inputs": {
+      "destination": "./output/transformers_pipeline/reexport_imagefolder",
+      "format": "imagefolder",
+      "profile_id": "composed",
+      "records_file": "",
+      "caption_type": "",
+      "candidate_ids": "{}",
+      "approved_only": false,
+      "overwrite_existing": false,
+      "caption_records": [
+        "1",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "DatasetExportTpl"
+    }
+  }
+}

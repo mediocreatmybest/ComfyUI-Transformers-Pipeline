@@ -77,6 +77,10 @@ class CaptionPreviewTpl:
                     lines.append(clipped(f'[{candidate.profile_id} / {candidate.caption_type}] {candidate.status}; '
                                          f'{candidate.approval}; edited={candidate.edited}; id={candidate.id}'))
                     lines.append(clipped(candidate.text if candidate.status == 'success' else candidate.error))
+                    snapshots = candidate.generation_parameters.get('transformation', {}).get('source_candidate_snapshots', [])
+                    current = {c.id: c for c in candidates}
+                    if any(s['id'] in current and (s['text'] != current[s['id']].text or s['tags'] != current[s['id']].tags) for s in snapshots):
+                        lines.append('Source captions were edited after this derivation; review the stored source snapshots.')
                 if len(selected) > 6:
                     lines.append('Additional candidates omitted; select a profile or inspect the saved records.')
             if show_images:
@@ -86,6 +90,10 @@ class CaptionPreviewTpl:
                     lines.append(f'Image preview unavailable: {clipped(exc, 400)}')
             for analysis in analyses[:12]:
                 lines.append(clipped(f'[{analysis.kind}: {analysis.group_id}] {analysis.status}; id={analysis.id}'))
+                if analysis.source_candidate_id:
+                    source = next(c for c in candidates if c.id == analysis.source_candidate_id)
+                    if analysis.settings.get('source_text') != source.text or source.approval == 'rejected':
+                        lines.append('Stale or rejected source caption: reclassify before using these scores.')
                 if analysis.kind == 'classification' and analysis.status == 'success':
                     lines.append(clipped(', '.join(f'{label}: {score:.6g}' for label, score in
                         zip(analysis.values['labels'], analysis.values['scores'])) + ' (model scores, not calibrated probabilities)'))

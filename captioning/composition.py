@@ -1,4 +1,5 @@
 from copy import deepcopy
+from dataclasses import asdict
 from string import Formatter
 import uuid
 from .classification import model_info
@@ -22,10 +23,17 @@ def evidence(record, selection, used):
         values['caption'] = ' '.join(c.text for c in candidates)
         values['tags'] = ', '.join(dict.fromkeys(t for c in candidates for t in c.tags))
         values['attributes'] = ' '.join(c.text for c in candidates if c.caption_type in {'artistic_analysis', 'style'})
-        source_candidates = [c.id for c in candidates]
+        source_candidates = [c.id for c in candidates if ('caption' in used or
+            ('tags' in used and c.tags) or ('attributes' in used and c.caption_type in {'artistic_analysis', 'style'}))]
     classifications, metadata = [], {}
     for analysis in analyses:
         if analysis.kind == 'classification' and 'classifications' in used:
+            if analysis.source_candidate_id:
+                source = next(c for c in record.candidates if c.id == analysis.source_candidate_id)
+                if source.approval == 'rejected' or source.status != 'success':
+                    continue
+                if analysis.settings.get('source_text') != source.text:
+                    raise ValueError('Stale text classification; reclassify the edited source caption')
             pairs = [(label, score) for label, score in zip(analysis.values['labels'], analysis.values['scores'])
                      if score >= selection['min_score']][:selection['top_k']]
             if pairs:
@@ -45,7 +53,7 @@ def evidence(record, selection, used):
 
 
 def compose_records(records, template, *, selection=None, prefix='', profile_id='composed', pipe=None, generation_options=None):
-    selection = deepcopy(selection or {})
+    selection = deepcopy({} if selection is None else selection)
     if not isinstance(selection, dict) or selection.keys() - SELECTIONS or not profile_id.strip():
         raise ValueError('Choose a profile ID and supported selection keys')
     for key in SELECTIONS - {'top_k', 'min_score'}:
@@ -62,7 +70,7 @@ def compose_records(records, template, *, selection=None, prefix='', profile_id=
             used.add(field)
     if not used:
         raise ValueError('Template must use at least one selected field')
-    options = deepcopy(generation_options or {})
+    options = deepcopy({} if generation_options is None else generation_options)
     if not isinstance(options, dict) or {'text_inputs', 'inputs', 'return_full_text', 'return_tensors', 'return_type'} & options.keys():
         raise ValueError('Use generation options without overriding inputs or output format')
     if pipe is not None and pipe.task != 'text-generation':
@@ -83,6 +91,10 @@ def compose_records(records, template, *, selection=None, prefix='', profile_id=
                 raise ValueError('Cannot compose a successful caption for an invalid image identity')
             values, candidate_ids, analysis_ids = evidence(record, selection, used)
             transformation.update(source_candidate_ids=candidate_ids, source_analysis_ids=analysis_ids)
+            transformation['source_candidate_snapshots'] = [
+                {key: deepcopy(getattr(c, key)) for key in ('id', 'profile_id', 'caption_type', 'text', 'tags', 'generated_text', 'approval', 'edited')}
+                for c in record.candidates if c.id in candidate_ids]
+            transformation['source_analysis_snapshots'] = [asdict(a) for a in record.analyses if a.id in analysis_ids]
             values['prefix'] = prefix
             if not any(values[key].strip() for key in used):
                 raise ValueError('No eligible evidence matched the selected fields')

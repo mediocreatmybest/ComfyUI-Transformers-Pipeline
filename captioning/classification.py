@@ -27,6 +27,8 @@ def classify_one(pipe, source, labels, group, options, source_id=None, error=Non
     params = dict(id=uuid.uuid4().hex, kind='classification', group_id=group, task=pipe.task,
                   model=model_info(pipe), settings={'candidate_labels': deepcopy(labels), 'pipeline_kwargs': deepcopy(options),
                   'score_semantics': 'model scores; not calibrated probabilities'}, source_candidate_id=source_id)
+    if source_id:
+        params['settings']['source_text'] = source
     try:
         if error:
             raise ValueError(error)
@@ -43,7 +45,7 @@ def classify_one(pipe, source, labels, group, options, source_id=None, error=Non
 
 
 def classify_images(pipe, paths, labels, group, options=None):
-    options = options or {}
+    options = {} if options is None else options
     validate(pipe, labels, group, 'zero-shot-image-classification', options)
     records = []
     for path in paths:
@@ -59,7 +61,7 @@ def classify_images(pipe, paths, labels, group, options=None):
 
 
 def classify_text(pipe, records, labels, group, source_profile='', options=None):
-    options = options or {}
+    options = {} if options is None else options
     validate(pipe, labels, group, 'zero-shot-classification', options)
     results = []
     for record in records:
@@ -70,6 +72,7 @@ def classify_text(pipe, records, labels, group, source_profile='', options=None)
             record.analyses.append(classify_one(pipe, '', labels, group, options, error='No matching source captions'))
         for candidate in sources:
             record.analyses.append(classify_one(pipe, candidate.text, labels, group, options, candidate.id,
-                                  candidate.error if candidate.status == 'failure' else None))
+                                  candidate.error if candidate.status == 'failure' else
+                                  'Source caption is rejected' if candidate.approval == 'rejected' else None))
         results.append(record)
     return results

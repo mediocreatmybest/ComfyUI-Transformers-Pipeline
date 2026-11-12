@@ -1,0 +1,269 @@
+{
+  "last_node_id": 4,
+  "last_link_id": 3,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "RecordMergeTpl",
+      "pos": [
+        30,
+        80
+      ],
+      "size": [
+        480,
+        850
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "records_a",
+          "type": "LIST",
+          "link": null
+        },
+        {
+          "name": "records_b",
+          "type": "LIST",
+          "link": null
+        },
+        {
+          "name": "records_c",
+          "type": "LIST",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "links": [
+            1
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "status",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "RecordMergeTpl"
+      },
+      "widgets_values": [
+        "./output/transformers_pipeline/merged_records.jsonl",
+        ""
+      ]
+    },
+    {
+      "id": 2,
+      "type": "ModelLoaderTpl",
+      "pos": [
+        30,
+        1000
+      ],
+      "size": [
+        480,
+        850
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "model_pipeline",
+          "type": "MODEL",
+          "links": [
+            2
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "loading_diagnostics",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ModelLoaderTpl"
+      },
+      "widgets_values": [
+        "MoritzLaurer/xtremedistil-l6-h256-zeroshot-v1.1-all-33",
+        "zero-shot-classification",
+        "cuda",
+        false,
+        "8bit",
+        false,
+        true,
+        "auto",
+        "",
+        false,
+        "{}",
+        "native",
+        "gpu_preferred",
+        0,
+        "",
+        ""
+      ]
+    },
+    {
+      "id": 3,
+      "type": "ZeroShotTextClassificationTpl",
+      "pos": [
+        570,
+        80
+      ],
+      "size": [
+        480,
+        850
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model_pipeline",
+          "type": "MODEL",
+          "link": 2
+        },
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "links": [
+            3
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "status",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ZeroShotTextClassificationTpl"
+      },
+      "widgets_values": [
+        "[\"wildlife\", \"landscape\", \"architecture\"]",
+        "subject",
+        "factual",
+        true,
+        "{}",
+        "./output/transformers_pipeline/text_classification_records.jsonl"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "CaptionPreviewTpl",
+      "pos": [
+        1110,
+        80
+      ],
+      "size": [
+        480,
+        850
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "link": 3
+        },
+        {
+          "name": "image_paths",
+          "type": "LIST",
+          "link": null
+        },
+        {
+          "name": "captions",
+          "type": "LIST",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "preview_text",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CaptionPreviewTpl"
+      },
+      "widgets_values": [
+        "",
+        "",
+        0,
+        4,
+        true
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      3,
+      1,
+      "LIST"
+    ],
+    [
+      2,
+      2,
+      0,
+      3,
+      0,
+      "MODEL"
+    ],
+    [
+      3,
+      3,
+      0,
+      4,
+      0,
+      "LIST"
+    ]
+  ],
+  "groups": [
+    {
+      "title": "Run Metadata_Merge first | Classify saved caption text | Independent label scores, not calibrated probabilities",
+      "bounding": [
+        0,
+        0,
+        1620,
+        1880
+      ],
+      "color": "#3f789e",
+      "font_size": 22,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.55,
+      "offset": [
+        30,
+        50
+      ]
+    }
+  },
+  "version": 0.4
+}

@@ -135,6 +135,25 @@ class CaptionRecord:
             raise ValueError('Duplicate analysis ids')
         if any(a.source_candidate_id and a.source_candidate_id not in {c.id for c in self.candidates} for a in self.analyses):
             raise ValueError('Analysis references a missing source candidate')
+        candidate_ids = {c.id for c in self.candidates}
+        analysis_ids = {a.id for a in self.analyses}
+        dependencies = {}
+        for candidate in self.candidates:
+            transform = candidate.generation_parameters.get('transformation', {}) if self.schema_version == 2 else {}
+            if not isinstance(transform, dict):
+                raise ValueError('Transformation provenance must be an object')
+            sources = transform.get('source_candidate_ids', [])
+            analyses = transform.get('source_analysis_ids', [])
+            if not isinstance(sources, list) or not isinstance(analyses, list) or any(not isinstance(x, str) for x in sources + analyses):
+                raise ValueError('Transformation sources must be identifier lists')
+            if set(sources) - candidate_ids or set(analyses) - analysis_ids:
+                raise ValueError('Transformation references missing source records')
+            dependencies[candidate.id] = set(sources) | {a.source_candidate_id for a in self.analyses if a.id in analyses and a.source_candidate_id}
+        while dependencies:
+            ready = {key for key, sources in dependencies.items() if not sources}
+            if not ready:
+                raise ValueError('Cyclic transformation provenance')
+            dependencies = {key: sources - ready for key, sources in dependencies.items() if key not in ready}
 
     def to_dict(self):
         result = asdict(self)

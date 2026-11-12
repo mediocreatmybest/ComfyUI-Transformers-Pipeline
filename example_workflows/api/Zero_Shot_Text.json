@@ -1,0 +1,75 @@
+{
+  "1": {
+    "class_type": "RecordMergeTpl",
+    "inputs": {
+      "records_file": "./output/transformers_pipeline/merged_records.jsonl",
+      "records_path": ""
+    },
+    "_meta": {
+      "title": "RecordMergeTpl"
+    }
+  },
+  "2": {
+    "class_type": "ModelLoaderTpl",
+    "inputs": {
+      "model_name_or_path": "MoritzLaurer/xtremedistil-l6-h256-zeroshot-v1.1-all-33",
+      "task": "zero-shot-classification",
+      "device_mode": "cuda",
+      "use_bitsandbytes": false,
+      "quantization_type": "8bit",
+      "trust_remote_code": false,
+      "use_fast_tokenizer": true,
+      "dtype": "auto",
+      "revision": "",
+      "local_files_only": false,
+      "model_kwargs": "{}",
+      "quantization": "native",
+      "placement": "gpu_preferred",
+      "gpu_index": 0,
+      "gpu_memory": "",
+      "cpu_memory": ""
+    },
+    "_meta": {
+      "title": "ModelLoaderTpl"
+    }
+  },
+  "3": {
+    "class_type": "ZeroShotTextClassificationTpl",
+    "inputs": {
+      "candidate_labels": "[\"wildlife\", \"landscape\", \"architecture\"]",
+      "group_id": "subject",
+      "source_profile": "factual",
+      "multi_label": true,
+      "pipeline_kwargs": "{}",
+      "records_path": "./output/transformers_pipeline/text_classification_records.jsonl",
+      "caption_records": [
+        "1",
+        0
+      ],
+      "model_pipeline": [
+        "2",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "ZeroShotTextClassificationTpl"
+    }
+  },
+  "4": {
+    "class_type": "CaptionPreviewTpl",
+    "inputs": {
+      "records_file": "",
+      "profile_id": "",
+      "offset": 0,
+      "limit": 4,
+      "show_images": true,
+      "caption_records": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "CaptionPreviewTpl"
+    }
+  }
+}

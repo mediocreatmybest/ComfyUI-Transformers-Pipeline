@@ -203,6 +203,22 @@ class LoadingTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, 'packed'):
             self.loading.verify_quantisation(layer_class(2, 2), 'bitsandbytes', 'int8')
 
+    def test_offline_text_generation_keeps_loading_options_out_of_inference(self):
+        from tokenizers import Tokenizer
+        from tokenizers.models import WordLevel
+        from transformers import GPT2Config, GPT2LMHeadModel, PreTrainedTokenizerFast
+        with tempfile.TemporaryDirectory() as directory:
+            tokenizer = PreTrainedTokenizerFast(
+                tokenizer_object=Tokenizer(WordLevel({'[UNK]': 0, '[EOS]': 1, 'hello': 2}, unk_token='[UNK]')),
+                unk_token='[UNK]', eos_token='[EOS]', pad_token='[EOS]')
+            tokenizer.save_pretrained(directory)
+            GPT2LMHeadModel(GPT2Config(vocab_size=3, n_layer=1, n_head=2, n_embd=16,
+                                     bos_token_id=1, eos_token_id=1, pad_token_id=1)).save_pretrained(directory)
+            pipe = self.loading.load_pipeline(self.loading.LoadingPolicy(
+                directory, task='text-generation', placement='cpu', local_files_only=True))
+            output = pipe('hello', max_new_tokens=2, do_sample=False)
+            self.assertTrue(output[0]['generated_text'].startswith('hello'))
+
 
 if __name__ == '__main__':
     unittest.main()
