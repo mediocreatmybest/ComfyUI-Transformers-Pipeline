@@ -1,0 +1,254 @@
+{
+  "last_node_id": 4,
+  "last_link_id": 3,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "RecordMergeTpl",
+      "pos": [
+        30,
+        80
+      ],
+      "size": [
+        480,
+        850
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "records_a",
+          "type": "LIST",
+          "link": null
+        },
+        {
+          "name": "records_b",
+          "type": "LIST",
+          "link": null
+        },
+        {
+          "name": "records_c",
+          "type": "LIST",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "links": [
+            1
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "status",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "RecordMergeTpl"
+      },
+      "widgets_values": [
+        "./output/transformers_pipeline/merged_records.jsonl",
+        ""
+      ]
+    },
+    {
+      "id": 2,
+      "type": "CaptionComposeTpl",
+      "pos": [
+        570,
+        80
+      ],
+      "size": [
+        480,
+        850
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "links": [
+            2,
+            3
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "status",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CaptionComposeTpl"
+      },
+      "widgets_values": [
+        "{caption} {classifications} {metadata}",
+        "{}",
+        "",
+        "composed",
+        "./output/transformers_pipeline/composed_records.jsonl"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "CaptionPreviewTpl",
+      "pos": [
+        1110,
+        80
+      ],
+      "size": [
+        480,
+        850
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "link": 2
+        },
+        {
+          "name": "image_paths",
+          "type": "LIST",
+          "link": null
+        },
+        {
+          "name": "captions",
+          "type": "LIST",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "preview_text",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CaptionPreviewTpl"
+      },
+      "widgets_values": [
+        "",
+        "",
+        0,
+        4,
+        true
+      ]
+    },
+    {
+      "id": 4,
+      "type": "DatasetExportTpl",
+      "pos": [
+        1650,
+        80
+      ],
+      "size": [
+        480,
+        850
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "link": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "export_result",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DatasetExportTpl"
+      },
+      "widgets_values": [
+        "./output/transformers_pipeline/composed_txt",
+        "txt",
+        "composed",
+        "",
+        "",
+        "{}",
+        false,
+        false
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "LIST"
+    ],
+    [
+      2,
+      2,
+      0,
+      3,
+      0,
+      "LIST"
+    ],
+    [
+      3,
+      2,
+      0,
+      4,
+      0,
+      "LIST"
+    ]
+  ],
+  "groups": [
+    {
+      "title": "Run Metadata_Merge first | Deterministic composition from saved evidence | No inference",
+      "bounding": [
+        0,
+        0,
+        2160,
+        960
+      ],
+      "color": "#3f789e",
+      "font_size": 22,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.55,
+      "offset": [
+        30,
+        50
+      ]
+    }
+  },
+  "version": 0.4
+}

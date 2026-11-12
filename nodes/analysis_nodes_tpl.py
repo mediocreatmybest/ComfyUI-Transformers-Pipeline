@@ -14,7 +14,8 @@ def record_output(records, path=''):
     if path:
         write_records(records, path)
     failures = sum(a.status == 'failure' for r in records for a in r.analyses)
-    status = f'Images {len(records)}, analysis failures {failures}' + (f'\nSaved: {path}' if path else '')
+    caption_failures = sum(c.status == 'failure' for r in records for c in r.candidates)
+    status = f'Images {len(records)}, analysis failures {failures}, caption failures {caption_failures}' + (f'\nSaved: {path}' if path else '')
     return feedback(([r.to_dict() for r in records], status), status)
 
 

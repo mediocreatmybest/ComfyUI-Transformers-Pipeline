@@ -1,0 +1,66 @@
+{
+  "1": {
+    "class_type": "RecordMergeTpl",
+    "inputs": {
+      "records_file": "./output/transformers_pipeline/merged_records.jsonl",
+      "records_path": ""
+    },
+    "_meta": {
+      "title": "RecordMergeTpl"
+    }
+  },
+  "2": {
+    "class_type": "CaptionComposeTpl",
+    "inputs": {
+      "template": "{caption} {classifications} {metadata}",
+      "selection": "{}",
+      "prefix": "",
+      "profile_id": "composed",
+      "records_path": "./output/transformers_pipeline/composed_records.jsonl",
+      "caption_records": [
+        "1",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "CaptionComposeTpl"
+    }
+  },
+  "3": {
+    "class_type": "CaptionPreviewTpl",
+    "inputs": {
+      "records_file": "",
+      "profile_id": "",
+      "offset": 0,
+      "limit": 4,
+      "show_images": true,
+      "caption_records": [
+        "2",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "CaptionPreviewTpl"
+    }
+  },
+  "4": {
+    "class_type": "DatasetExportTpl",
+    "inputs": {
+      "destination": "./output/transformers_pipeline/composed_txt",
+      "format": "txt",
+      "profile_id": "composed",
+      "records_file": "",
+      "caption_type": "",
+      "candidate_ids": "{}",
+      "approved_only": false,
+      "overwrite_existing": false,
+      "caption_records": [
+        "2",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "DatasetExportTpl"
+    }
+  }
+}

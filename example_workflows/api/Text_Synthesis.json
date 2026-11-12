@@ -1,0 +1,75 @@
+{
+  "1": {
+    "class_type": "RecordMergeTpl",
+    "inputs": {
+      "records_file": "./output/transformers_pipeline/merged_records.jsonl",
+      "records_path": ""
+    },
+    "_meta": {
+      "title": "RecordMergeTpl"
+    }
+  },
+  "2": {
+    "class_type": "ModelLoaderTpl",
+    "inputs": {
+      "model_name_or_path": "HuggingFaceTB/SmolLM2-135M-Instruct",
+      "task": "text-generation",
+      "device_mode": "cuda",
+      "use_bitsandbytes": false,
+      "quantization_type": "8bit",
+      "trust_remote_code": false,
+      "use_fast_tokenizer": true,
+      "dtype": "auto",
+      "revision": "",
+      "local_files_only": false,
+      "model_kwargs": "{}",
+      "quantization": "native",
+      "placement": "gpu_preferred",
+      "gpu_index": 0,
+      "gpu_memory": "",
+      "cpu_memory": ""
+    },
+    "_meta": {
+      "title": "ModelLoaderTpl"
+    }
+  },
+  "3": {
+    "class_type": "CaptionSynthesisTpl",
+    "inputs": {
+      "template": "Write a concise description from: {caption} {classifications} {metadata} {prefix}",
+      "selection": "{}",
+      "prefix": "",
+      "profile_id": "synthetic",
+      "records_path": "./output/transformers_pipeline/synthetic_records.jsonl",
+      "generation_options": "{\"max_new_tokens\":128,\"do_sample\":false}",
+      "caption_records": [
+        "1",
+        0
+      ],
+      "model_pipeline": [
+        "2",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "CaptionSynthesisTpl"
+    }
+  },
+  "4": {
+    "class_type": "CaptionPreviewTpl",
+    "inputs": {
+      "records_file": "",
+      "profile_id": "",
+      "offset": 0,
+      "limit": 4,
+      "show_images": true,
+      "caption_records": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "CaptionPreviewTpl"
+    }
+  }
+}
