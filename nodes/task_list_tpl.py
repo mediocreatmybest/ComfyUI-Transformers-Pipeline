@@ -26,6 +26,9 @@ class TaskListTpl:
     def get_task_list():
         """Return task candidates; not every model or caption node supports every task."""
         return [
+            "zero-shot-image-classification",
+            "zero-shot-classification",
+            "text-generation",
             "image-to-text",
             "image-text-to-text",
             "any-to-any",

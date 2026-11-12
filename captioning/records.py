@@ -5,6 +5,7 @@ from pathlib import Path
 import re
 import shutil
 import tempfile
+import math
 
 
 @dataclass
@@ -83,26 +84,69 @@ class CaptionCandidate:
 
 
 @dataclass
+class AnalysisResult:
+    id: str
+    kind: str
+    group_id: str
+    task: str
+    model: ModelInfo | None
+    settings: dict
+    status: str
+    values: dict = field(default_factory=dict)
+    source_candidate_id: str | None = None
+    error: str | None = None
+
+    def __post_init__(self):
+        if not self.id or not self.group_id or self.kind not in {'classification', 'metadata'}:
+            raise ValueError('Invalid analysis identity, group or kind')
+        if self.status not in {'success', 'failure'}:
+            raise ValueError('Invalid analysis status')
+        if self.status == 'failure' and (not self.error or self.values):
+            raise ValueError('Failed analysis requires an error and no values')
+        if self.status == 'success' and self.error:
+            raise ValueError('Successful analysis cannot contain an error')
+        if self.kind == 'classification' and self.status == 'success':
+            labels, scores = self.values.get('labels'), self.values.get('scores')
+            if (not isinstance(labels, list) or not labels or any(not isinstance(x, str) or not x for x in labels)
+                or len(set(labels)) != len(labels) or not isinstance(scores, list) or len(labels) != len(scores)
+                or any(type(x) not in (int, float) or not math.isfinite(x) or not 0 <= x <= 1 for x in scores)):
+                raise ValueError('Classification requires distinct labels and finite original scores')
+        json.dumps(self.values, allow_nan=False)
+        json.dumps(self.settings, allow_nan=False)
+
+
+@dataclass
 class CaptionRecord:
     image: ImageIdentity
     candidates: list[CaptionCandidate]
     schema_version: int = 1
+    analyses: list[AnalysisResult] = field(default_factory=list)
 
     def __post_init__(self):
-        if self.schema_version != 1:
+        if self.schema_version not in (1, 2):
             raise ValueError("Unsupported caption record schema version")
         if any(c.status == "success" for c in self.candidates) and (not self.image.sha256 or not self.image.width):
             raise ValueError("Successful candidates require an image hash and dimensions")
         if len({c.id for c in self.candidates}) != len(self.candidates):
             raise ValueError("Duplicate candidate ids")
+        if self.schema_version == 1 and self.analyses:
+            raise ValueError('Analyses require schema version 2')
+        if len({a.id for a in self.analyses}) != len(self.analyses):
+            raise ValueError('Duplicate analysis ids')
+        if any(a.source_candidate_id and a.source_candidate_id not in {c.id for c in self.candidates} for a in self.analyses):
+            raise ValueError('Analysis references a missing source candidate')
 
     def to_dict(self):
-        return asdict(self)
+        result = asdict(self)
+        if self.schema_version == 1:
+            result.pop('analyses')
+        return result
 
     @classmethod
     def from_dict(cls, value):
         value = dict(value)
-        if value.pop("schema_version", None) != 1:
+        version = value.pop("schema_version", None)
+        if version not in (1, 2):
             raise ValueError("Unsupported caption record schema version")
         image = ImageIdentity(**value.pop("image"))
         candidates = []
@@ -110,9 +154,15 @@ class CaptionRecord:
             item = dict(item)
             item["model"] = ModelInfo(**item["model"])
             candidates.append(CaptionCandidate(**item))
+        analyses = []
+        if version == 2:
+            for item in value.pop('analyses', []):
+                item = dict(item)
+                item['model'] = ModelInfo(**item['model']) if item.get('model') else None
+                analyses.append(AnalysisResult(**item))
         if value:
             raise ValueError(f"Unknown record fields: {sorted(value)}")
-        return cls(image, candidates)
+        return cls(image, candidates, version, analyses)
 
 
 def iter_records(path):

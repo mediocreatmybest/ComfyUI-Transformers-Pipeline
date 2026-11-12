@@ -47,11 +47,11 @@ class CaptionPreviewTpl:
         if captions is not None and (image_paths is None or len(captions) != len(image_paths)):
             raise ValueError('Caption/image count mismatch; connect matching image_paths and captions')
         if image_paths is not None:
-            rows = ((path, None, captions[i] if captions is not None else None, None) for i, path in enumerate(image_paths))
+            rows = ((path, None, captions[i] if captions is not None else None, None, []) for i, path in enumerate(image_paths))
         else:
             records = iter_records(records_file) if records_file else (
                 CaptionRecord.from_dict(r.to_dict() if hasattr(r, 'to_dict') else r) for r in caption_records)
-            rows = ((r.image.source_path, r.candidates, None, r.image.sha256) for r in records)
+            rows = ((r.image.source_path, r.candidates, None, r.image.sha256, r.analyses) for r in records)
         # One lookahead reports another page without reading the rest of a JSONL file.
         try:
             page = list(islice(rows, offset, offset + limit + 1))
@@ -64,7 +64,7 @@ class CaptionPreviewTpl:
         lines = [f'Preview: {len(page)} images, offset {offset}; profile {profile_id or "all"}.' +
                  (' More images available; increase offset.' if more else ' End of input.')]
         images = []
-        for number, (path, candidates, caption, expected_hash) in enumerate(page, offset + 1):
+        for number, (path, candidates, caption, expected_hash, analyses) in enumerate(page, offset + 1):
             label = f'{number}. {Path(path).name}'
             lines.extend(['', clipped(label), f'Source: {clipped(path, 600)}'])
             if candidates is None:
@@ -84,6 +84,15 @@ class CaptionPreviewTpl:
                     images.append(self.thumbnail(path, label, expected_hash))
                 except Exception as exc:
                     lines.append(f'Image preview unavailable: {clipped(exc, 400)}')
+            for analysis in analyses[:12]:
+                lines.append(clipped(f'[{analysis.kind}: {analysis.group_id}] {analysis.status}; id={analysis.id}'))
+                if analysis.kind == 'classification' and analysis.status == 'success':
+                    lines.append(clipped(', '.join(f'{label}: {score:.6g}' for label, score in
+                        zip(analysis.values['labels'], analysis.values['scores'])) + ' (model scores, not calibrated probabilities)'))
+                else:
+                    lines.append(clipped(analysis.error or str(analysis.values)))
+            if len(analyses) > 12:
+                lines.append('Additional analyses omitted from preview; preserved in records.')
         text = clipped('\n'.join(lines), 23000)
         result = feedback((text,), text)
         result['ui']['tpl_images'] = images

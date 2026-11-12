@@ -25,7 +25,10 @@ def _imagefolder(items, staging):
 
 
 def _native(items, staging):
-    write_records([replace(record, candidates=[candidate]) for record, candidate, _ in items], staging / "records.jsonl")
+    # V2 analyses and derived candidates can refer to other candidates in the record.
+    # Keep the complete provenance graph in rich exports; v1 selection stays unchanged.
+    write_records([record if record.schema_version == 2 else replace(record, candidates=[candidate])
+                   for record, candidate, _ in items], staging / "records.jsonl")
 
 
 # Adapters consume the same selected records and filenames; new formats need not change records.

@@ -1,0 +1,73 @@
+{
+  "1": {
+    "class_type": "ModelLoaderTpl",
+    "inputs": {
+      "model_name_or_path": "openai/clip-vit-base-patch32",
+      "task": "zero-shot-image-classification",
+      "device_mode": "cuda",
+      "use_bitsandbytes": false,
+      "quantization_type": "8bit",
+      "trust_remote_code": false,
+      "use_fast_tokenizer": true,
+      "dtype": "auto",
+      "revision": "",
+      "local_files_only": false,
+      "model_kwargs": "{}",
+      "quantization": "native",
+      "placement": "gpu_preferred",
+      "gpu_index": 0,
+      "gpu_memory": "",
+      "cpu_memory": ""
+    },
+    "_meta": {
+      "title": "ModelLoaderTpl"
+    }
+  },
+  "2": {
+    "class_type": "ImageLoaderTpl",
+    "inputs": {
+      "directory_path": "./input/transformers_pipeline",
+      "skip_existing_captions": false
+    },
+    "_meta": {
+      "title": "ImageLoaderTpl"
+    }
+  },
+  "3": {
+    "class_type": "ZeroShotImageClassificationTpl",
+    "inputs": {
+      "candidate_labels": "[\"photograph\", \"painting\", \"drawing\", \"illustration\"]",
+      "group_id": "medium",
+      "pipeline_kwargs": "{}",
+      "records_path": "./output/transformers_pipeline/classification_records.jsonl",
+      "model_pipeline": [
+        "1",
+        0
+      ],
+      "image_paths": [
+        "2",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "ZeroShotImageClassificationTpl"
+    }
+  },
+  "4": {
+    "class_type": "CaptionPreviewTpl",
+    "inputs": {
+      "records_file": "",
+      "profile_id": "",
+      "offset": 0,
+      "limit": 4,
+      "show_images": true,
+      "caption_records": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "CaptionPreviewTpl"
+    }
+  }
+}
