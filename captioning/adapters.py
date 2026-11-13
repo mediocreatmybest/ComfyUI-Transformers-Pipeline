@@ -5,6 +5,28 @@ from pathlib import Path
 from dataclasses import replace
 
 
+def local_adapter_fingerprint(use_lora=False, lora_adapter='', adapter_revision=''):
+    """Let Comfy's execution cache see local changes before it skips the loader."""
+    if not use_lora:
+        return None
+    path = Path(lora_adapter.strip())
+    if not path.is_dir():
+        # Also changes the fingerprint when a formerly local folder disappears.
+        # The loader supplies the actionable error; no network lookup here.
+        return ('not-local', adapter_revision)
+    fingerprints = []
+    for name in ('adapter_config.json', 'adapter_model.safetensors'):
+        try:
+            # Metadata-only memoisation misses same-size edits with restored mtimes,
+            # particularly on Windows. Read only these two adapter files, never base weights.
+            with (path/name).open('rb') as stream:
+                digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+            fingerprints.append((name, digest))
+        except OSError as exc:
+            fingerprints.append((name, type(exc).__name__, exc.errno))
+    return (adapter_revision, tuple(fingerprints))
+
+
 def base_identity(value):
     path = Path(value)
     if path.is_dir():

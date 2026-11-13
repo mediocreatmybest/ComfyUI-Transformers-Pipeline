@@ -9,6 +9,11 @@ class ModelLoaderTpl:
         self.model_cache = PipelineCache()
 
     @classmethod
+    def IS_CHANGED(cls, use_lora=False, lora_adapter='', adapter_revision='', **kwargs):
+        from ..captioning.adapters import local_adapter_fingerprint
+        return local_adapter_fingerprint(use_lora, lora_adapter, adapter_revision)
+
+    @classmethod
     def INPUT_TYPES(cls):
         inputs = {
             "required": {
