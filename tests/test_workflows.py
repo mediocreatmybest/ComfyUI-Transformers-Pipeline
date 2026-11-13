@@ -57,7 +57,7 @@ class WorkflowTests(unittest.TestCase):
         fields = {**inputs['required'], **inputs['optional']}
         expected = {'model_name_or_path', 'task', 'device_mode', 'use_bitsandbytes', 'quantization_type',
                     'trust_remote_code', 'use_fast_tokenizer', 'dtype', 'revision', 'local_files_only',
-                    'model_kwargs', 'quantization', 'placement', 'gpu_index', 'gpu_memory', 'cpu_memory'}
+                    'model_kwargs', 'quantization', 'placement', 'gpu_index', 'gpu_memory', 'cpu_memory', 'use_lora', 'lora_adapter', 'adapter_revision'}
         self.assertEqual(set(fields), expected)
         for name, spec in fields.items():
             self.assertTrue(spec[1].get('tooltip'), name)

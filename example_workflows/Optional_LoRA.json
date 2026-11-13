@@ -1,0 +1,258 @@
+{
+  "last_node_id": 4,
+  "last_link_id": 3,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "ModelLoaderTpl",
+      "title": "Load SmolVLM2 with optional LoRA",
+      "pos": [
+        30,
+        80
+      ],
+      "size": [
+        470,
+        780
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "model_pipeline",
+          "type": "MODEL",
+          "links": [
+            1
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "loading_diagnostics",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ModelLoaderTpl"
+      },
+      "widgets_values": [
+        "HuggingFaceTB/SmolVLM2-2.2B-Instruct",
+        "image-text-to-text",
+        "cuda",
+        false,
+        "8bit",
+        false,
+        true,
+        "bfloat16",
+        "be92141c8d0ceb98596a923c308ac2bbb4a7c466",
+        false,
+        "{}",
+        "native",
+        "gpu_preferred",
+        0,
+        "",
+        "",
+        true,
+        "NANI-Nithin/SmolVLM-Hallucination-Defense",
+        "0c2d9ae24395563b81290d333ccd5d40f6595790"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "ImageLoaderTpl",
+      "title": "2. Choose image directory",
+      "pos": [
+        50,
+        950
+      ],
+      "size": [
+        430,
+        300
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "image_paths",
+          "type": "LIST",
+          "links": [
+            2
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "image_directories",
+          "type": "DICT",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ImageLoaderTpl"
+      },
+      "widgets_values": [
+        "./input/transformers_pipeline",
+        false
+      ]
+    },
+    {
+      "id": 3,
+      "type": "CaptionRecordsTpl",
+      "title": "Describe images",
+      "pos": [
+        650,
+        100
+      ],
+      "size": [
+        520,
+        600
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model_pipeline",
+          "type": "MODEL",
+          "link": 1
+        },
+        {
+          "name": "image_paths",
+          "type": "LIST",
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "links": [
+            3
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "status",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CaptionRecordsTpl"
+      },
+      "widgets_values": [
+        "factual",
+        "",
+        "{\"schema_version\": 1, \"profiles\": [{\"id\": \"factual\", \"caption_type\": \"factual\", \"prompt\": \"Describe the image in one clear sentence.\", \"prompt_mode\": \"raw\", \"max_new_tokens\": 64}]}",
+        "{\"generate_kwargs\": {\"do_sample\": false}, \"processor_kwargs\": {\"images_kwargs\": {\"size\": {\"longest_edge\": 768}}}}",
+        "",
+        "",
+        false
+      ]
+    },
+    {
+      "id": 4,
+      "type": "CaptionPreviewTpl",
+      "title": "Inspect candidates, profiles and failures",
+      "pos": [
+        1250,
+        100
+      ],
+      "size": [
+        580,
+        850
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "link": 3
+        },
+        {
+          "name": "image_paths",
+          "type": "LIST",
+          "link": null
+        },
+        {
+          "name": "captions",
+          "type": "LIST",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "preview_text",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CaptionPreviewTpl"
+      },
+      "widgets_values": [
+        "",
+        "",
+        0,
+        4,
+        true
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      3,
+      0,
+      "MODEL"
+    ],
+    [
+      2,
+      2,
+      0,
+      3,
+      1,
+      "LIST"
+    ],
+    [
+      3,
+      3,
+      0,
+      4,
+      0,
+      "LIST"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.7,
+      "offset": [
+        30,
+        50
+      ]
+    },
+    "transformers_pipeline": {
+      "instructions": [
+        "Choose an image directory and a new records_path before queueing.",
+        "Florence uses raw task tokens for brief and detailed captions. These are not instruction-following artistic-analysis profiles.",
+        "Built-in instruction profiles require an instruction-following VLM and a Transformers release supporting its architecture. Florence uses the raw task profiles shown here.",
+        "Open Dataset_Export.json to select a saved profile without repeating inference.",
+        "Requires a Transformers release with native Florence support and the florence-community checkpoint.",
+        "Preview is read-only. To inspect saved records without regenerating, use Dataset_Export or a separate Preview with records_file. Existing checkpoint protection remains enabled."
+      ]
+    }
+  },
+  "version": 0.4
+}

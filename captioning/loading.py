@@ -36,6 +36,9 @@ class LoadingPolicy:
     use_fast_tokenizer: bool = True
     local_files_only: bool = False
     model_kwargs: dict = field(default_factory=dict)
+    use_lora: bool = False
+    lora_adapter: str = ""
+    adapter_revision: str = ""
 
     def __post_init__(self):
         if not isinstance(self.model_id, str) or not self.model_id.strip():
@@ -52,6 +55,8 @@ class LoadingPolicy:
             raise ValueError('Native loading cannot request a quantisation mode')
         if type(self.gpu_index) is not int or self.gpu_index < 0:
             raise ValueError('GPU index must be a nonnegative integer')
+        if self.use_lora and not self.lora_adapter.strip():
+            raise ValueError("Enter a LoRA adapter ID or local folder when Use LoRA is enabled")
         memory_bytes(self.gpu_memory)
         memory_bytes(self.cpu_memory)
         if not isinstance(self.model_kwargs, dict):
@@ -83,7 +88,7 @@ def legacy_policy(model_id, task='image-to-text', device_mode='cuda', use_bitsan
 
 def dependency_versions():
     result = {}
-    for name in ('torch', 'transformers', 'accelerate', 'bitsandbytes', 'torchao', 'hqq'):
+    for name in ('torch', 'transformers', 'accelerate', 'bitsandbytes', 'torchao', 'hqq', 'peft'):
         try:
             result[name] = importlib.metadata.version(name)
         except importlib.metadata.PackageNotFoundError:
@@ -302,20 +307,25 @@ class PipelineCache:
         release_unused_memory()
 
     def load(self, policy):
-        key = json.dumps(asdict(policy), sort_keys=True)
+        from .adapters import resolve_adapter
+        adapter = resolve_adapter(policy) if policy.use_lora else None
+        key = json.dumps([asdict(policy), adapter], sort_keys=True)
         if self.pipeline is not None and key == self.key:
             return self.pipeline
         self.clear()
-        self.pipeline = load_pipeline(policy)
+        self.pipeline = load_pipeline(policy, adapter=adapter) if adapter else load_pipeline(policy)
         self.key = key
         return self.pipeline
 
 
-def load_pipeline(policy):
+def load_pipeline(policy, *, adapter=None):
     import torch
     import transformers
     from transformers.pipelines import get_supported_tasks
 
+    from .adapters import resolve_adapter, activate_adapter
+    if policy.use_lora and adapter is None:
+        adapter = resolve_adapter(policy)
     requested = policy_diagnostics(policy)
     versions = dependency_versions()
     tasks = get_supported_tasks()
@@ -341,6 +351,11 @@ def load_pipeline(policy):
         raise ValueError(f"{capability['status']}: {capability['reason']}")
     before = memory_snapshot(policy.gpu_index)
     budgets = memory_budgets(policy, cpu_available=before['system_available_bytes'], gpu_free=before.get('gpu_free_bytes'))
+    if adapter:
+        # Reserve adapter weights in addition to base weights on every eligible device.
+        budgets = {k: v - adapter["reserve_bytes"] for k, v in budgets.items()}
+        if min(budgets.values()) <= 0:
+            raise ValueError("Memory budget is too small for the LoRA weights")
     mapping = plan_placement(policy, model, config, budgets, config=resolved_config)
     validate_device_map(mapping, policy)
     existing = config.get('quantization_config')
@@ -378,19 +393,23 @@ def load_pipeline(policy):
         # active during loading, but never pass it on to inference.
         for name in ('_preprocess_params', '_forward_params', '_postprocess_params'):
             getattr(pipe, name, {}).pop('local_files_only', None)
+        adapter_info = activate_adapter(pipe, adapter) if adapter else {"active": False}
         verify_quantisation(pipe.model, backend, mode)
         actual = model_diagnostics(pipe)
         if 'disk' in actual['device_map'].values():
             raise RuntimeError('Unexpected disk placement from backend')
         actual.update(model_id=policy.model_id, revision=getattr(getattr(pipe.model, 'config', None), '_commit_hash', None) or revision,
-                      task=pipe.task, backend=backend, mode=mode)
-        pipe._tpl_model_info = {'model_id': policy.model_id, 'revision': actual['revision']}
+                      task=pipe.task, backend=backend, mode=mode, adapter=adapter_info)
+        pipe._tpl_model_info = {'model_id': policy.model_id, 'revision': actual['revision'], 'adapter': adapter_info}
         pipe._tpl_loading_diagnostics = {
             'schema_version': 1, 'requested': requested, 'actual': actual, 'runtime': versions,
             'capability': capability, 'verification': {'status': 'verified_supported', 'scope': 'weight_loading_only'},
             'memory_budgets_bytes': {str(k): v for k, v in budgets.items()}, 'memory_before': before,
+            'adapter_reserved_bytes_per_device': adapter['reserve_bytes'] if adapter else 0,
             'memory_after': memory_snapshot(policy.gpu_index), 'fallbacks': [],
-            'warnings': list(dict.fromkeys(str(w.message) for w in caught)) + [
+            'warnings': list(dict.fromkeys(str(w.message) for w in caught)) + (
+                ['Adapter does not pin its training-base revision; the selected base revision is recorded.']
+                if adapter and not adapter['config'].get('revision') else []) + [
                 'Memory budgets constrain conservative weight placement, not activation or temporary allocation peaks.']}
         return pipe
     except Exception as exc:

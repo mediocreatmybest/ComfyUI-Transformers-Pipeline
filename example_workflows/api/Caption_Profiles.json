@@ -17,7 +17,10 @@
       "placement": "gpu_preferred",
       "gpu_index": 0,
       "gpu_memory": "",
-      "cpu_memory": ""
+      "cpu_memory": "",
+      "use_lora": false,
+      "lora_adapter": "",
+      "adapter_revision": ""
     },
     "_meta": {
       "title": "1. Load Florence community"

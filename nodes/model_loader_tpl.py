@@ -30,6 +30,9 @@ class ModelLoaderTpl:
                 "gpu_index": ("INT", {"default": 0, "min": 0, "tooltip": "CUDA device index, starting at zero. Used for GPU and GPU/CPU placement."}),
                 "gpu_memory": ("STRING", {"default": "", "tooltip": "Weight placement budget, e.g. 8GiB; blank reserves GPU headroom."}),
                 "cpu_memory": ("STRING", {"default": "", "tooltip": "Weight placement budget, e.g. 4GiB; blank uses at most half available RAM / 8GiB."}),
+                "use_lora": ("BOOLEAN", {"default": False, "label": "Use LoRA", "tooltip": "Load an optional compatible LoRA onto this model. Other Model Loader nodes keep their own models."}),
+                "lora_adapter": ("STRING", {"default": "", "label": "LoRA adapter", "tooltip": "Hugging Face adapter ID or local folder. Select the base model this adapter was made for."}),
+                "adapter_revision": ("STRING", {"default": "", "label": "Adapter revision", "advanced": True, "tooltip": "Optional adapter commit or tag. Blank uses the repository default; the resolved revision is recorded."}),
             }
         }
         for name in ('device_mode', 'use_bitsandbytes', 'quantization_type', 'trust_remote_code',
@@ -48,11 +51,12 @@ class ModelLoaderTpl:
                    use_bitsandbytes=False, quantization_type="4bit", trust_remote_code=False,
                    use_fast_tokenizer=True, dtype="auto", revision="", local_files_only=False,
                    model_kwargs="{}", quantization="legacy", placement="legacy", gpu_index=0,
-                   gpu_memory="", cpu_memory=""):
+                   gpu_memory="", cpu_memory="", use_lora=False, lora_adapter="", adapter_revision=""):
         policy = legacy_policy(model_name_or_path, task, device_mode, use_bitsandbytes, quantization_type,
             quantization, placement, dtype=dtype, revision=revision or None, trust_remote_code=trust_remote_code,
             use_fast_tokenizer=use_fast_tokenizer, local_files_only=local_files_only,
-            model_kwargs=json.loads(model_kwargs), gpu_index=gpu_index, gpu_memory=gpu_memory, cpu_memory=cpu_memory)
+            model_kwargs=json.loads(model_kwargs), gpu_index=gpu_index, gpu_memory=gpu_memory, cpu_memory=cpu_memory,
+            use_lora=use_lora, lora_adapter=lora_adapter, adapter_revision=adapter_revision)
         pipe = self.model_cache.load(policy)
         return (pipe, json.dumps(pipe._tpl_loading_diagnostics, ensure_ascii=False))
 
@@ -65,7 +69,9 @@ class ModelLoaderTpl:
         actual = diagnostics.get('actual', {})
         requested = diagnostics.get('requested', {})
         devices = ', '.join(sorted(set(actual.get('device_map', {}).values())))
-        text = (f"Model: {actual.get('model_id', kwargs['model_name_or_path'])}\n"
+        adapter = actual.get("adapter", {})
+        summary = f"Model loaded with LoRA: {adapter['id']}" if adapter.get("active") else "Model loaded without LoRA."
+        text = (summary + "\n" + f"Model: {actual.get('model_id', kwargs['model_name_or_path'])}\n"
                 f"Requested: {requested.get('mode', 'native')} / {requested.get('placement', 'unknown')}\n"
                 f"Actual: {actual.get('backend', 'unknown')} / {actual.get('mode', 'unknown')}, {actual.get('weight_dtype', 'unknown')}\n"
                 f"Placement: {devices or 'unknown'}\n"

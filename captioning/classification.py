@@ -9,7 +9,7 @@ def model_info(pipe):
     provenance = getattr(pipe, '_tpl_model_info', {})
     return ModelInfo(provenance.get('model_id') or pipe.model.name_or_path,
                      provenance.get('revision') or getattr(pipe.model.config, '_commit_hash', None),
-                     pipe.task, runtime_versions())
+                     pipe.task, {**runtime_versions(), **({"adapter": deepcopy(provenance["adapter"])} if provenance.get("adapter", {}).get("active") else {})})
 
 
 def validate(pipe, labels, group, task, options):

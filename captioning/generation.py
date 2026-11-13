@@ -40,7 +40,7 @@ def generate_records(pipe, image_paths, profiles, *, model_id=None, revision=Non
     provenance = getattr(pipe, "_tpl_model_info", {})
     model = ModelInfo(model_id or provenance.get("model_id") or pipe.model.name_or_path,
                       revision or provenance.get("revision") or getattr(config, "_commit_hash", None),
-                      pipe.task, runtime_versions())
+                      pipe.task, {**runtime_versions(), **({"adapter": deepcopy(provenance["adapter"])} if provenance.get("adapter", {}).get("active") else {})})
     records = []
     for source in image_paths:
         path = Path(source).resolve()
