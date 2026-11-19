@@ -74,6 +74,23 @@ class WorkflowTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             editor_to_api(broken, self.definitions)
 
+    def test_caption_my_images_previews_the_same_folder_without_export(self):
+        graph = json.loads((self.folder / 'Caption_My_Images.json').read_text())
+        prompt = editor_to_api(graph, self.definitions)
+        nodes = {node['class_type']: (key, node['inputs']) for key, node in prompt.items()}
+        self.assertEqual(len(prompt), 5)
+        folder, _ = nodes['ImageLoaderTpl']
+        loader, settings = nodes['ModelLoaderTpl']
+        self.assertEqual(settings['model_name_or_path'], 'Salesforce/blip-image-captioning-base')
+        batch, inputs = nodes['BatchProcessorTpl']
+        self.assertEqual(inputs['image_paths'], [folder, 0])
+        generator, inputs = nodes['CaptionGeneratorTpl']
+        self.assertEqual((inputs['model_pipeline'], inputs['image_batches']), ([loader, 0], [batch, 0]))
+        _, preview = nodes['CaptionPreviewTpl']
+        self.assertEqual((preview['image_paths'], preview['captions']), ([folder, 0], [generator, 0]))
+        self.assertTrue(preview['show_images'])
+        self.assertEqual(preview['records_file'], '')
+
     def test_dataset_export_uses_saved_profiles_without_inference(self):
         file = self.folder / 'Dataset_Export.json'
         self.assertTrue(file.exists())

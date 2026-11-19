@@ -5,16 +5,16 @@ from .analysis_nodes_tpl import check_destination, record_output
 
 
 class CaptionComposeTpl:
-    DESCRIPTION = 'Append a deterministic caption without inference. Existing candidates, edits and approvals are preserved. Classifications remain qualified as possible, with uncalibrated scores.'
+    DESCRIPTION = 'Build a caption from existing text. Add {labels} for selected model labels. Original captions, scores and review history stay in the records.'
     @classmethod
     def INPUT_TYPES(cls):
         return {'required': {'caption_records': ('LIST',),
-            'template': ('STRING', {'default': '{caption} {classifications} {metadata}', 'multiline': True,
-                                  'tooltip': 'Fields: {caption}, {tags}, {attributes}, {classifications}, {metadata}, {prefix}. Only selected evidence is used.'})},
-            'optional': {'selection': ('STRING', {'default': '{}', 'multiline': True,
-                'tooltip': 'JSON arrays: profile_ids, candidate_ids, analysis_ids, groups, metadata_fields. Optional top_k (default 1) and min_score (default 0). Default {} uses original captions only. Select profile_ids or candidate_ids explicitly to chain derived captions; empty candidate/profile arrays select none. Stale, rejected or failed sources cannot be reused.'}),
+            'template': ('STRING', {'default': '{caption}', 'label': 'Caption format', 'multiline': True,
+                                  'tooltip': 'Use {caption} for caption text alone, or {caption} {labels} to append model labels. For labels with score details use {classifications}. Also available: {tags}, {attributes}, {metadata}, {prefix}.'})},
+            'optional': {'selection': ('STRING', {'default': '{}', 'label': 'Evidence options (JSON)', 'multiline': True,
+                'tooltip': 'For example, {"min_score": 0.6} includes labels scoring at least 0.6. Scores are model-specific, not probabilities. This keeps every image. top_k limits labels per analysis (default 1); min_score defaults to 0. Optional arrays: profile_ids, candidate_ids, analysis_ids, groups, metadata_fields. Select profile_ids or candidate_ids explicitly to chain derived captions; empty candidate/profile arrays select none. Stale, rejected or failed sources cannot be reused.'}),
                 'prefix': ('STRING', {'default': ''}), 'profile_id': ('STRING', {'default': 'composed'}),
-                'records_path': ('STRING', {'default': '', 'tooltip': 'Optional new JSONL checkpoint for later review/export; existing files are protected.'})}}
+                'records_path': ('STRING', {'default': '', 'label': 'Optional records file', 'tooltip': 'Optional new JSONL checkpoint for later review/export; existing files are protected.'})}}
     RETURN_TYPES = ('LIST', 'STRING')
     RETURN_NAMES = ('caption_records', 'status')
     FUNCTION = 'execute'

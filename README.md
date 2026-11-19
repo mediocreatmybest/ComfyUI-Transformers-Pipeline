@@ -7,6 +7,12 @@ A collection of additional ComfyUI nodes for utilizing the Hugging Face Transfor
 
 Can be installed through the ComfyUI manager or ComfyUI cli
 
+## Caption your first folder
+
+Open [Caption My Images](example_workflows/Caption_My_Images.json) in ComfyUI Desktop. Enter your image folder in **Choose your image folder**, then click **Run**. The first run may download the BLIP model. Preview shows the images with their captions. To see another page, change the Preview offset and run again.
+
+To write text files beside your images, open the separate [Simple export example](example_workflows/Simple.json).
+
 ## Nodes
 
 ### **Primary Nodes**

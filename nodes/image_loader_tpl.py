@@ -12,11 +12,11 @@ class ImageLoaderTpl:
         return {
             # As this is a string, it will be displayed as a text box but we can also use another node to select a directory
             "required": {
-                "directory_path": ("STRING", {"default": "./images", "multiline": False, "tooltip": "Image folder, searched recursively. Relative paths use ComfyUI's working directory. Supports PNG, JPEG, GIF, BMP, TIFF and WebP; animated files use the first frame during captioning."}),
+                "directory_path": ("STRING", {"default": "./images", "label": "Image folder", "multiline": False, "tooltip": "Image folder, searched recursively. Relative paths use ComfyUI's working directory. Supports PNG, JPEG, GIF, BMP, TIFF and WebP; animated files use the first frame during captioning."}),
             },
             # Optional, skip images that already have caption files and don't add to the list
             "optional": {
-                "skip_existing_captions": ("BOOLEAN", {"default": False, "tooltip": "Skip images with either name.txt or name.jpg.txt sidecars. Does not inspect separate dataset exports."}),
+                "skip_existing_captions": ("BOOLEAN", {"default": False, "label": "Skip images with caption files", "tooltip": "Skip images with either name.txt or name.jpg.txt sidecars. Does not inspect separate dataset exports."}),
             }
         }
 
