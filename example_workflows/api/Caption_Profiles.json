@@ -44,7 +44,7 @@
       "profiles_json": "{\n  \"schema_version\": 1,\n  \"profiles\": [\n    {\n      \"id\": \"factual\",\n      \"caption_type\": \"factual\",\n      \"prompt\": \"<CAPTION>\",\n      \"prompt_mode\": \"raw\",\n      \"max_new_tokens\": 96\n    },\n    {\n      \"id\": \"natural_language\",\n      \"caption_type\": \"natural_language\",\n      \"prompt\": \"<MORE_DETAILED_CAPTION>\",\n      \"prompt_mode\": \"raw\",\n      \"max_new_tokens\": 192\n    }\n  ]\n}",
       "pipeline_kwargs": "{}",
       "supplied_author": "",
-      "records_path": "./output/transformers_pipeline/florence_records.jsonl",
+      "records_path": "",
       "overwrite_records": false,
       "model_pipeline": [
         "1",
@@ -74,6 +74,29 @@
     },
     "_meta": {
       "title": "Inspect candidates, profiles and failures"
+    }
+  },
+  "5": {
+    "class_type": "SaveCaptionsTpl",
+    "inputs": {
+      "save_output": false,
+      "file_format": "Full Records (JSONL)",
+      "save_location": "Save to a folder I choose",
+      "destination": "./output/transformers_pipeline/profile_records",
+      "copy_images": false,
+      "file_policy": "Keep Existing Files",
+      "records_file": "",
+      "profile_id": "",
+      "caption_type": "",
+      "candidate_ids": "{}",
+      "approved_only": false,
+      "caption_records": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Save Captions"
     }
   }
 }

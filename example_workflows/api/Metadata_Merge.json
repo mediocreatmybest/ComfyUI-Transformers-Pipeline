@@ -13,8 +13,8 @@
       "revision": "",
       "local_files_only": false,
       "model_kwargs": "{}",
-      "quantization": "legacy",
-      "placement": "legacy",
+      "quantization": "native",
+      "placement": "gpu_preferred",
       "gpu_index": 0,
       "gpu_memory": "",
       "cpu_memory": "",
@@ -23,7 +23,7 @@
       "adapter_revision": ""
     },
     "_meta": {
-      "title": "ModelLoaderTpl"
+      "title": "Caption model"
     }
   },
   "2": {
@@ -33,7 +33,7 @@
       "skip_existing_captions": false
     },
     "_meta": {
-      "title": "ImageLoaderTpl"
+      "title": "Image Folder"
     }
   },
   "3": {
@@ -56,7 +56,7 @@
       ]
     },
     "_meta": {
-      "title": "CaptionRecordsTpl"
+      "title": "Generate caption records"
     }
   },
   "4": {
@@ -69,14 +69,14 @@
       ]
     },
     "_meta": {
-      "title": "ImageMetadataTpl"
+      "title": "Read camera details"
     }
   },
   "5": {
     "class_type": "RecordMergeTpl",
     "inputs": {
       "records_file": "",
-      "records_path": "./output/transformers_pipeline/merged_records.jsonl",
+      "records_path": "",
       "records_a": [
         "3",
         0
@@ -91,7 +91,7 @@
       ]
     },
     "_meta": {
-      "title": "RecordMergeTpl"
+      "title": "Merge records by image"
     }
   },
   "6": {
@@ -118,7 +118,7 @@
       "adapter_revision": ""
     },
     "_meta": {
-      "title": "ModelLoaderTpl"
+      "title": "Image classification model"
     }
   },
   "7": {
@@ -138,7 +138,7 @@
       ]
     },
     "_meta": {
-      "title": "ZeroShotImageClassificationTpl"
+      "title": "Suggest image labels"
     }
   },
   "8": {
@@ -155,7 +155,30 @@
       ]
     },
     "_meta": {
-      "title": "CaptionPreviewTpl"
+      "title": "Preview images and captions"
+    }
+  },
+  "9": {
+    "class_type": "SaveCaptionsTpl",
+    "inputs": {
+      "save_output": false,
+      "file_format": "Full Records (JSONL)",
+      "save_location": "Save to a folder I choose",
+      "destination": "./output/transformers_pipeline/merged_records",
+      "copy_images": false,
+      "file_policy": "Keep Existing Files",
+      "records_file": "",
+      "profile_id": "",
+      "caption_type": "",
+      "candidate_ids": "{}",
+      "approved_only": false,
+      "caption_records": [
+        "5",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Save Captions"
     }
   }
 }

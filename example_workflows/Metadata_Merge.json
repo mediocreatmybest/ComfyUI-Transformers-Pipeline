@@ -1,6 +1,6 @@
 {
-  "last_node_id": 8,
-  "last_link_id": 9,
+  "last_node_id": 9,
+  "last_link_id": 10,
   "nodes": [
     {
       "id": 1,
@@ -29,7 +29,7 @@
         {
           "name": "loading_diagnostics",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -48,12 +48,16 @@
         "",
         false,
         "{}",
-        "legacy",
-        "legacy",
+        "native",
+        "gpu_preferred",
         0,
         "",
+        "",
+        false,
+        "",
         ""
-      ]
+      ],
+      "title": "Caption model"
     },
     {
       "id": 2,
@@ -77,14 +81,14 @@
           "links": [
             2,
             3,
-            5
+            8
           ],
           "slot_index": 0
         },
         {
           "name": "image_directories",
           "type": "DICT",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -94,7 +98,8 @@
       "widgets_values": [
         "./input/transformers_pipeline",
         false
-      ]
+      ],
+      "title": "Image Folder"
     },
     {
       "id": 3,
@@ -108,7 +113,7 @@
         850
       ],
       "flags": {},
-      "order": 2,
+      "order": 3,
       "mode": 0,
       "inputs": [
         {
@@ -127,14 +132,14 @@
           "name": "caption_records",
           "type": "LIST",
           "links": [
-            6
+            4
           ],
           "slot_index": 0
         },
         {
           "name": "status",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -149,7 +154,8 @@
         "",
         "",
         false
-      ]
+      ],
+      "title": "Generate caption records"
     },
     {
       "id": 4,
@@ -163,7 +169,7 @@
         850
       ],
       "flags": {},
-      "order": 3,
+      "order": 4,
       "mode": 0,
       "inputs": [
         {
@@ -177,14 +183,14 @@
           "name": "caption_records",
           "type": "LIST",
           "links": [
-            7
+            5
           ],
           "slot_index": 0
         },
         {
           "name": "status",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -193,7 +199,8 @@
       },
       "widgets_values": [
         ""
-      ]
+      ],
+      "title": "Read camera details"
     },
     {
       "id": 5,
@@ -207,23 +214,23 @@
         850
       ],
       "flags": {},
-      "order": 4,
+      "order": 6,
       "mode": 0,
       "inputs": [
         {
           "name": "records_a",
           "type": "LIST",
-          "link": 6
+          "link": 4
         },
         {
           "name": "records_b",
           "type": "LIST",
-          "link": 7
+          "link": 5
         },
         {
           "name": "records_c",
           "type": "LIST",
-          "link": 8
+          "link": 6
         }
       ],
       "outputs": [
@@ -231,14 +238,15 @@
           "name": "caption_records",
           "type": "LIST",
           "links": [
-            9
+            9,
+            10
           ],
           "slot_index": 0
         },
         {
           "name": "status",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -247,8 +255,9 @@
       },
       "widgets_values": [
         "",
-        "./output/transformers_pipeline/merged_records.jsonl"
-      ]
+        ""
+      ],
+      "title": "Merge records by image"
     },
     {
       "id": 6,
@@ -262,7 +271,7 @@
         850
       ],
       "flags": {},
-      "order": 5,
+      "order": 2,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -270,14 +279,14 @@
           "name": "model_pipeline",
           "type": "MODEL",
           "links": [
-            4
+            7
           ],
           "slot_index": 0
         },
         {
           "name": "loading_diagnostics",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -300,8 +309,12 @@
         "gpu_preferred",
         0,
         "",
+        "",
+        false,
+        "",
         ""
-      ]
+      ],
+      "title": "Image classification model"
     },
     {
       "id": 7,
@@ -315,18 +328,18 @@
         850
       ],
       "flags": {},
-      "order": 6,
+      "order": 5,
       "mode": 0,
       "inputs": [
         {
           "name": "model_pipeline",
           "type": "MODEL",
-          "link": 4
+          "link": 7
         },
         {
           "name": "image_paths",
           "type": "LIST",
-          "link": 5
+          "link": 8
         }
       ],
       "outputs": [
@@ -334,14 +347,14 @@
           "name": "caption_records",
           "type": "LIST",
           "links": [
-            8
+            6
           ],
           "slot_index": 0
         },
         {
           "name": "status",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -353,7 +366,8 @@
         "medium",
         "{}",
         ""
-      ]
+      ],
+      "title": "Suggest image labels"
     },
     {
       "id": 8,
@@ -390,7 +404,7 @@
         {
           "name": "preview_text",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 0
         }
       ],
@@ -403,7 +417,55 @@
         0,
         4,
         true
-      ]
+      ],
+      "title": "Preview images and captions"
+    },
+    {
+      "id": 9,
+      "type": "SaveCaptionsTpl",
+      "pos": [
+        2190,
+        80
+      ],
+      "size": [
+        520,
+        370
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "link": 10
+        }
+      ],
+      "outputs": [
+        {
+          "name": "status",
+          "type": "STRING",
+          "links": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SaveCaptionsTpl"
+      },
+      "widgets_values": [
+        false,
+        "Full Records (JSONL)",
+        "Save to a folder I choose",
+        "./output/transformers_pipeline/merged_records",
+        false,
+        "Keep Existing Files",
+        "",
+        "",
+        "",
+        "{}",
+        false
+      ],
+      "title": "Save Captions"
     }
   ],
   "links": [
@@ -433,22 +495,6 @@
     ],
     [
       4,
-      6,
-      0,
-      7,
-      0,
-      "MODEL"
-    ],
-    [
-      5,
-      2,
-      0,
-      7,
-      1,
-      "LIST"
-    ],
-    [
-      6,
       3,
       0,
       5,
@@ -456,7 +502,7 @@
       "LIST"
     ],
     [
-      7,
+      5,
       4,
       0,
       5,
@@ -464,7 +510,7 @@
       "LIST"
     ],
     [
-      8,
+      6,
       7,
       0,
       5,
@@ -472,10 +518,34 @@
       "LIST"
     ],
     [
+      7,
+      6,
+      0,
+      7,
+      0,
+      "MODEL"
+    ],
+    [
+      8,
+      2,
+      0,
+      7,
+      1,
+      "LIST"
+    ],
+    [
       9,
       5,
       0,
       8,
+      0,
+      "LIST"
+    ],
+    [
+      10,
+      5,
+      0,
+      9,
       0,
       "LIST"
     ]

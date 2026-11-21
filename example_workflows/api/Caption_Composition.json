@@ -2,28 +2,28 @@
   "1": {
     "class_type": "RecordMergeTpl",
     "inputs": {
-      "records_file": "./output/transformers_pipeline/merged_records.jsonl",
+      "records_file": "./output/transformers_pipeline/merged_records/records.jsonl",
       "records_path": ""
     },
     "_meta": {
-      "title": "RecordMergeTpl"
+      "title": "Open Saved Records"
     }
   },
   "2": {
     "class_type": "CaptionComposeTpl",
     "inputs": {
-      "template": "{caption} {classifications} {metadata}",
+      "template": "{caption} {labels}",
       "selection": "{}",
       "prefix": "",
       "profile_id": "composed",
-      "records_path": "./output/transformers_pipeline/composed_records.jsonl",
+      "records_path": "",
       "caption_records": [
         "1",
         0
       ]
     },
     "_meta": {
-      "title": "CaptionComposeTpl"
+      "title": "Compose a caption from evidence"
     }
   },
   "3": {
@@ -40,27 +40,30 @@
       ]
     },
     "_meta": {
-      "title": "CaptionPreviewTpl"
+      "title": "Preview images and captions"
     }
   },
   "4": {
-    "class_type": "DatasetExportTpl",
+    "class_type": "SaveCaptionsTpl",
     "inputs": {
+      "save_output": false,
+      "file_format": "Text Captions (TXT)",
+      "save_location": "Save to a folder I choose",
       "destination": "./output/transformers_pipeline/composed_txt",
-      "format": "txt",
-      "profile_id": "composed",
+      "copy_images": false,
+      "file_policy": "Keep Existing Files",
       "records_file": "",
+      "profile_id": "composed",
       "caption_type": "",
       "candidate_ids": "{}",
       "approved_only": false,
-      "overwrite_existing": false,
       "caption_records": [
         "2",
         0
       ]
     },
     "_meta": {
-      "title": "DatasetExportTpl"
+      "title": "Save Captions"
     }
   }
 }

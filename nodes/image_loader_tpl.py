@@ -1,4 +1,5 @@
 # Image Loader to process directory of images into lists
+import hashlib
 import os
 from .ui_feedback import feedback
 
@@ -12,7 +13,7 @@ class ImageLoaderTpl:
         return {
             # As this is a string, it will be displayed as a text box but we can also use another node to select a directory
             "required": {
-                "directory_path": ("STRING", {"default": "./images", "label": "Image folder", "multiline": False, "tooltip": "Image folder, searched recursively. Relative paths use ComfyUI's working directory. Supports PNG, JPEG, GIF, BMP, TIFF and WebP; animated files use the first frame during captioning."}),
+                "directory_path": ("STRING", {"default": "./images", "label": "Image Folder", "multiline": False, "tooltip": "Image folder, searched recursively. Relative paths use ComfyUI's working directory. Supports PNG, JPEG, GIF, BMP, TIFF and WebP; animated files use the first frame during captioning."}),
             },
             # Optional, skip images that already have caption files and don't add to the list
             "optional": {
@@ -63,6 +64,18 @@ class ImageLoaderTpl:
         return feedback(result, message)
 
     @classmethod
-    def IS_CHANGED(cls, **kwargs):
-        # Directory contents and sidecar captions can change between queued runs.
-        return float("nan")
+    def IS_CHANGED(cls, directory_path, skip_existing_captions=False):
+        # Track image changes without decoding pixels or invalidating cached captions on every preview.
+        if not isinstance(directory_path, str):
+            return float('nan')
+        node = cls()
+        paths, _ = node.load_images(directory_path, skip_existing_captions)
+        fingerprint = hashlib.sha256(node.discovery_summary.encode('utf-8'))
+        for path in paths:
+            try:
+                stat = os.stat(path)
+                stamp = (stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns, stat.st_ino)
+            except OSError:
+                stamp = None
+            fingerprint.update(repr((path, stamp)).encode('utf-8'))
+        return fingerprint.hexdigest()

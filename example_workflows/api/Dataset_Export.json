@@ -1,47 +1,52 @@
 {
   "1": {
-    "class_type": "DatasetExportTpl",
+    "class_type": "RecordMergeTpl",
     "inputs": {
-      "destination": "./output/transformers_pipeline/dataset_txt",
-      "format": "txt",
-      "profile_id": "factual",
-      "records_file": "./output/transformers_pipeline/florence_records.jsonl",
-      "caption_type": "",
-      "candidate_ids": "{}",
-      "approved_only": false,
-      "overwrite_existing": false
+      "records_file": "./output/transformers_pipeline/profile_records/records.jsonl",
+      "records_path": ""
     },
     "_meta": {
-      "title": "1. Select saved profile -> copied images + TXT"
+      "title": "Open Saved Records"
     }
   },
   "2": {
-    "class_type": "DatasetExportTpl",
-    "inputs": {
-      "destination": "./output/transformers_pipeline/dataset_imagefolder",
-      "format": "imagefolder",
-      "profile_id": "factual",
-      "records_file": "./output/transformers_pipeline/florence_records.jsonl",
-      "caption_type": "",
-      "candidate_ids": "{}",
-      "approved_only": false,
-      "overwrite_existing": false
-    },
-    "_meta": {
-      "title": "2. Select saved profile -> ImageFolder metadata"
-    }
-  },
-  "3": {
     "class_type": "CaptionPreviewTpl",
     "inputs": {
-      "records_file": "./output/transformers_pipeline/florence_records.jsonl",
+      "records_file": "",
       "profile_id": "",
       "offset": 0,
       "limit": 4,
-      "show_images": true
+      "show_images": true,
+      "caption_records": [
+        "1",
+        0
+      ]
     },
     "_meta": {
-      "title": "Inspect saved records without inference"
+      "title": "Preview images and captions"
+    }
+  },
+  "3": {
+    "class_type": "SaveCaptionsTpl",
+    "inputs": {
+      "save_output": false,
+      "file_format": "Images + Captions (ImageFolder)",
+      "save_location": "Save to a folder I choose",
+      "destination": "./output/transformers_pipeline/dataset_imagefolder",
+      "copy_images": true,
+      "file_policy": "Keep Existing Files",
+      "records_file": "",
+      "profile_id": "factual",
+      "caption_type": "",
+      "candidate_ids": "{}",
+      "approved_only": false,
+      "caption_records": [
+        "1",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Save Captions"
     }
   }
 }

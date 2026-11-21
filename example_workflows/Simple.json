@@ -48,7 +48,8 @@
         75,
         "",
         "{}"
-      ]
+      ],
+      "title": "Generate captions (legacy)"
     },
     {
       "id": 4,
@@ -95,7 +96,8 @@
         "8bit",
         false,
         true
-      ]
+      ],
+      "title": "Caption model"
     },
     {
       "id": 2,
@@ -133,7 +135,8 @@
       },
       "widgets_values": [
         1
-      ]
+      ],
+      "title": "Group image paths"
     },
     {
       "id": 3,
@@ -176,7 +179,8 @@
         false,
         false,
         false
-      ]
+      ],
+      "title": "Write legacy TXT sidecars"
     },
     {
       "id": 5,
@@ -208,7 +212,8 @@
       },
       "widgets_values": [
         "Salesforce/blip-image-captioning-base"
-      ]
+      ],
+      "title": "Browse model names"
     },
     {
       "id": 7,
@@ -247,7 +252,8 @@
       "widgets_values": [
         "./images",
         false
-      ]
+      ],
+      "title": "Image Folder"
     },
     {
       "id": 8,

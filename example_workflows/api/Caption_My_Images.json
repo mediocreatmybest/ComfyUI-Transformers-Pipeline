@@ -1,23 +1,12 @@
 {
-  "6": {
-    "class_type": "CaptionGeneratorTpl",
+  "7": {
+    "class_type": "ImageLoaderTpl",
     "inputs": {
-      "prepend_text": "",
-      "append_text": "",
-      "max_new_tokens": 75,
-      "question": "",
-      "pipeline_kwargs": "{}",
-      "model_pipeline": [
-        "4",
-        0
-      ],
-      "image_batches": [
-        "2",
-        0
-      ]
+      "directory_path": "./images",
+      "skip_existing_captions": false
     },
     "_meta": {
-      "title": "Generate short captions"
+      "title": "Image Folder"
     }
   },
   "4": {
@@ -47,27 +36,27 @@
       "title": "BLIP caption model"
     }
   },
-  "2": {
-    "class_type": "BatchProcessorTpl",
+  "6": {
+    "class_type": "CaptionRecordsTpl",
     "inputs": {
-      "batch_size": 1,
+      "profile_ids": "factual",
+      "profiles_file": "",
+      "profiles_json": "{\"schema_version\": 1, \"profiles\": [{\"id\": \"factual\", \"caption_type\": \"factual\", \"prompt\": \"\", \"prompt_mode\": \"raw\", \"max_new_tokens\": 75}]}",
+      "pipeline_kwargs": "{}",
+      "supplied_author": "",
+      "records_path": "",
+      "overwrite_records": false,
+      "model_pipeline": [
+        "4",
+        0
+      ],
       "image_paths": [
         "7",
         0
       ]
     },
     "_meta": {
-      "title": "Prepare images one at a time"
-    }
-  },
-  "7": {
-    "class_type": "ImageLoaderTpl",
-    "inputs": {
-      "directory_path": "./images",
-      "skip_existing_captions": false
-    },
-    "_meta": {
-      "title": "Choose your image folder"
+      "title": "Generate short captions"
     }
   },
   "8": {
@@ -78,17 +67,36 @@
       "offset": 0,
       "limit": 4,
       "show_images": true,
-      "captions": [
+      "caption_records": [
         "6",
-        0
-      ],
-      "image_paths": [
-        "7",
         0
       ]
     },
     "_meta": {
-      "title": "View images and captions"
+      "title": "Preview images and captions"
+    }
+  },
+  "9": {
+    "class_type": "SaveCaptionsTpl",
+    "inputs": {
+      "save_output": false,
+      "file_format": "Text Captions (TXT)",
+      "save_location": "Save to a folder I choose",
+      "destination": "./output/transformers_pipeline/my_captions",
+      "copy_images": false,
+      "file_policy": "Keep Existing Files",
+      "records_file": "",
+      "profile_id": "",
+      "caption_type": "",
+      "candidate_ids": "{}",
+      "approved_only": false,
+      "caption_records": [
+        "6",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Save Captions"
     }
   }
 }

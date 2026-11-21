@@ -1,7 +1,6 @@
 import json
 
-from ..captioning.export import export_records
-from ..captioning.records import CaptionRecord, read_records
+from ..captioning.export import export_records, load_export_records
 from .ui_feedback import feedback
 
 
@@ -33,12 +32,12 @@ class DatasetExportTpl:
 
     def export(self, destination, format, profile_id, caption_records=None, records_file="",
                caption_type="", candidate_ids="{}", approved_only=False, overwrite_existing=False):
-        if (caption_records is None) == (not records_file):
-            raise ValueError("Supply connected caption records or a saved records file, exclusively")
-        records = read_records(records_file) if records_file else [CaptionRecord.from_dict(r) for r in caption_records]
+        records = load_export_records(caption_records, records_file)
+        if not profile_id:
+            raise ValueError("Select an explicit profile identifier")
         result = export_records(records, destination, format, profile_id=profile_id,
                                 caption_type=caption_type or None, candidate_ids=json.loads(candidate_ids),
-                                approved_only=approved_only, overwrite=overwrite_existing)
+                                approved_only=approved_only, overwrite=overwrite_existing, input_file=records_file)
         return (json.dumps(result, ensure_ascii=False),)
 
     def execute(self, **kwargs):

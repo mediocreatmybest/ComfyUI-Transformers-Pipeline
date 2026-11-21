@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from ..captioning.metadata import metadata_records
 from ..captioning.merging import merge_records
 from ..captioning.records import CaptionRecord, read_records
@@ -33,8 +35,13 @@ class RecordMergeTpl:
     OUTPUT_NODE = True
     CATEGORY = 'Transformers Pipeline/Analysis'
     @classmethod
-    def IS_CHANGED(cls, **kwargs):
-        return float('nan')
+    def IS_CHANGED(cls, records_file='', **kwargs):
+        if records_file is None:
+            return float('nan')
+        if not records_file:
+            return False
+        stat = Path(records_file).stat()
+        return stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns, stat.st_ino
     def execute(self, records_a=None, records_b=None, records_c=None, records_file='', records_path=''):
         check_destination(records_path)
         branches = [[CaptionRecord.from_dict(r) for r in branch or []] for branch in (records_a, records_b, records_c)]

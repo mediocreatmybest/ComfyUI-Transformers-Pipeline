@@ -50,3 +50,29 @@ assert.equal(filter.widgets[0].label, 'Which group of labels?');
 assert.equal(filter.widgets[2].label, 'Minimum Score');
 assert.equal(filter.widgets[3].label, 'No Score Available');
 assert.equal(filter.widgets[4].options.serialize, false);
+
+const unsafeCaption = '<img src=x onerror=alert(1)>\n雪';
+extension.onNodeOutputsUpdated({ '1': {
+    text: ['Plain text fallback with internal ID'],
+    tpl_summary: ['Preview of 2 images'],
+    tpl_cards: [
+        { filename: 'first.png', image: { filename: 'one.png', subfolder: 'temp & folder', label: 'first.png' },
+            captions: [{ label: 'Factual · Original', text: unsafeCaption, tags: ['night'] }],
+            classifications: ['Medium: photo'], camera: 'Sony · 55 mm', warnings: [],
+            details: 'ID: internal' },
+        { filename: 'second.png', captions: [], classifications: [], warnings: ['Image unavailable'] },
+    ],
+} });
+assert.equal(text.hidden, true);
+assert.equal(gallery.children.length, 3);
+const [, first, second] = gallery.children;
+assert.equal(first.children[0].textContent, 'first.png');
+assert.match(first.children[1].src, /subfolder=temp\+%26\+folder/);
+assert.equal(first.children[2].children[1].textContent, unsafeCaption);
+assert.equal(first.children.at(-1).tag, 'details');
+assert.equal(first.children.at(-1).children[0].textContent, 'Show Details');
+assert.equal(second.children[0].textContent, 'second.png');
+assert.equal(second.children[1].textContent, 'Image unavailable');
+extension.onNodeOutputsUpdated({ '1': { text: ['Fallback again'] } });
+assert.equal(text.hidden, false);
+assert.equal(text.value, 'Fallback again');
