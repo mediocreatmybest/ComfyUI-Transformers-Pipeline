@@ -30,7 +30,7 @@
         {
           "name": "image_directories",
           "type": "DICT",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -40,7 +40,8 @@
       "widgets_values": [
         "./input/transformers_pipeline",
         false
-      ]
+      ],
+      "title": "Image Folder"
     },
     {
       "id": 2,
@@ -69,7 +70,7 @@
         {
           "name": "loading_diagnostics",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -92,8 +93,12 @@
         "gpu_preferred",
         0,
         "",
+        "",
+        false,
+        "",
         ""
-      ]
+      ],
+      "title": "Image classification model"
     },
     {
       "id": 3,
@@ -107,7 +112,7 @@
         850
       ],
       "flags": {},
-      "order": 2,
+      "order": 3,
       "mode": 0,
       "inputs": [
         {
@@ -133,7 +138,7 @@
         {
           "name": "status",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -145,7 +150,8 @@
         "medium",
         "{}",
         ""
-      ]
+      ],
+      "title": "Suggest image labels"
     },
     {
       "id": 4,
@@ -159,7 +165,7 @@
         850
       ],
       "flags": {},
-      "order": 3,
+      "order": 2,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -174,7 +180,7 @@
         {
           "name": "loading_diagnostics",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -197,8 +203,12 @@
         "gpu_preferred",
         0,
         "",
+        "",
+        false,
+        "",
         ""
-      ]
+      ],
+      "title": "Caption model"
     },
     {
       "id": 5,
@@ -238,7 +248,7 @@
         {
           "name": "status",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -299,7 +309,7 @@
         {
           "name": "status",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -362,7 +372,7 @@
         {
           "name": "What Happened",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 3
         }
       ],
@@ -412,7 +422,7 @@
         {
           "name": "preview_text",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 0
         }
       ],
@@ -463,7 +473,7 @@
         {
           "name": "preview_text",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 0
         }
       ],
@@ -514,7 +524,7 @@
         {
           "name": "preview_text",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 0
         }
       ],
@@ -532,7 +542,7 @@
     },
     {
       "id": 11,
-      "type": "DatasetExportTpl",
+      "type": "SaveCaptionsTpl",
       "pos": [
         2730,
         80
@@ -553,26 +563,29 @@
       ],
       "outputs": [
         {
-          "name": "export_result",
+          "name": "status",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 0
         }
       ],
       "properties": {
-        "Node name for S&R": "DatasetExportTpl"
+        "Node name for S&R": "SaveCaptionsTpl"
       },
       "widgets_values": [
+        false,
+        "Images + Captions (ImageFolder)",
+        "Save to a folder I choose",
         "./output/transformers_pipeline/filtered_images",
-        "imagefolder",
+        true,
+        "Keep Existing Files",
+        "",
         "factual",
         "",
-        "",
         "{}",
-        false,
         false
       ],
-      "title": "Save kept images and captions"
+      "title": "Save Captions"
     }
   ],
   "links": [

@@ -5,7 +5,6 @@
     {
       "id": 1,
       "type": "ModelLoaderTpl",
-      "title": "1. BLIP INT8 - allow CPU offloading",
       "pos": [
         30,
         80
@@ -30,7 +29,7 @@
         {
           "name": "loading_diagnostics",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -53,13 +52,16 @@
         "offload",
         0,
         "",
+        "",
+        false,
+        "",
         ""
-      ]
+      ],
+      "title": "1. BLIP INT8 - allow CPU offloading"
     },
     {
       "id": 2,
       "type": "ImageLoaderTpl",
-      "title": "2. Choose image directory",
       "pos": [
         30,
         950
@@ -84,7 +86,7 @@
         {
           "name": "image_directories",
           "type": "DICT",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -94,12 +96,12 @@
       "widgets_values": [
         "./input/transformers_pipeline",
         false
-      ]
+      ],
+      "title": "2. Choose image directory"
     },
     {
       "id": 3,
       "type": "CaptionRecordsTpl",
-      "title": "3. BLIP raw caption profile + structured records",
       "pos": [
         540,
         80
@@ -136,7 +138,7 @@
         {
           "name": "status",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -149,14 +151,14 @@
         "{\n  \"schema_version\": 1,\n  \"profiles\": [\n    {\n      \"id\": \"factual\",\n      \"caption_type\": \"factual\",\n      \"prompt\": \"\",\n      \"prompt_mode\": \"raw\",\n      \"max_new_tokens\": 64\n    }\n  ]\n}",
         "{}",
         "",
-        "./output/transformers_pipeline/quantised_records.jsonl",
+        "",
         false
-      ]
+      ],
+      "title": "3. BLIP raw caption profile + structured records"
     },
     {
       "id": 4,
-      "type": "DatasetExportTpl",
-      "title": "4. Copy images + TXT to separate export",
+      "type": "SaveCaptionsTpl",
       "pos": [
         1160,
         80
@@ -177,30 +179,33 @@
       ],
       "outputs": [
         {
-          "name": "export_result",
+          "name": "status",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 0
         }
       ],
       "properties": {
-        "Node name for S&R": "DatasetExportTpl"
+        "Node name for S&R": "SaveCaptionsTpl"
       },
       "widgets_values": [
+        false,
+        "Text Captions (TXT)",
+        "Save to a folder I choose",
         "./output/transformers_pipeline/quantised_txt",
-        "txt",
+        false,
+        "Keep Existing Files",
+        "",
         "factual",
         "",
-        "",
         "{}",
-        false,
         false
-      ]
+      ],
+      "title": "Save Captions"
     },
     {
       "id": 5,
       "type": "CaptionPreviewTpl",
-      "title": "Inspect candidates, profiles and failures",
       "pos": [
         1160,
         700
@@ -233,7 +238,7 @@
         {
           "name": "preview_text",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 0
         }
       ],
@@ -246,7 +251,8 @@
         0,
         4,
         true
-      ]
+      ],
+      "title": "Inspect candidates, profiles and failures"
     }
   ],
   "links": [

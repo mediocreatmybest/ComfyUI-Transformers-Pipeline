@@ -29,7 +29,7 @@
         {
           "name": "loading_diagnostics",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -52,8 +52,12 @@
         "legacy",
         0,
         "",
+        "",
+        false,
+        "",
         ""
-      ]
+      ],
+      "title": "Caption model"
     },
     {
       "id": 2,
@@ -77,15 +81,15 @@
           "links": [
             2,
             3,
-            5,
-            10
+            8,
+            11
           ],
           "slot_index": 0
         },
         {
           "name": "image_directories",
           "type": "DICT",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -95,7 +99,8 @@
       "widgets_values": [
         "./input/transformers_pipeline",
         false
-      ]
+      ],
+      "title": "Image Folder"
     },
     {
       "id": 3,
@@ -109,7 +114,7 @@
         850
       ],
       "flags": {},
-      "order": 2,
+      "order": 3,
       "mode": 0,
       "inputs": [
         {
@@ -128,14 +133,14 @@
           "name": "caption_records",
           "type": "LIST",
           "links": [
-            6
+            4
           ],
           "slot_index": 0
         },
         {
           "name": "status",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -150,7 +155,8 @@
         "",
         "",
         false
-      ]
+      ],
+      "title": "Generate caption records"
     },
     {
       "id": 4,
@@ -164,7 +170,7 @@
         850
       ],
       "flags": {},
-      "order": 3,
+      "order": 4,
       "mode": 0,
       "inputs": [
         {
@@ -178,14 +184,14 @@
           "name": "caption_records",
           "type": "LIST",
           "links": [
-            7
+            5
           ],
           "slot_index": 0
         },
         {
           "name": "status",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -194,7 +200,8 @@
       },
       "widgets_values": [
         ""
-      ]
+      ],
+      "title": "Read camera details"
     },
     {
       "id": 5,
@@ -208,23 +215,23 @@
         850
       ],
       "flags": {},
-      "order": 4,
+      "order": 7,
       "mode": 0,
       "inputs": [
         {
           "name": "records_a",
           "type": "LIST",
-          "link": 6
+          "link": 4
         },
         {
           "name": "records_b",
           "type": "LIST",
-          "link": 7
+          "link": 5
         },
         {
           "name": "records_c",
           "type": "LIST",
-          "link": 8
+          "link": 6
         }
       ],
       "outputs": [
@@ -232,14 +239,14 @@
           "name": "caption_records",
           "type": "LIST",
           "links": [
-            11
+            12
           ],
           "slot_index": 0
         },
         {
           "name": "status",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -249,7 +256,8 @@
       "widgets_values": [
         "",
         ""
-      ]
+      ],
+      "title": "Merge records by image"
     },
     {
       "id": 6,
@@ -263,7 +271,7 @@
         850
       ],
       "flags": {},
-      "order": 5,
+      "order": 2,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -271,15 +279,15 @@
           "name": "model_pipeline",
           "type": "MODEL",
           "links": [
-            4,
-            9
+            7,
+            10
           ],
           "slot_index": 0
         },
         {
           "name": "loading_diagnostics",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -302,8 +310,12 @@
         "gpu_preferred",
         0,
         "",
+        "",
+        false,
+        "",
         ""
-      ]
+      ],
+      "title": "Image classification model"
     },
     {
       "id": 7,
@@ -317,18 +329,18 @@
         850
       ],
       "flags": {},
-      "order": 6,
+      "order": 5,
       "mode": 0,
       "inputs": [
         {
           "name": "model_pipeline",
           "type": "MODEL",
-          "link": 4
+          "link": 7
         },
         {
           "name": "image_paths",
           "type": "LIST",
-          "link": 5
+          "link": 8
         }
       ],
       "outputs": [
@@ -336,14 +348,14 @@
           "name": "caption_records",
           "type": "LIST",
           "links": [
-            8
+            6
           ],
           "slot_index": 0
         },
         {
           "name": "status",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -355,7 +367,8 @@
         "medium",
         "{}",
         ""
-      ]
+      ],
+      "title": "Suggest image labels"
     },
     {
       "id": 8,
@@ -369,13 +382,13 @@
         850
       ],
       "flags": {},
-      "order": 7,
+      "order": 10,
       "mode": 0,
       "inputs": [
         {
           "name": "caption_records",
           "type": "LIST",
-          "link": 14
+          "link": 9
         },
         {
           "name": "image_paths",
@@ -392,7 +405,7 @@
         {
           "name": "preview_text",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 0
         }
       ],
@@ -405,7 +418,8 @@
         0,
         4,
         true
-      ]
+      ],
+      "title": "Preview images and captions"
     },
     {
       "id": 9,
@@ -419,75 +433,18 @@
         850
       ],
       "flags": {},
-      "order": 8,
+      "order": 6,
       "mode": 0,
       "inputs": [
         {
           "name": "model_pipeline",
           "type": "MODEL",
-          "link": 9
+          "link": 10
         },
         {
           "name": "image_paths",
           "type": "LIST",
-          "link": 10
-        }
-      ],
-      "outputs": [
-        {
-          "name": "caption_records",
-          "type": "LIST",
-          "links": [
-            12
-          ],
-          "slot_index": 0
-        },
-        {
-          "name": "status",
-          "type": "STRING",
-          "links": [],
-          "slot_index": 1
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ZeroShotImageClassificationTpl"
-      },
-      "widgets_values": [
-        "[\"bird\", \"landscape\", \"architecture\"]",
-        "subject",
-        "{}",
-        ""
-      ]
-    },
-    {
-      "id": 10,
-      "type": "RecordMergeTpl",
-      "pos": [
-        1110,
-        1000
-      ],
-      "size": [
-        480,
-        850
-      ],
-      "flags": {},
-      "order": 9,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "records_a",
-          "type": "LIST",
           "link": 11
-        },
-        {
-          "name": "records_b",
-          "type": "LIST",
-          "link": 12
-        },
-        {
-          "name": "records_c",
-          "type": "LIST",
-          "link": null
         }
       ],
       "outputs": [
@@ -502,7 +459,65 @@
         {
           "name": "status",
           "type": "STRING",
-          "links": [],
+          "links": null,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ZeroShotImageClassificationTpl"
+      },
+      "widgets_values": [
+        "[\"bird\", \"landscape\", \"architecture\"]",
+        "subject",
+        "{}",
+        ""
+      ],
+      "title": "Suggest image labels"
+    },
+    {
+      "id": 10,
+      "type": "RecordMergeTpl",
+      "pos": [
+        1110,
+        1000
+      ],
+      "size": [
+        480,
+        850
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "records_a",
+          "type": "LIST",
+          "link": 12
+        },
+        {
+          "name": "records_b",
+          "type": "LIST",
+          "link": 13
+        },
+        {
+          "name": "records_c",
+          "type": "LIST",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "links": [
+            14
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "status",
+          "type": "STRING",
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -512,7 +527,8 @@
       "widgets_values": [
         "",
         ""
-      ]
+      ],
+      "title": "Merge records by image"
     },
     {
       "id": 11,
@@ -526,13 +542,13 @@
         850
       ],
       "flags": {},
-      "order": 10,
+      "order": 9,
       "mode": 0,
       "inputs": [
         {
           "name": "caption_records",
           "type": "LIST",
-          "link": 13
+          "link": 14
         }
       ],
       "outputs": [
@@ -540,7 +556,7 @@
           "name": "caption_records",
           "type": "LIST",
           "links": [
-            14,
+            9,
             15
           ],
           "slot_index": 0
@@ -548,7 +564,7 @@
         {
           "name": "status",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -560,12 +576,13 @@
         "{}",
         "",
         "composed",
-        "./output/transformers_pipeline/integrated_records.jsonl"
-      ]
+        ""
+      ],
+      "title": "Compose a caption from evidence"
     },
     {
       "id": 12,
-      "type": "DatasetExportTpl",
+      "type": "SaveCaptionsTpl",
       "pos": [
         2730,
         80
@@ -586,25 +603,29 @@
       ],
       "outputs": [
         {
-          "name": "export_result",
+          "name": "status",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 0
         }
       ],
       "properties": {
-        "Node name for S&R": "DatasetExportTpl"
+        "Node name for S&R": "SaveCaptionsTpl"
       },
       "widgets_values": [
-        "./output/transformers_pipeline/integrated_imagefolder",
-        "imagefolder",
-        "composed",
+        false,
+        "Full Records (JSONL)",
+        "Save to a folder I choose",
+        "./output/transformers_pipeline/integrated_records",
+        false,
+        "Keep Existing Files",
+        "",
         "",
         "",
         "{}",
-        false,
         false
-      ]
+      ],
+      "title": "Save Captions"
     }
   ],
   "links": [
@@ -634,22 +655,6 @@
     ],
     [
       4,
-      6,
-      0,
-      7,
-      0,
-      "MODEL"
-    ],
-    [
-      5,
-      2,
-      0,
-      7,
-      1,
-      "LIST"
-    ],
-    [
-      6,
       3,
       0,
       5,
@@ -657,7 +662,7 @@
       "LIST"
     ],
     [
-      7,
+      5,
       4,
       0,
       5,
@@ -665,7 +670,7 @@
       "LIST"
     ],
     [
-      8,
+      6,
       7,
       0,
       5,
@@ -673,7 +678,31 @@
       "LIST"
     ],
     [
+      7,
+      6,
+      0,
+      7,
+      0,
+      "MODEL"
+    ],
+    [
+      8,
+      2,
+      0,
+      7,
+      1,
+      "LIST"
+    ],
+    [
       9,
+      11,
+      0,
+      8,
+      0,
+      "LIST"
+    ],
+    [
+      10,
       6,
       0,
       9,
@@ -681,7 +710,7 @@
       "MODEL"
     ],
     [
-      10,
+      11,
       2,
       0,
       9,
@@ -689,7 +718,7 @@
       "LIST"
     ],
     [
-      11,
+      12,
       5,
       0,
       10,
@@ -697,7 +726,7 @@
       "LIST"
     ],
     [
-      12,
+      13,
       9,
       0,
       10,
@@ -705,18 +734,10 @@
       "LIST"
     ],
     [
-      13,
+      14,
       10,
       0,
       11,
-      0,
-      "LIST"
-    ],
-    [
-      14,
-      11,
-      0,
-      8,
       0,
       "LIST"
     ],

@@ -12,6 +12,7 @@ from .nodes.model_loader_tpl import ModelLoaderTpl
 from .nodes.preset_model_list_tpl import PresetModelListTpl
 from .nodes.task_list_tpl import TaskListTpl
 from .nodes.caption_records_tpl import CaptionRecordsTpl
+from .nodes.save_captions_tpl import SaveCaptionsTpl
 from .nodes.dataset_export_tpl import DatasetExportTpl
 from .nodes.caption_preview_tpl import CaptionPreviewTpl
 from .nodes.analysis_nodes_tpl import ZeroShotImageClassificationTpl, ZeroShotTextClassificationTpl
@@ -35,6 +36,7 @@ NODE_CLASS_MAPPINGS = {
     'ZeroShotTextClassificationTpl': ZeroShotTextClassificationTpl,
     "CaptionPreviewTpl": CaptionPreviewTpl,
     "CaptionRecordsTpl": CaptionRecordsTpl,
+    "SaveCaptionsTpl": SaveCaptionsTpl,
     "DatasetExportTpl": DatasetExportTpl,
     "BatchProcessorTpl": BatchProcessorTpl,
     "CaptionExportTpl": CaptionExportTpl,
@@ -60,6 +62,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     'ZeroShotTextClassificationTpl': 'Zero-Shot Text Classification',
     "CaptionPreviewTpl": "Caption / Image Preview",
     "CaptionRecordsTpl": "Caption Records",
+    "SaveCaptionsTpl": "Save Captions",
     "DatasetExportTpl": "Dataset Export",
     "BatchProcessorTpl": "Batch Processor (Path Groups)",
     "CaptionExportTpl": "Caption Export",

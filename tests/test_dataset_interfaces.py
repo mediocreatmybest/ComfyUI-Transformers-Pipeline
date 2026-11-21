@@ -36,6 +36,36 @@ class InterfaceTests(unittest.TestCase):
         exported = exporter.export(str(self.root / "dataset"), "imagefolder", "factual", caption_records=result[0])
         self.assertEqual(json.loads(exported[0])["exported"], 1)
 
+    def test_blip_starter_records_flow_through_composition_preview_and_save(self):
+        nodes = load_extension().NODE_CLASS_MAPPINGS
+        prompt = json.loads((ROOT / 'example_workflows/api/Caption_My_Images.json').read_text())
+        record_inputs = next(n['inputs'] for n in prompt.values() if n['class_type'] == 'CaptionRecordsTpl')
+
+        class Blip:
+            task = 'image-to-text'
+            model = SimpleNamespace(name_or_path='Salesforce/blip-image-captioning-base',
+                                    config=SimpleNamespace(model_type='blip'))
+
+            def __call__(self, image, *, max_new_tokens):
+                return [{'generated_text': f'A red {image.width} pixel image.'}]
+
+        records = nodes['CaptionRecordsTpl']().execute(**{
+            **record_inputs, 'model_pipeline': Blip(), 'image_paths': [str(self.image)]
+        })['result'][0]
+        composed = nodes['CaptionComposeTpl']().execute(
+            caption_records=records, template='{caption} With an edit.')['result'][0]
+        preview = nodes['CaptionPreviewTpl']().preview(caption_records=composed, show_images=False)
+        self.assertEqual([item['text'] for item in preview['ui']['tpl_cards'][0]['captions']],
+                         ['A red 8 pixel image.', 'A red 8 pixel image. With an edit.'])
+        destination = self.root / 'export'
+        save = nodes['SaveCaptionsTpl']()
+        options = {'caption_records': composed, 'profile_id': 'composed', 'destination': str(destination)}
+        save.execute(**options)
+        self.assertFalse(destination.exists())
+        save.execute(**options, save_output=True)
+        self.assertEqual(next(destination.glob('*.txt')).read_text(encoding='utf-8'),
+                         'A red 8 pixel image. With an edit.\n')
+
     def test_standalone_export_and_review_need_no_pipeline(self):
         records = generate_records(self.pipe, [self.image], [CaptionProfile("facts", "factual", "describe")],
                                    infer=lambda *args: "A red rectangle.")

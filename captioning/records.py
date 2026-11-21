@@ -220,12 +220,11 @@ def publish_file(source, target, overwrite=False):
     if overwrite:
         os.replace(source, target)
         return
-    # Exclusive creation works on filesystems without hardlink support.
-    with open(target, "xb") as output:
-        try:
-            with open(source, "rb") as stream:
-                shutil.copyfileobj(stream, output)
-        except Exception:
-            output.close()
-            Path(target).unlink()
-            raise
+    # Claim the path exclusively before installing cleanup for writes and flush errors.
+    output = open(target, "xb")
+    try:
+        with output, open(source, "rb") as stream:
+            shutil.copyfileobj(stream, output)
+    except Exception:
+        Path(target).unlink(missing_ok=True)
+        raise

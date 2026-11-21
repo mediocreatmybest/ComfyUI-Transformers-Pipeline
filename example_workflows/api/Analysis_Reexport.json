@@ -2,11 +2,11 @@
   "1": {
     "class_type": "RecordMergeTpl",
     "inputs": {
-      "records_file": "./output/transformers_pipeline/integrated_records.jsonl",
+      "records_file": "./output/transformers_pipeline/integrated_records/records.jsonl",
       "records_path": ""
     },
     "_meta": {
-      "title": "RecordMergeTpl"
+      "title": "Open Saved Records"
     }
   },
   "2": {
@@ -23,7 +23,7 @@
       ]
     },
     "_meta": {
-      "title": "CaptionPreviewTpl"
+      "title": "Preview images and captions"
     }
   },
   "3": {
@@ -43,7 +43,7 @@
       ]
     },
     "_meta": {
-      "title": "DatasetExportTpl"
+      "title": "Re-export TXT"
     }
   },
   "4": {
@@ -63,7 +63,7 @@
       ]
     },
     "_meta": {
-      "title": "DatasetExportTpl"
+      "title": "Archive images from a selected profile"
     }
   },
   "5": {
@@ -83,7 +83,7 @@
       ]
     },
     "_meta": {
-      "title": "DatasetExportTpl"
+      "title": "Re-export ImageFolder"
     }
   }
 }

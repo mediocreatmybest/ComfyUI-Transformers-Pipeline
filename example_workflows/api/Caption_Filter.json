@@ -6,7 +6,7 @@
       "skip_existing_captions": false
     },
     "_meta": {
-      "title": "ImageLoaderTpl"
+      "title": "Image Folder"
     }
   },
   "2": {
@@ -33,7 +33,7 @@
       "adapter_revision": ""
     },
     "_meta": {
-      "title": "ModelLoaderTpl"
+      "title": "Image classification model"
     }
   },
   "3": {
@@ -53,7 +53,7 @@
       ]
     },
     "_meta": {
-      "title": "ZeroShotImageClassificationTpl"
+      "title": "Suggest image labels"
     }
   },
   "4": {
@@ -80,7 +80,7 @@
       "adapter_revision": ""
     },
     "_meta": {
-      "title": "ModelLoaderTpl"
+      "title": "Caption model"
     }
   },
   "5": {
@@ -192,23 +192,26 @@
     }
   },
   "11": {
-    "class_type": "DatasetExportTpl",
+    "class_type": "SaveCaptionsTpl",
     "inputs": {
+      "save_output": false,
+      "file_format": "Images + Captions (ImageFolder)",
+      "save_location": "Save to a folder I choose",
       "destination": "./output/transformers_pipeline/filtered_images",
-      "format": "imagefolder",
-      "profile_id": "factual",
+      "copy_images": true,
+      "file_policy": "Keep Existing Files",
       "records_file": "",
+      "profile_id": "factual",
       "caption_type": "",
       "candidate_ids": "{}",
       "approved_only": false,
-      "overwrite_existing": false,
       "caption_records": [
         "7",
         0
       ]
     },
     "_meta": {
-      "title": "Save kept images and captions"
+      "title": "Save Captions"
     }
   }
 }

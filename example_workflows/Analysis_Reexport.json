@@ -48,7 +48,7 @@
         {
           "name": "status",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -56,9 +56,10 @@
         "Node name for S&R": "RecordMergeTpl"
       },
       "widgets_values": [
-        "./output/transformers_pipeline/integrated_records.jsonl",
+        "./output/transformers_pipeline/integrated_records/records.jsonl",
         ""
-      ]
+      ],
+      "title": "Open Saved Records"
     },
     {
       "id": 2,
@@ -95,7 +96,7 @@
         {
           "name": "preview_text",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 0
         }
       ],
@@ -108,7 +109,8 @@
         0,
         4,
         true
-      ]
+      ],
+      "title": "Preview images and captions"
     },
     {
       "id": 3,
@@ -135,7 +137,7 @@
         {
           "name": "export_result",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 0
         }
       ],
@@ -151,7 +153,8 @@
         "{}",
         false,
         false
-      ]
+      ],
+      "title": "Re-export TXT"
     },
     {
       "id": 4,
@@ -178,7 +181,7 @@
         {
           "name": "export_result",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 0
         }
       ],
@@ -194,7 +197,8 @@
         "{}",
         false,
         false
-      ]
+      ],
+      "title": "Archive images from a selected profile"
     },
     {
       "id": 5,
@@ -221,7 +225,7 @@
         {
           "name": "export_result",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 0
         }
       ],
@@ -237,7 +241,8 @@
         "{}",
         false,
         false
-      ]
+      ],
+      "title": "Re-export ImageFolder"
     }
   ],
   "links": [

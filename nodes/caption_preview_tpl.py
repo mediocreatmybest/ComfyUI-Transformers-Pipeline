@@ -1,6 +1,8 @@
+from fractions import Fraction
 from itertools import islice
 import hashlib
 from pathlib import Path
+import re
 import uuid
 
 from ..captioning.records import CaptionRecord, iter_records
@@ -13,8 +15,110 @@ def clipped(text, limit=1600):
     return text if len(text) <= limit else text[:limit] + ' … [truncated for preview]'
 
 
+def friendly_name(identifier):
+    return clipped(identifier.replace('_', ' ').replace('-', ' ').title(), 100)
+
+
+def warning_text(value):
+    return clipped(re.sub(r'\b(?:[0-9a-f]{64}|[0-9a-f]{32})\b', '[record ID]', str(value), flags=re.I), 400)
+
+
+def camera_summary(fields):
+    values = {name: str(value.get('value', '')).strip() for name, value in fields.items()
+              if isinstance(value, dict) and value.get('value') is not None}
+    camera = values.get('Camera Model') or values.get('Camera Make')
+    parts = [camera, values.get('Lens Model')]
+    for name, pattern in (('Focal Length', '{} mm'), ('F Number', 'f/{}'),
+                          ('Exposure Time', '{} s'), ('ISO', 'ISO {}')):
+        try:
+            number = Fraction(values.get(name, ''))
+            if number <= 0:
+                continue
+            display = str(number) if name == 'Exposure Time' and number < 1 else f'{float(number):g}'
+            parts.append(pattern.format(display))
+        except (ValueError, ZeroDivisionError, OverflowError):
+            continue
+    date = values.get('Date Taken', '')
+    if date and not date.startswith('0000:00:00'):
+        parts.append(re.sub(r'^(\d{4}):(\d{2}):(\d{2})', r'\1-\2-\3', date))
+    return clipped(' · '.join(part for part in parts if part), 600)
+
+
+def preview_card(path, candidates, caption, analyses, profile_id):
+    card = {'filename': clipped(Path(path).name, 240), 'captions': [], 'classifications': [], 'warnings': []}
+    details = [f'Source: {clipped(path, 600)}']
+    if candidates is None:
+        if caption and str(caption).strip():
+            card['captions'].append({'label': 'Caption', 'text': clipped(caption)})
+    else:
+        original_id = next((c.id for c in candidates if not is_derived(c)), None)
+        selected = [c for c in candidates if not profile_id or c.profile_id == profile_id]
+        selected.sort(key=is_derived)  # Show the original models before downstream transformations.
+        if not selected and candidates:
+            available = ', '.join(dict.fromkeys(friendly_name(c.profile_id) for c in candidates))
+            card['warnings'].append('No captions match this style. Available: ' + clipped(available))
+        elif not selected:
+            card['warnings'].append('No captions in this record.')
+        for candidate in selected[:6]:
+            profile = friendly_name(candidate.profile_id)
+            kind = ('Edited' if candidate.edited else 'Composed' if candidate.caption_type == 'composed'
+                    else 'Synthesized' if is_derived(candidate) else 'Original' if candidate.id == original_id else 'Generated alternative')
+            label = f'{profile} · {kind}'
+            details.append(clipped(f'[{candidate.profile_id} / {candidate.caption_type}] {candidate.status}; '
+                                   f'{candidate.approval}; id={candidate.id}; '
+                                   f'model={candidate.model.model_id}; revision={candidate.model.revision or "unknown"}'))
+            if candidate.status == 'failure':
+                card['warnings'].append(f'{label}: {warning_text(candidate.error)}')
+                continue
+            item = {'label': label, 'text': clipped(caption_content(candidate))}
+            if candidate.tags:
+                item['tags'] = [clipped(tag, 100) for tag in candidate.tags[:20]]
+            card['captions'].append(item)
+            if candidate.edited and candidate.generated_text and candidate.generated_text != candidate.text:
+                details.append('Original generated text: ' + clipped(candidate.generated_text))
+            if candidate.approval == 'rejected':
+                card['warnings'].append(f'{label}: Rejected in review.')
+            if is_derived(candidate):
+                transform = candidate.generation_parameters.get('transformation', {})
+                verification = transform.get('verification', 'unverified') if isinstance(transform, dict) else 'unverified'
+                if verification == 'unverified':
+                    card['warnings'].append(f'{label}: Derived caption, factual accuracy unverified.')
+                details.append(clipped('Transformation: ' + str(transform)))
+            issue = source_issue(candidate, candidates, analyses)
+            if issue and candidate.approval != 'rejected':
+                card['warnings'].append(f'{label}: Unsafe to reuse as training text. {issue.split(":", 1)[0]}.')
+                details.append('Training export check: ' + clipped(issue))
+        if len(selected) > 6:
+            card['warnings'].append('More caption candidates are available. Select a Caption Style to narrow the preview.')
+    exif = {}
+    for analysis in analyses[:12]:
+        details.append(clipped(f'[{analysis.kind}: {analysis.group_id}] {analysis.status}; id={analysis.id}; '
+                               + str(analysis.error or analysis.values), 1000))
+        label = friendly_name(analysis.group_id)
+        issue = analysis_source_issue(analysis, candidates, analyses)
+        if analysis.status == 'failure':
+            card['warnings'].append(f'{label}: {warning_text(analysis.error)}')
+        elif issue:
+            card['warnings'].append(f'{label}: Classification source needs review. {issue.split(":", 1)[0]}.')
+            details.append('Analysis source check: ' + clipped(issue))
+        elif analysis.kind == 'classification':
+            if analysis.source_candidate_id and analysis.source_candidate_id not in {c.id for c in selected[:6]}:
+                continue
+            name, score = max(zip(analysis.values['labels'], analysis.values['scores']), key=lambda item: item[1])
+            card['classifications'].append(f'{label}: {clipped(name, 120)} (model score {score:.3g})')
+        elif analysis.kind == 'metadata' and analysis.group_id == 'exif':
+            exif.update(analysis.values)
+    if len(analyses) > 12:
+        details.append('Additional analyses are preserved in the records.')
+    camera = camera_summary(exif)
+    if camera:
+        card['camera'] = camera
+    card['details'] = clipped('\n'.join(details), 4800)
+    return card
+
+
 class CaptionPreviewTpl:
-    DESCRIPTION = "Read-only preview of connected records, saved JSONL, or image paths with optional legacy captions. Saved-record mode runs no inference. Requeueing a live graph can rerun upstream generation or hit checkpoint protection; use records_file to review without regenerating. Thumbnails are temporary copies; canonical records and source images are unchanged."
+    DESCRIPTION = "Read-only preview of connected records, saved JSONL, or image paths with optional legacy captions. Saved-record mode runs no inference. Paging reuses cached upstream results when available. Load a saved records file to review with no model. Thumbnails are temporary copies; canonical records and source images are unchanged."
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -24,7 +128,7 @@ class CaptionPreviewTpl:
             "captions": ("LIST", {"tooltip": "Optional Caption Generator output; image_paths must have exactly the same length."}),
             "records_file": ("STRING", {"default": "", "tooltip": "Saved native JSONL; no model or inference required. Use only one source mode."}),
             "profile_id": ("STRING", {"default": "", "tooltip": "Blank shows all profiles; otherwise match an exact profile ID. Does not modify records."}),
-            "offset": ("INT", {"default": 0, "min": 0, "tooltip": "Zero-based image/record offset. Increase for the next page. Use saved records_file to avoid requeueing upstream generation."}),
+            "offset": ("INT", {"default": 0, "min": 0, "tooltip": "Zero-based image/record offset. Increase for the next page. Queue to load this page. Use saved records_file for offline review."}),
             "limit": ("INT", {"default": 4, "min": 1, "max": 8, "tooltip": "Maximum images on this page. Only these images are decoded for thumbnails."}),
             "show_images": ("BOOLEAN", {"default": True, "tooltip": "Create thumbnails up to 512 pixels in ComfyUI temp storage. Disable for text-only/headless review."}),
         }}
@@ -62,56 +166,32 @@ class CaptionPreviewTpl:
                 records.close()
         more = len(page) > limit
         page = page[:limit]
-        lines = [f'Preview: {len(page)} images, offset {offset}; profile {profile_id or "all"}.' +
-                 (' More images available; increase offset.' if more else ' End of input.')]
-        images = []
+        summary = (f'Preview: {len(page)} images, offset {offset}.'
+                   + (' More images available; increase offset.' if more else ' End of input.'))
+        lines, images, cards = [summary], [], []
         for number, (path, candidates, caption, expected_hash, analyses) in enumerate(page, offset + 1):
-            label = f'{number}. {Path(path).name}'
-            lines.extend(['', clipped(label), f'Source: {clipped(path, 600)}'])
-            if candidates is None:
-                lines.append(clipped(caption) if caption is not None else 'Image only; no caption supplied.')
-            else:
-                selected = [c for c in candidates if not profile_id or c.profile_id == profile_id]
-                if not selected:
-                    lines.append('No candidates match this profile. Available: ' + clipped(', '.join(c.profile_id for c in candidates)))
-                for candidate in selected[:6]:
-                    lines.append(clipped(f'[{candidate.profile_id} / {candidate.caption_type}] {candidate.status}; '
-                                         f'{candidate.approval}; edited={candidate.edited}; id={candidate.id}'))
-                    lines.append(clipped(caption_content(candidate) if candidate.status == 'success' else candidate.error))
-                    if is_derived(candidate):
-                        transform = candidate.generation_parameters.get('transformation', {})
-                        if not isinstance(transform, dict):
-                            transform = {}
-                        lines.append('Derived caption; factual verification: ' + clipped(transform.get('verification', 'unverified')) +
-                                     '. Review status is separate from caption text.')
-                        lines.append(clipped('Sources: candidates ' + str(transform.get('source_candidate_ids', [])) +
-                                             '; analyses ' + str(transform.get('source_analysis_ids', []))))
-                    if candidate.status == 'success':
-                        issue = source_issue(candidate, candidates, analyses)
-                        if issue:
-                            lines.append('Unsafe to reuse/export as training text: ' + clipped(issue))
-                if len(selected) > 6:
-                    lines.append('Additional candidates omitted; select a profile or inspect the saved records.')
+            card = preview_card(path, candidates, caption, analyses, profile_id)
             if show_images:
                 try:
-                    images.append(self.thumbnail(path, label, expected_hash))
+                    image = self.thumbnail(path, f"{number}. {card['filename']}", expected_hash)
+                    images.append(image)
+                    card['image'] = image
                 except Exception as exc:
-                    lines.append(f'Image preview unavailable: {clipped(exc, 400)}')
-            for analysis in analyses[:12]:
-                lines.append(clipped(f'[{analysis.kind}: {analysis.group_id}] {analysis.status}; id={analysis.id}'))
-                issue = analysis_source_issue(analysis, candidates, analyses)
-                if issue:
-                    lines.append('Unsafe analysis source: ' + clipped(issue))
-                if analysis.kind == 'classification' and analysis.status == 'success':
-                    lines.append(clipped(', '.join(f'{label}: {score:.6g}' for label, score in
-                        zip(analysis.values['labels'], analysis.values['scores'])) + ' (model scores, not calibrated probabilities)'))
-                else:
-                    lines.append(clipped(analysis.error or str(analysis.values)))
-            if len(analyses) > 12:
-                lines.append('Additional analyses omitted from preview; preserved in records.')
+                    card['warnings'].append(f'Image preview unavailable: {clipped(exc, 400)}')
+            cards.append(card)
+            lines.extend(['', f"{number}. {card['filename']}"])
+            if candidates is None and not card['captions']:
+                lines.append('Image only; no caption supplied.')
+            for item in card['captions']:
+                lines.extend([item['label'], item['text']])
+            lines.extend(card['classifications'])
+            if card.get('camera'):
+                lines.append(card['camera'])
+            lines.extend(card['warnings'])
+            lines.append(card['details'])
         text = clipped('\n'.join(lines), 23000)
         result = feedback((text,), text)
-        result['ui']['tpl_images'] = images
+        result['ui'].update(tpl_images=images, tpl_cards=cards, tpl_summary=[summary])
         return result
 
     @staticmethod
