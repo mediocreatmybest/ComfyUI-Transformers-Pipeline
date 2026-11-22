@@ -55,7 +55,8 @@
         "",
         false,
         "",
-        ""
+        "",
+        "Quick Captions · BLIP Base"
       ],
       "title": "1. BLIP INT8 - allow CPU offloading"
     },
@@ -148,11 +149,13 @@
       "widgets_values": [
         "factual",
         "",
-        "{\n  \"schema_version\": 1,\n  \"profiles\": [\n    {\n      \"id\": \"factual\",\n      \"caption_type\": \"factual\",\n      \"prompt\": \"\",\n      \"prompt_mode\": \"raw\",\n      \"max_new_tokens\": 64\n    }\n  ]\n}",
+        "",
         "{}",
         "",
         "",
-        false
+        false,
+        "Simple Description",
+        ""
       ],
       "title": "3. BLIP raw caption profile + structured records"
     },
@@ -314,12 +317,9 @@
     },
     "transformers_pipeline": {
       "instructions": [
-        "Requires CUDA, bitsandbytes and Accelerate. No full-precision fallback or disk offload.",
-        "Blank memory budgets use automatic limits with reserved headroom. Optional explicit budgets constrain weight placement, not total memory use; inference needs additional headroom.",
-        "CPU offloading is enabled, but CPU placement is not guaranteed: layers may remain entirely on GPU when they fit. Actual placement depends on the model and memory budgets; inspect loading_diagnostics.",
-        "Choose an image directory and new output paths before queueing; overwrite protection is enabled.",
-        "Model Loader loading_diagnostics output contains actual runtime, quantisation, device map and memory measurements.",
-        "Preview is read-only. To inspect saved records without regenerating, use Dataset_Export or a separate Preview with records_file. Existing checkpoint protection remains enabled."
+        "Requires CUDA, bitsandbytes and Accelerate. Offload placement can use CPU when needed. There is no disk offload or full-precision fallback.",
+        "Blank memory budgets reserve headroom automatically. These limits plan weight placement; activations need additional memory.",
+        "Inspect loading diagnostics for actual placement and quantisation. Saving is off until you enable Save Output."
       ]
     }
   },

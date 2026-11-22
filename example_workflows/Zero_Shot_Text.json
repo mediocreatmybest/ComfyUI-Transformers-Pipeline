@@ -111,7 +111,8 @@
         "",
         false,
         "",
-        ""
+        "",
+        "Text Processing · XtremeDistil Zero-Shot"
       ],
       "title": "Text classification model"
     },

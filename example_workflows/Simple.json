@@ -382,6 +382,12 @@
         30,
         50
       ]
+    },
+    "transformers_pipeline": {
+      "instructions": [
+        "This legacy example connects a separate model picker and uses the Custom Task field.",
+        "Queuing writes protected TXT sidecars beside the source images."
+      ]
     }
   },
   "version": 0.4

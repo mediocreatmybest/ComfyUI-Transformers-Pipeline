@@ -55,9 +55,10 @@
         "",
         false,
         "",
-        ""
+        "",
+        "Detailed and Natural Captions · Florence-2 Base (Community)"
       ],
-      "title": "1. Load Florence community"
+      "title": "Florence-2 Base (Community)"
     },
     {
       "id": 2,
@@ -97,7 +98,7 @@
         "./input/transformers_pipeline",
         false
       ],
-      "title": "2. Choose image directory"
+      "title": "Image Folder"
     },
     {
       "id": 3,
@@ -152,9 +153,11 @@
         "{}",
         "",
         "",
-        false
+        false,
+        "Use custom profiles",
+        ""
       ],
-      "title": "3. Two editable Florence task profiles + saved records"
+      "title": "Compare short and more detailed captions"
     },
     {
       "id": 4,
@@ -205,7 +208,7 @@
         4,
         true
       ],
-      "title": "Inspect candidates, profiles and failures"
+      "title": "Preview both caption styles"
     },
     {
       "id": 5,
@@ -314,12 +317,8 @@
     },
     "transformers_pipeline": {
       "instructions": [
-        "Choose an image directory and a new records_path before queueing.",
-        "Florence uses raw task tokens for brief and detailed captions. These are not instruction-following artistic-analysis profiles.",
-        "Built-in instruction profiles require an instruction-following VLM and a Transformers release supporting its architecture. Florence uses the raw task profiles shown here.",
-        "Open Dataset_Export.json to select a saved profile without repeating inference.",
-        "Requires a Transformers release with native Florence support and the florence-community checkpoint.",
-        "Preview is read-only. To inspect saved records without regenerating, use Dataset_Export or a separate Preview with records_file. Existing checkpoint protection remains enabled."
+        "Florence Community uses caption tokens. This example compares <CAPTION> with <MORE_DETAILED_CAPTION> using two editable raw profiles.",
+        "Enable Save Output to archive both styles as JSONL. Open Dataset_Export later to export a selected profile from that archive."
       ]
     }
   },

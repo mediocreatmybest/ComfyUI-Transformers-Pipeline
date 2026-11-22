@@ -55,7 +55,8 @@
         "",
         false,
         "",
-        ""
+        "",
+        "Quick Captions · BLIP Base"
       ],
       "title": "Caption model"
     },
@@ -149,11 +150,13 @@
       "widgets_values": [
         "factual",
         "",
-        "{\"schema_version\": 1, \"profiles\": [{\"id\": \"factual\", \"caption_type\": \"factual\", \"prompt\": \"\", \"prompt_mode\": \"raw\", \"max_new_tokens\": 64}]}",
+        "",
         "{}",
         "",
         "",
-        false
+        false,
+        "Simple Description",
+        ""
       ],
       "title": "Generate caption records"
     },
@@ -312,7 +315,8 @@
         "",
         false,
         "",
-        ""
+        "",
+        "Image Classification · CLIP ViT-B/32"
       ],
       "title": "Image classification model"
     },
@@ -552,7 +556,7 @@
   ],
   "groups": [
     {
-      "title": "Independent caption, classification and metadata branches | Merge by identity | New checkpoint path required",
+      "title": "Combine captions, camera details and suggested labels",
       "bounding": [
         0,
         0,
@@ -571,6 +575,12 @@
       "offset": [
         30,
         50
+      ]
+    },
+    "transformers_pipeline": {
+      "instructions": [
+        "Three branches use the same image paths. Merging combines captions, EXIF and CLIP suggestions by image identity.",
+        "Caption text is preserved. Use Caption Composition to add labels to the text explicitly."
       ]
     }
   },

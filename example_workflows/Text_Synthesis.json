@@ -111,7 +111,8 @@
         "",
         false,
         "",
-        ""
+        "",
+        "Text Processing · SmolLM2 135M Instruct"
       ],
       "title": "Text synthesis model"
     },

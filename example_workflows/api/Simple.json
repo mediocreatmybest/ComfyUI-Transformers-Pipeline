@@ -44,7 +44,8 @@
       "cpu_memory": "",
       "use_lora": false,
       "lora_adapter": "",
-      "adapter_revision": ""
+      "adapter_revision": "",
+      "model_preset": "Custom model and task"
     },
     "_meta": {
       "title": "Caption model"

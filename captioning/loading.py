@@ -10,6 +10,8 @@ import re
 import sys
 import warnings
 
+from .catalogue import CATALOGUE, check_model_dependencies, model_description, resolve_task
+
 
 def memory_bytes(value):
     if not value:
@@ -225,7 +227,8 @@ def plan_placement(policy, model, config_data, budgets, *, config=None):
         except (ValueError, TypeError) as exc:
             failures.append(str(exc))
     else:
-        raise ValueError('Cannot safely plan memory for this architecture/task: ' + '; '.join(failures))
+        raise ValueError(f"Unsupported model architecture or task {policy.task!r} for "
+                         f"{type(config).__name__}: " + ('; '.join(failures) or 'no PyTorch model class is registered'))
     empty.tie_weights()
     # Conservative full-size planning also accounts for unquantised CPU modules in INT8 offload.
     dtype_name = policy.dtype if policy.dtype != 'auto' else config_data.get('dtype', config_data.get('torch_dtype', 'float32'))
@@ -236,7 +239,7 @@ def plan_placement(policy, model, config_data, budgets, *, config=None):
         size = estimate_weight_bytes(empty, policy, config.to_dict())
         device = next(iter(budgets))
         if size > budgets[device]:
-            raise ValueError(f'Conservative weight estimate {int(size)} bytes exceeds {device} budget {budgets[device]}; use offload or increase the budget')
+            raise ValueError(f'Insufficient memory: conservative weight estimate {int(size)} bytes exceeds {device} budget {budgets[device]}; use offload or increase the budget')
         return {'': f'cuda:{device}' if isinstance(device, int) else device}
     no_split = empty._get_no_split_modules('auto') if hasattr(empty, '_get_no_split_modules') else empty._no_split_modules
     mapping = infer_auto_device_map(empty, max_memory=budgets, dtype=dtype,
@@ -308,6 +311,8 @@ class PipelineCache:
 
     def load(self, policy):
         from .adapters import resolve_adapter
+        if policy.use_lora:
+            pipeline_task(policy)
         adapter = resolve_adapter(policy) if policy.use_lora else None
         key = json.dumps([asdict(policy), adapter], sort_keys=True)
         if self.pipeline is not None and key == self.key:
@@ -318,33 +323,53 @@ class PipelineCache:
         return self.pipeline
 
 
+def pipeline_task(policy):
+    from transformers import __version__
+    from transformers.pipelines import get_supported_tasks
+
+    task = resolve_task(policy.model_id, policy.task, get_supported_tasks(), __version__,
+                        trust_remote_code=policy.trust_remote_code)
+    check_model_dependencies(policy.model_id)
+    return task
+
+
 def load_pipeline(policy, *, adapter=None):
     import torch
     import transformers
-    from transformers.pipelines import get_supported_tasks
 
     from .adapters import resolve_adapter, activate_adapter
+    requested = policy_diagnostics(policy)
+    effective_task = pipeline_task(policy)
+    if effective_task != policy.task:
+        policy = replace(policy, task=effective_task)
     if policy.use_lora and adapter is None:
         adapter = resolve_adapter(policy)
-    requested = policy_diagnostics(policy)
     versions = dependency_versions()
-    tasks = get_supported_tasks()
-    if policy.task == 'image-to-text' and policy.task not in tasks:
-        policy = replace(policy, task='image-text-to-text')
-    if policy.task not in tasks:
-        raise ValueError(f'Task {policy.task!r} is unavailable in Transformers {transformers.__version__}')
     cuda = torch.cuda.is_available()
     if policy.placement in {'gpu', 'offload'} and not cuda:
         raise ValueError('CUDA requested but unavailable')
     if cuda and policy.gpu_index >= torch.cuda.device_count():
         raise ValueError('Requested GPU index is unavailable')
-    model, revision, config = inspect_model(policy)
+    try:
+        model, revision, config = inspect_model(policy)
+    except (OSError, ValueError) as exc:
+        raise ValueError(f"Could not read model configuration for {policy.model_id!r}: {exc}") from exc
     # Once a snapshot/subfolder resolves to a local directory it is already the model root.
     if Path(model).is_dir() and 'subfolder' in policy.model_kwargs:
         policy = replace(policy, model_kwargs={k: v for k, v in policy.model_kwargs.items() if k != 'subfolder'})
     if revision:
         policy = replace(policy, revision=revision)
-    resolved_config, options = resolve_config(policy, model)
+    try:
+        resolved_config, options = resolve_config(policy, model)
+    except ImportError as exc:
+        raise ImportError(f"Missing dependency for {policy.model_id!r}: {exc}") from exc
+    except (KeyError, ValueError) as exc:
+        catalogue_entry = CATALOGUE.get(policy.model_id)
+        hint = f" {model_description(catalogue_entry)}" if catalogue_entry else ''
+        reason = ('Unsupported model architecture' if isinstance(exc, KeyError)
+                  or 'does not recognize this architecture' in str(exc) else 'Invalid model configuration')
+        raise ValueError(f"{reason} in Transformers {transformers.__version__} for "
+                         f"{policy.model_id!r}: {exc}.{hint}") from exc
     config = resolved_config.to_dict()
     capability = assess_capability(policy, config, versions, cuda)
     if capability['status'] in {'unsupported', 'missing_optional_dependency'}:
@@ -415,4 +440,15 @@ def load_pipeline(policy, *, adapter=None):
     except Exception as exc:
         pipe = None
         release_unused_memory()
-        raise RuntimeError(f'Could not load {policy.model_id!r} with {backend}/{mode}: {exc}; no precision fallback attempted') from exc
+        if isinstance(exc, ImportError):
+            reason = 'Missing dependency'
+        elif isinstance(exc, torch.OutOfMemoryError) or 'out of memory' in str(exc).lower():
+            reason = 'Insufficient memory'
+        elif isinstance(exc, (TypeError, ValueError)) and any(
+            part in str(exc).lower() for part in ('processor', 'tokenizer')
+        ):
+            reason = 'Input processor or tokenizer incompatibility'
+        else:
+            reason = 'Model loading failure'
+        raise RuntimeError(f"{reason} for {policy.model_id!r} with {backend}/{mode}: {exc}. "
+                           'No precision fallback was attempted.') from exc

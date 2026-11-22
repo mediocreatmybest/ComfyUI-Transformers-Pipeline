@@ -95,7 +95,8 @@
         "",
         false,
         "",
-        ""
+        "",
+        "Quick Captions · BLIP Base"
       ],
       "title": "BLIP caption model"
     },
@@ -148,11 +149,13 @@
       "widgets_values": [
         "factual",
         "",
-        "{\"schema_version\": 1, \"profiles\": [{\"id\": \"factual\", \"caption_type\": \"factual\", \"prompt\": \"\", \"prompt_mode\": \"raw\", \"max_new_tokens\": 75}]}",
+        "",
         "{}",
         "",
         "",
-        false
+        false,
+        "Simple Description",
+        ""
       ],
       "title": "Generate short captions"
     },
@@ -334,6 +337,12 @@
       "offset": [
         30,
         30
+      ]
+    },
+    "transformers_pipeline": {
+      "instructions": [
+        "Choose an Image Folder and queue. The BLIP Base preset selects the task automatically.",
+        "Simple Description uses the image alone. Enable Save Output only when ready to write files."
       ]
     }
   },

@@ -79,5 +79,7 @@ def caption_image(pipe, source, question, max_new_tokens, pipeline_kwargs=None, 
             else:
                 output = pipe(images=image, text=prompt, **options)
         return caption_text(output)
+    except (AttributeError, TypeError) as exc:
+        raise ValueError(f"Input or processor incompatibility for task {pipe.task!r}: {exc}") from exc
     finally:
         image.close()

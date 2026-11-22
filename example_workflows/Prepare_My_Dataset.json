@@ -57,7 +57,7 @@
         "./output/transformers_pipeline/my_captions/records.jsonl",
         ""
       ],
-      "title": "Open Saved Records"
+      "title": "Saved Records File"
     },
     {
       "id": 2,
@@ -168,7 +168,7 @@
         0.0,
         "Keep anyway"
       ],
-      "title": "Choose images using saved scores"
+      "title": "Optional filter by saved scores"
     },
     {
       "id": 4,
@@ -289,6 +289,12 @@
       "offset": [
         30,
         30
+      ]
+    },
+    "transformers_pipeline": {
+      "instructions": [
+        "Choose a saved records.jsonl file. No model is required.",
+        "Preview reviews all saved records. Save receives the Kept output. To export everything, connect the saved records directly to Save Captions."
       ]
     }
   },

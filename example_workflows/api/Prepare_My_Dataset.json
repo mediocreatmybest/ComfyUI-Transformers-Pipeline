@@ -6,7 +6,7 @@
       "records_path": ""
     },
     "_meta": {
-      "title": "Open Saved Records"
+      "title": "Saved Records File"
     }
   },
   "2": {
@@ -39,7 +39,7 @@
       ]
     },
     "_meta": {
-      "title": "Choose images using saved scores"
+      "title": "Optional filter by saved scores"
     }
   },
   "4": {

@@ -84,7 +84,7 @@ class AdapterTests(unittest.TestCase):
         fields = load_extension().NODE_CLASS_MAPPINGS['ModelLoaderTpl'].INPUT_TYPES()['optional']
         self.assertFalse(fields['use_lora'][1]['default'])
         self.assertTrue(fields['adapter_revision'][1]['advanced'])
-        self.assertEqual(list(fields)[-3:], ['use_lora','lora_adapter','adapter_revision'])
+        self.assertEqual(list(fields)[-4:], ['use_lora', 'lora_adapter', 'adapter_revision', 'model_preset'])
 
     def test_weights_verified_and_partial_activation_rejected(self):
         import torch

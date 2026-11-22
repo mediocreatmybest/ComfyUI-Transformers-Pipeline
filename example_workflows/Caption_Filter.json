@@ -96,7 +96,8 @@
         "",
         false,
         "",
-        ""
+        "",
+        "Image Classification · CLIP ViT-B/32"
       ],
       "title": "Image classification model"
     },
@@ -206,7 +207,8 @@
         "",
         false,
         "",
-        ""
+        "",
+        "Quick Captions · BLIP Base"
       ],
       "title": "Caption model"
     },
@@ -258,11 +260,13 @@
       "widgets_values": [
         "factual",
         "",
-        "{\"schema_version\": 1, \"profiles\": [{\"id\": \"factual\", \"caption_type\": \"factual\", \"prompt\": \"\", \"prompt_mode\": \"raw\", \"max_new_tokens\": 64}]}",
+        "",
         "{}",
         "",
         "",
-        false
+        false,
+        "Simple Description",
+        ""
       ],
       "title": "Add captions for export"
     },

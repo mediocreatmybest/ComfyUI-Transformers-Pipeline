@@ -55,7 +55,8 @@
         "",
         false,
         "",
-        ""
+        "",
+        "Image Classification · CLIP ViT-B/32"
       ],
       "title": "Image classification model"
     },
@@ -288,7 +289,7 @@
   ],
   "groups": [
     {
-      "title": "Zero-shot image classification | Scores are not calibrated probabilities | Choose a new checkpoint path",
+      "title": "Suggest image labels and inspect model scores",
       "bounding": [
         0,
         0,

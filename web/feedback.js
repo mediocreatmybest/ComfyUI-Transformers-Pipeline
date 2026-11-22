@@ -11,8 +11,11 @@ const feedbackNodes = new Set([
 ]);
 
 const widgetLabels = {
-    CaptionRecordsTpl: { profile_ids: "Caption Style" },
-    CaptionPreviewTpl: { profile_id: "Caption Style", offset: "Page Offset", limit: "Images per Page" },
+    ModelLoaderTpl: { model_preset: "Model Preset", model_name_or_path: "Custom Model ID or Path", task: "Custom Task" },
+    CaptionRecordsTpl: { caption_style: "Caption Style", profile_ids: "Custom Profile IDs",
+        profiles_json: "Profiles and Prompts (JSON)", prompt_override: "Prompt Override" },
+    RecordMergeTpl: { records_file: "Saved Records File" },
+    CaptionPreviewTpl: { records_file: "Saved Records File", profile_id: "Caption Style", offset: "Page Offset", limit: "Images per Page" },
     SaveCaptionsTpl: { save_output: "Save Output", file_format: "File Format", save_location: "Save Location",
         destination: "Output Folder", copy_images: "Copy Images", file_policy: "Existing Files",
         profile_id: "Caption Style", records_file: "Saved Records File" },

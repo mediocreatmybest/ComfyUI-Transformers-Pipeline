@@ -20,7 +20,8 @@
       "cpu_memory": "",
       "use_lora": false,
       "lora_adapter": "",
-      "adapter_revision": ""
+      "adapter_revision": "",
+      "model_preset": "Quick Captions · BLIP Base"
     },
     "_meta": {
       "title": "Caption model"
@@ -41,11 +42,13 @@
     "inputs": {
       "profile_ids": "factual",
       "profiles_file": "",
-      "profiles_json": "{\"schema_version\": 1, \"profiles\": [{\"id\": \"factual\", \"caption_type\": \"factual\", \"prompt\": \"\", \"prompt_mode\": \"raw\", \"max_new_tokens\": 64}]}",
+      "profiles_json": "",
       "pipeline_kwargs": "{}",
       "supplied_author": "",
       "records_path": "",
       "overwrite_records": false,
+      "caption_style": "Simple Description",
+      "prompt_override": "",
       "model_pipeline": [
         "1",
         0
@@ -115,7 +118,8 @@
       "cpu_memory": "",
       "use_lora": false,
       "lora_adapter": "",
-      "adapter_revision": ""
+      "adapter_revision": "",
+      "model_preset": "Image Classification · CLIP ViT-B/32"
     },
     "_meta": {
       "title": "Image classification model"

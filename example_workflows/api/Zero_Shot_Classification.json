@@ -20,7 +20,8 @@
       "cpu_memory": "",
       "use_lora": false,
       "lora_adapter": "",
-      "adapter_revision": ""
+      "adapter_revision": "",
+      "model_preset": "Image Classification · CLIP ViT-B/32"
     },
     "_meta": {
       "title": "Image classification model"

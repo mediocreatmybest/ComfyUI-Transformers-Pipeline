@@ -61,11 +61,32 @@ class WorkflowTests(unittest.TestCase):
         fields = {**inputs['required'], **inputs['optional']}
         expected = {'model_name_or_path', 'task', 'device_mode', 'use_bitsandbytes', 'quantization_type',
                     'trust_remote_code', 'use_fast_tokenizer', 'dtype', 'revision', 'local_files_only',
-                    'model_kwargs', 'quantization', 'placement', 'gpu_index', 'gpu_memory', 'cpu_memory', 'use_lora', 'lora_adapter', 'adapter_revision'}
+                    'model_kwargs', 'quantization', 'placement', 'gpu_index', 'gpu_memory', 'cpu_memory', 'use_lora', 'lora_adapter', 'adapter_revision', 'model_preset'}
         self.assertEqual(set(fields), expected)
         for name, spec in fields.items():
             self.assertTrue(spec[1].get('tooltip'), name)
         self.assertEqual(self.classes['ModelLoaderTpl'].RETURN_TYPES[0], 'MODEL')
+
+    def test_models_and_tasks_in_examples_match_catalogue(self):
+        from captioning.catalogue import CATALOGUE, CUSTOM_MODEL, preset_model
+        from captioning.profiles import CUSTOM_PROFILES
+        for file in self.folder.glob('*.json'):
+            prompt = editor_to_api(json.loads(file.read_text()), self.definitions)
+            for node in prompt.values():
+                inputs = node['inputs']
+                if node['class_type'] == 'ModelLoaderTpl':
+                    model_id = inputs['model_name_or_path']
+                    if isinstance(model_id, list):
+                        self.assertEqual(inputs['model_preset'], CUSTOM_MODEL)
+                        self.assertEqual(prompt[model_id[0]]['class_type'], 'PresetModelListTpl')
+                        model_id = prompt[model_id[0]]['inputs']['model_name']
+                    model = CATALOGUE[model_id]
+                    self.assertEqual(model['task'], inputs['task'])
+                    preset = preset_model(inputs['model_preset'])
+                    if preset:
+                        self.assertEqual(preset['id'], model_id)
+                if node['class_type'] == 'CaptionRecordsTpl' and inputs['caption_style'] != CUSTOM_PROFILES:
+                    self.assertFalse(inputs['profiles_json'] or inputs['profiles_file'])
 
     def test_validator_rejects_broken_connections_and_widget_types(self):
         workflow = json.loads((self.folder / 'Simple.json').read_text())
@@ -104,8 +125,13 @@ class WorkflowTests(unittest.TestCase):
                 folder, _ = nodes['ImageLoaderTpl']
                 loader, settings = nodes['ModelLoaderTpl']
                 self.assertEqual(settings['model_name_or_path'], 'Salesforce/blip-image-captioning-base')
+                self.assertEqual(settings['model_preset'], 'Quick Captions · BLIP Base')
+                self.assertEqual(settings['task'], 'image-to-text')
+                self.assertFalse(settings['trust_remote_code'])
                 generator, inputs = nodes['CaptionRecordsTpl']
                 self.assertEqual((inputs['model_pipeline'], inputs['image_paths']), ([loader, 0], [folder, 0]))
+                self.assertEqual(inputs['caption_style'], 'Simple Description')
+                self.assertFalse(inputs['profiles_json'])
                 output = generator
                 if name == 'Caption_Image_Details':
                     metadata, inputs = nodes['ImageMetadataTpl']

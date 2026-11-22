@@ -301,6 +301,12 @@
         30,
         50
       ]
+    },
+    "transformers_pipeline": {
+      "instructions": [
+        "Open an archive from Multi-Model Analysis. This legacy exporter demonstrates selection within a native archive.",
+        "Queuing writes TXT, ImageFolder and native records to their configured output folders."
+      ]
     }
   },
   "version": 0.4

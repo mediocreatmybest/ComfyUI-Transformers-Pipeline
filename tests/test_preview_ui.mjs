@@ -76,3 +76,14 @@ assert.equal(second.children[1].textContent, 'Image unavailable');
 extension.onNodeOutputsUpdated({ '1': { text: ['Fallback again'] } });
 assert.equal(text.hidden, false);
 assert.equal(text.value, 'Fallback again');
+
+const loader = { ...node, id: 3, comfyClass: 'ModelLoaderTpl',
+    widgets: ['model_preset', 'model_name_or_path', 'task'].map(name => ({ name })) };
+extension.nodeCreated(loader);
+assert.deepEqual(loader.widgets.slice(0, 3).map(w => [w.name, w.label]), [
+    ['model_preset', 'Model Preset'], ['model_name_or_path', 'Custom Model ID or Path'], ['task', 'Custom Task'],
+]);
+const records = { ...node, id: 4, comfyClass: 'CaptionRecordsTpl',
+    widgets: ['caption_style', 'profile_ids', 'prompt_override'].map(name => ({ name })) };
+extension.nodeCreated(records);
+assert.deepEqual(records.widgets.slice(0, 3).map(w => w.label), ['Caption Style', 'Custom Profile IDs', 'Prompt Override']);

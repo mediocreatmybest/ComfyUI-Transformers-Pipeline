@@ -20,10 +20,11 @@
       "cpu_memory": "",
       "use_lora": false,
       "lora_adapter": "",
-      "adapter_revision": ""
+      "adapter_revision": "",
+      "model_preset": "Detailed and Natural Captions · Florence-2 Base (Community)"
     },
     "_meta": {
-      "title": "1. Load Florence community"
+      "title": "Florence-2 Base (Community)"
     }
   },
   "2": {
@@ -33,7 +34,7 @@
       "skip_existing_captions": false
     },
     "_meta": {
-      "title": "2. Choose image directory"
+      "title": "Image Folder"
     }
   },
   "3": {
@@ -46,6 +47,8 @@
       "supplied_author": "",
       "records_path": "",
       "overwrite_records": false,
+      "caption_style": "Use custom profiles",
+      "prompt_override": "",
       "model_pipeline": [
         "1",
         0
@@ -56,7 +59,7 @@
       ]
     },
     "_meta": {
-      "title": "3. Two editable Florence task profiles + saved records"
+      "title": "Compare short and more detailed captions"
     }
   },
   "4": {
@@ -73,7 +76,7 @@
       ]
     },
     "_meta": {
-      "title": "Inspect candidates, profiles and failures"
+      "title": "Preview both caption styles"
     }
   },
   "5": {

@@ -96,7 +96,8 @@
         "",
         false,
         "",
-        ""
+        "",
+        "Quick Captions · BLIP Base"
       ],
       "title": "BLIP caption model"
     },
@@ -148,11 +149,13 @@
       "widgets_values": [
         "factual",
         "",
-        "{\"schema_version\": 1, \"profiles\": [{\"id\": \"factual\", \"caption_type\": \"factual\", \"prompt\": \"\", \"prompt_mode\": \"raw\", \"max_new_tokens\": 75}]}",
+        "",
         "{}",
         "",
         "",
-        false
+        false,
+        "Simple Description",
+        ""
       ],
       "title": "Generate short captions"
     },
@@ -256,7 +259,7 @@
         "",
         ""
       ],
-      "title": "Combine captions, camera details and optional labels"
+      "title": "Combine records by image"
     },
     {
       "id": 8,
@@ -307,7 +310,7 @@
         4,
         true
       ],
-      "title": "Preview captions and camera details"
+      "title": "Preview captions, EXIF and labels"
     },
     {
       "id": 9,
@@ -472,6 +475,13 @@
       "offset": [
         30,
         30
+      ]
+    },
+    "transformers_pipeline": {
+      "instructions": [
+        "Choose an Image Folder and queue to preview the BLIP caption and any available EXIF.",
+        "Merging adds metadata to each record and leaves the caption text unchanged.",
+        "To add suggested labels, copy the CLIP loader and classifier from Metadata_Merge. Connect the same Image Folder output to the classifier and connect its records to records_c on the merge node."
       ]
     }
   },

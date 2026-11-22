@@ -1,0 +1,321 @@
+[
+  {
+    "id": "Salesforce/blip-image-captioning-base",
+    "name": "BLIP Base",
+    "group": "Quick Captions",
+    "task": "image-to-text",
+    "prompt_mode": "raw_caption",
+    "minimum_version": "4.57.3",
+    "runtime_note": "Use image-to-text when available. Transformers 5 uses the image-text-to-text adapter; rerun Desktop acceptance after changing runtimes. The current starter uses native weights and GPU-preferred placement. Official PyTorch .bin weights need PyTorch 2.6 or newer in Transformers 4.57.3.",
+    "remote_code": false,
+    "evidence": "desktop_reported",
+    "legacy": true,
+    "styles": {
+      "factual": ""
+    },
+    "reported_runtime": "4.57.3",
+    "suggested_settings": {
+      "dtype": "auto",
+      "quantization": "native",
+      "placement": "gpu_preferred"
+    }
+  },
+  {
+    "id": "Salesforce/blip-image-captioning-large",
+    "name": "BLIP Large",
+    "group": "Quick Captions",
+    "task": "image-to-text",
+    "prompt_mode": "raw_caption",
+    "minimum_version": "4.57.3",
+    "runtime_note": "Use image-to-text when available. Transformers 5 uses the image-text-to-text adapter; rerun Desktop acceptance after changing runtimes.",
+    "remote_code": false,
+    "evidence": "upstream",
+    "legacy": true,
+    "styles": {
+      "factual": ""
+    }
+  },
+  {
+    "id": "florence-community/Florence-2-base",
+    "name": "Florence-2 Base (Community)",
+    "group": "Detailed and Natural Captions",
+    "task": "image-text-to-text",
+    "prompt_mode": "florence",
+    "minimum_version": "4.57.3",
+    "runtime_note": "Use a native Florence-2 build and a caption task token. Region and detection tasks are outside Caption Records.",
+    "remote_code": false,
+    "evidence": "desktop_reported",
+    "legacy": true,
+    "styles": {
+      "factual": "<CAPTION>",
+      "detailed_description": "<DETAILED_CAPTION>"
+    },
+    "reported_runtime": "4.57.3"
+  },
+  {
+    "id": "microsoft/Florence-2-base",
+    "name": "Microsoft Florence-2 Base (legacy remote code)",
+    "group": "Advanced Models",
+    "task": "image-text-to-text",
+    "prompt_mode": "florence",
+    "minimum_version": "4.57.3",
+    "runtime_note": "The original model card requires remote code and its processor differs from the native integration. Use Florence-2 Base (Community) for this extension.",
+    "remote_code": true,
+    "evidence": "legacy_incompatible",
+    "legacy": true
+  },
+  {
+    "id": "Qwen/Qwen3.5-4B",
+    "name": "Qwen3.5 4B",
+    "group": "Advanced Models",
+    "task": "image-text-to-text",
+    "prompt_mode": "instruction",
+    "minimum_version": "5.2.0",
+    "runtime_note": "Qwen3.5 architecture support starts in Transformers 5.2.0. An isolated 5.22.2 setup was previously cited. Inference still needs Desktop testing.",
+    "remote_code": false,
+    "evidence": "upstream",
+    "legacy": true,
+    "styles": {
+      "factual": null,
+      "natural_language": null,
+      "detailed_description": null,
+      "artistic_analysis": null,
+      "subject_tags": null
+    }
+  },
+  {
+    "id": "Salesforce/blip2-opt-2.7b",
+    "name": "BLIP-2 OPT 2.7B",
+    "group": "Advanced Models",
+    "task": "image-to-text",
+    "prompt_mode": "raw_caption",
+    "minimum_version": "4.57.3",
+    "runtime_note": "Upstream image captioning architecture. Use a raw caption profile and check runtime and memory on Desktop.",
+    "remote_code": false,
+    "evidence": "upstream",
+    "legacy": true
+  },
+  {
+    "id": "ybelkada/blip2-opt-2.7b-fp16-sharded",
+    "name": "BLIP-2 OPT 2.7B (FP16 sharded)",
+    "group": "Advanced Models",
+    "task": "image-to-text",
+    "prompt_mode": "raw_caption",
+    "minimum_version": "4.57.3",
+    "runtime_note": "Upstream image captioning architecture. Use a raw caption profile and check runtime and memory on Desktop. Official PyTorch .bin weights need PyTorch 2.6 or newer in Transformers 4.57.3.",
+    "remote_code": false,
+    "evidence": "upstream",
+    "legacy": true
+  },
+  {
+    "id": "Salesforce/blip2-opt-2.7b-coco",
+    "name": "BLIP-2 OPT 2.7B (COCO)",
+    "group": "Advanced Models",
+    "task": "image-to-text",
+    "prompt_mode": "raw_caption",
+    "minimum_version": "4.57.3",
+    "runtime_note": "Upstream image captioning architecture. Use a raw caption profile and check runtime and memory on Desktop.",
+    "remote_code": false,
+    "evidence": "upstream",
+    "legacy": true
+  },
+  {
+    "id": "Salesforce/blip2-opt-6.7b",
+    "name": "BLIP-2 OPT 6.7B",
+    "group": "Advanced Models",
+    "task": "image-to-text",
+    "prompt_mode": "raw_caption",
+    "minimum_version": "4.57.3",
+    "runtime_note": "Upstream image captioning architecture. Use a raw caption profile and check runtime and memory on Desktop.",
+    "remote_code": false,
+    "evidence": "upstream",
+    "legacy": true
+  },
+  {
+    "id": "Salesforce/blip2-opt-6.7b-coco",
+    "name": "BLIP-2 OPT 6.7B (COCO)",
+    "group": "Advanced Models",
+    "task": "image-to-text",
+    "prompt_mode": "raw_caption",
+    "minimum_version": "4.57.3",
+    "runtime_note": "Upstream image captioning architecture. Use a raw caption profile and check runtime and memory on Desktop.",
+    "remote_code": false,
+    "evidence": "upstream",
+    "legacy": true
+  },
+  {
+    "id": "Salesforce/blip2-flan-t5-xl",
+    "name": "BLIP-2 Flan-T5 XL",
+    "group": "Advanced Models",
+    "task": "image-to-text",
+    "prompt_mode": "raw_caption",
+    "minimum_version": "4.57.3",
+    "runtime_note": "Upstream image captioning architecture. Use a raw caption profile and check runtime and memory on Desktop.",
+    "remote_code": false,
+    "evidence": "upstream",
+    "legacy": true
+  },
+  {
+    "id": "Salesforce/blip2-flan-t5-xxl",
+    "name": "BLIP-2 Flan-T5 XXL",
+    "group": "Advanced Models",
+    "task": "image-to-text",
+    "prompt_mode": "raw_caption",
+    "minimum_version": "4.57.3",
+    "runtime_note": "Upstream image captioning architecture. Use a raw caption profile and check runtime and memory on Desktop.",
+    "remote_code": false,
+    "evidence": "upstream",
+    "legacy": true
+  },
+  {
+    "id": "Salesforce/blip2-flan-t5-xl-coco",
+    "name": "BLIP-2 Flan-T5 XL (COCO)",
+    "group": "Advanced Models",
+    "task": "image-to-text",
+    "prompt_mode": "raw_caption",
+    "minimum_version": "4.57.3",
+    "runtime_note": "Upstream image captioning architecture. Use a raw caption profile and check runtime and memory on Desktop.",
+    "remote_code": false,
+    "evidence": "upstream",
+    "legacy": true
+  },
+  {
+    "id": "microsoft/git-base",
+    "name": "GIT Base",
+    "group": "Advanced Models",
+    "task": "image-to-text",
+    "prompt_mode": "raw_caption",
+    "minimum_version": "4.57.3",
+    "runtime_note": "Upstream image captioning architecture. Use a raw caption profile and check runtime and memory on Desktop.",
+    "remote_code": false,
+    "evidence": "upstream",
+    "legacy": true
+  },
+  {
+    "id": "microsoft/git-large-coco",
+    "name": "GIT Large (COCO)",
+    "group": "Advanced Models",
+    "task": "image-to-text",
+    "prompt_mode": "raw_caption",
+    "minimum_version": "4.57.3",
+    "runtime_note": "Upstream image captioning architecture. Use a raw caption profile and check runtime and memory on Desktop.",
+    "remote_code": false,
+    "evidence": "upstream",
+    "legacy": true
+  },
+  {
+    "id": "nlpconnect/vit-gpt2-image-captioning",
+    "name": "ViT-GPT2 Captioning",
+    "group": "Advanced Models",
+    "task": "image-to-text",
+    "prompt_mode": "raw_caption",
+    "minimum_version": "4.57.3",
+    "runtime_note": "Upstream image captioning architecture. Use a raw caption profile and check runtime and memory on Desktop. Official PyTorch .bin weights need PyTorch 2.6 or newer in Transformers 4.57.3.",
+    "remote_code": false,
+    "evidence": "upstream",
+    "legacy": true
+  },
+  {
+    "id": "Salesforce/instructblip-vicuna-7b",
+    "name": "InstructBLIP Vicuna 7B",
+    "group": "Advanced Models",
+    "task": "image-text-to-text",
+    "prompt_mode": "instruction",
+    "minimum_version": "4.57.3",
+    "runtime_note": "Upstream documents an image and text processor. Pipeline routing and memory requirements need Desktop testing. The legacy image-to-text task may need explicit Q-Former inputs.",
+    "remote_code": false,
+    "evidence": "experimental",
+    "legacy": true,
+    "additional_tasks": [
+      "image-to-text"
+    ]
+  },
+  {
+    "id": "Salesforce/instructblip-vicuna-13b",
+    "name": "InstructBLIP Vicuna 13B",
+    "group": "Advanced Models",
+    "task": "image-text-to-text",
+    "prompt_mode": "instruction",
+    "minimum_version": "4.57.3",
+    "runtime_note": "Upstream documents an image and text processor. Pipeline routing and memory requirements need Desktop testing. The legacy image-to-text task may need explicit Q-Former inputs.",
+    "remote_code": false,
+    "evidence": "experimental",
+    "legacy": true,
+    "additional_tasks": [
+      "image-to-text"
+    ]
+  },
+  {
+    "id": "HuggingFaceTB/SmolVLM2-2.2B-Instruct",
+    "name": "SmolVLM2 2.2B Instruct",
+    "group": "Detailed and Natural Captions",
+    "task": "image-text-to-text",
+    "prompt_mode": "instruction",
+    "minimum_version": "4.57.3",
+    "runtime_note": "Requires num2words and a compatible torchvision for the processor. Flash Attention is optional. The LoRA example has additional requirements.",
+    "remote_code": false,
+    "evidence": "upstream",
+    "styles": {
+      "factual": null,
+      "natural_language": null,
+      "detailed_description": null,
+      "artistic_analysis": null,
+      "subject_tags": null
+    },
+    "dependencies": [
+      "num2words",
+      "torchvision"
+    ]
+  },
+  {
+    "id": "internlm/CapRL-Qwen3VL-4B",
+    "name": "CapRL Qwen3-VL 4B",
+    "group": "Advanced Models",
+    "task": "image-text-to-text",
+    "prompt_mode": "instruction",
+    "minimum_version": "4.57.3",
+    "runtime_note": "Uses Qwen3-VL, available in Transformers 4.57. Exact checkpoint and chat handling need Desktop testing.",
+    "remote_code": false,
+    "evidence": "experimental",
+    "styles": {
+      "factual": null,
+      "natural_language": null,
+      "detailed_description": null,
+      "artistic_analysis": null,
+      "subject_tags": null
+    }
+  },
+  {
+    "id": "openai/clip-vit-base-patch32",
+    "name": "CLIP ViT-B/32",
+    "group": "Image Classification",
+    "task": "zero-shot-image-classification",
+    "prompt_mode": "image_labels",
+    "minimum_version": "4.57.3",
+    "runtime_note": "Use with Zero-Shot Image Classification and a list of candidate labels. Scores are model scores. Official PyTorch .bin weights need PyTorch 2.6 or newer in Transformers 4.57.3.",
+    "remote_code": false,
+    "evidence": "upstream"
+  },
+  {
+    "id": "HuggingFaceTB/SmolLM2-135M-Instruct",
+    "name": "SmolLM2 135M Instruct",
+    "group": "Text Processing",
+    "task": "text-generation",
+    "prompt_mode": "text",
+    "minimum_version": "4.57.3",
+    "runtime_note": "Text-only. Connect to the existing Synthesize Caption node or use a custom text workflow.",
+    "remote_code": false,
+    "evidence": "upstream"
+  },
+  {
+    "id": "MoritzLaurer/xtremedistil-l6-h256-zeroshot-v1.1-all-33",
+    "name": "XtremeDistil Zero-Shot",
+    "group": "Text Processing",
+    "task": "zero-shot-classification",
+    "prompt_mode": "text_labels",
+    "minimum_version": "4.57.3",
+    "runtime_note": "Text-only. Use with Zero-Shot Text Classification to score labels against existing captions.",
+    "remote_code": false,
+    "evidence": "upstream"
+  }
+]
