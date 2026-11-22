@@ -5,7 +5,7 @@
     {
       "id": 1,
       "type": "ImageLoaderTpl",
-      "title": "1. Choose image directory",
+      "title": "Image Folder",
       "pos": [
         30,
         80
@@ -46,7 +46,7 @@
     {
       "id": 2,
       "type": "Florence2NodeTpl",
-      "title": "2. Generate Florence captions",
+      "title": "Florence task tokens",
       "pos": [
         470,
         80
@@ -89,7 +89,7 @@
     {
       "id": 3,
       "type": "CaptionExportTpl",
-      "title": "3. Legacy TXT beside source images",
+      "title": "Write legacy TXT sidecars",
       "pos": [
         910,
         80
@@ -183,10 +183,8 @@
     },
     "transformers_pipeline": {
       "instructions": [
-        "Choose an image directory before queueing. Relative paths use the ComfyUI process working directory.",
-        "Legacy export writes image.jpg.txt beside each source image; overwrite protection is enabled.",
-        "For exports to a separate directory use Caption_Profiles then Dataset_Export.",
-        "Requires a Transformers release with native Florence support and the florence-community checkpoint."
+        "This standalone example uses the Community checkpoint and native Florence support.",
+        "Queuing writes protected TXT sidecars beside the source images."
       ]
     }
   },

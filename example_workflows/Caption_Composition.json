@@ -45,7 +45,7 @@
         {
           "name": "status",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -53,9 +53,10 @@
         "Node name for S&R": "RecordMergeTpl"
       },
       "widgets_values": [
-        "./output/transformers_pipeline/merged_records.jsonl",
+        "./output/transformers_pipeline/merged_records/records.jsonl",
         ""
-      ]
+      ],
+      "title": "Open Saved Records"
     },
     {
       "id": 2,
@@ -91,7 +92,7 @@
         {
           "name": "status",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -99,12 +100,13 @@
         "Node name for S&R": "CaptionComposeTpl"
       },
       "widgets_values": [
-        "{caption} {classifications} {metadata}",
+        "{caption} {labels}",
         "{}",
         "",
         "composed",
-        "./output/transformers_pipeline/composed_records.jsonl"
-      ]
+        ""
+      ],
+      "title": "Compose a caption from evidence"
     },
     {
       "id": 3,
@@ -141,7 +143,7 @@
         {
           "name": "preview_text",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 0
         }
       ],
@@ -154,11 +156,12 @@
         0,
         4,
         true
-      ]
+      ],
+      "title": "Preview images and captions"
     },
     {
       "id": 4,
-      "type": "DatasetExportTpl",
+      "type": "SaveCaptionsTpl",
       "pos": [
         1650,
         80
@@ -179,25 +182,29 @@
       ],
       "outputs": [
         {
-          "name": "export_result",
+          "name": "status",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 0
         }
       ],
       "properties": {
-        "Node name for S&R": "DatasetExportTpl"
+        "Node name for S&R": "SaveCaptionsTpl"
       },
       "widgets_values": [
+        false,
+        "Text Captions (TXT)",
+        "Save to a folder I choose",
         "./output/transformers_pipeline/composed_txt",
-        "txt",
+        false,
+        "Keep Existing Files",
+        "",
         "composed",
         "",
-        "",
         "{}",
-        false,
         false
-      ]
+      ],
+      "title": "Save Captions"
     }
   ],
   "links": [

@@ -1,6 +1,8 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 import json
 from pathlib import Path
+
+from .catalogue import CATALOGUE
 
 
 SAFETY_PROMPT = (
@@ -67,3 +69,47 @@ def select_profiles(identifiers, path=None, data=None):
     if not ids or len(ids) != len(set(ids)) or set(ids) - set(available):
         raise ValueError(f"Select distinct profile ids from: {', '.join(available)}")
     return [available[name] for name in ids]
+
+
+CUSTOM_PROFILES = 'Use custom profiles'
+STYLE_LABELS = {
+    'factual': 'Simple Description',
+    'natural_language': 'Natural Description',
+    'detailed_description': 'Detailed Description',
+    'artistic_analysis': 'Artistic Details',
+    'subject_tags': 'Tags',
+    'keyword_caption': 'Keyword Caption',
+}
+FLORENCE_CAPTION_TOKENS = ('<CAPTION>', '<DETAILED_CAPTION>', '<MORE_DETAILED_CAPTION>')
+
+
+def profiles_for_pipeline(pipe, caption_style, *, profile_ids='factual,artistic_analysis',
+                          profiles_file='', profiles_json='', prompt_override=''):
+    if caption_style == CUSTOM_PROFILES:
+        if prompt_override:
+            raise ValueError('Edit the prompt in your custom profile JSON or choose a Caption Style.')
+        if profiles_file and profiles_json:
+            raise ValueError('Choose a profiles file or inline profiles JSON')
+        return select_profiles(profile_ids, profiles_file or None, json.loads(profiles_json) if profiles_json else None)
+    if profiles_file or profiles_json:
+        raise ValueError('Clear the custom profile file/JSON to use a Caption Style, or choose Use custom profiles.')
+    style_id = next((key for key, label in STYLE_LABELS.items() if label == caption_style), None)
+    model_id = getattr(pipe, '_tpl_model_info', {}).get('model_id') or getattr(pipe.model, 'name_or_path', '')
+    model = CATALOGUE.get(model_id)
+    if not model:
+        raise ValueError(f'Choose Use custom profiles for {model_id or "an unknown checkpoint"} and edit the profile prompts.')
+    styles = model.get('styles', {})
+    if style_id not in styles:
+        supported = ', '.join(STYLE_LABELS[key] for key in styles)
+        hint = f'Try {supported}.' if supported else 'Use an appropriate processing node or explicit custom profiles.'
+        raise ValueError(f"{model['name']} does not offer {caption_style}. {hint}")
+    profile = load_profiles()[style_id]
+    if styles[style_id] is None:
+        return [replace(profile, prompt=prompt_override or profile.prompt)]
+    prompt = prompt_override if prompt_override.strip() else styles[style_id]
+    if model['prompt_mode'] == 'florence':
+        prompt = prompt.strip()
+        tokens = dict.fromkeys((*FLORENCE_CAPTION_TOKENS, *styles.values(), *model.get('extra_caption_tokens', ())))
+        if prompt not in tokens:
+            raise ValueError('Florence expects a caption task token for this checkpoint: ' + ', '.join(tokens))
+    return [replace(profile, prompt=prompt, prompt_mode='raw', max_new_tokens=75 if style_id == 'factual' else profile.max_new_tokens)]

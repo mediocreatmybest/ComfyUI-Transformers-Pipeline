@@ -1,10 +1,12 @@
 import json
 
+from ..captioning.catalogue import CATALOGUE, CUSTOM_MODEL, model_choices, model_description, preset_model
 from ..captioning.loading import PipelineCache, legacy_policy
+from ..captioning.profiles import STYLE_LABELS
 from .ui_feedback import feedback
 
 class ModelLoaderTpl:
-    DESCRIPTION = "Load a Transformers pipeline. Everyday controls: model, task, dtype, quantization and placement. Legacy modes use the older advanced switches; explicit quantization requires use_bitsandbytes off. Advanced controls remain available and saved workflows keep their values. Selecting a model does not switch the installed runtime."
+    DESCRIPTION = "Choose a Model Preset to set the model and task together. Custom model and task uses the editable ID/path and task inputs. Precision, placement and trust settings stay explicit. The installed runtime stays the same."
     def __init__(self):
         self.model_cache = PipelineCache()
 
@@ -17,8 +19,8 @@ class ModelLoaderTpl:
     def INPUT_TYPES(cls):
         inputs = {
             "required": {
-                "model_name_or_path": ("STRING", {"default": "Salesforce/blip-image-captioning-base", "multiline": False, "tooltip": "Hugging Face model ID or local model directory. Model architecture must be supported by the running Transformers version."}),
-                "task": ("STRING", {"default": "image-to-text", "multiline": False, "tooltip": "Transformers pipeline task. BLIP: image-to-text; Florence and conversational VLMs: image-text-to-text. Legacy image-to-text is adapted on Transformers 5."}),
+                "model_name_or_path": ("STRING", {"default": "Salesforce/blip-image-captioning-base", "multiline": False, "advanced": True, "tooltip": "Hugging Face model ID or local directory used in Custom model and task mode."}),
+                "task": ("STRING", {"default": "image-to-text", "multiline": False, "advanced": True, "tooltip": "Transformers pipeline task used in Custom model and task mode. The loader checks the installed task registry and model configuration."}),
             },
             "optional": {
                 "device_mode": (["cuda", "cpu", "auto"], {"default": "cuda", "tooltip": "Legacy device selection, used only when placement is legacy. auto prefers CUDA when available."}),
@@ -38,6 +40,7 @@ class ModelLoaderTpl:
                 "use_lora": ("BOOLEAN", {"default": False, "label": "Use LoRA", "tooltip": "Load an optional compatible LoRA onto this model. Other Model Loader nodes keep their own models."}),
                 "lora_adapter": ("STRING", {"default": "", "label": "LoRA adapter", "tooltip": "Hugging Face adapter ID or local folder. Select the base model this adapter was made for."}),
                 "adapter_revision": ("STRING", {"default": "", "label": "Adapter revision", "advanced": True, "tooltip": "Optional adapter commit or tag. Blank uses the repository default; the resolved revision is recorded."}),
+                "model_preset": (model_choices(), {"default": CUSTOM_MODEL, "tooltip": "Set the model ID and task together. Choose Custom to use the advanced ID/path and Task fields."}),
             }
         }
         for name in ('device_mode', 'use_bitsandbytes', 'quantization_type', 'trust_remote_code',
@@ -56,7 +59,11 @@ class ModelLoaderTpl:
                    use_bitsandbytes=False, quantization_type="4bit", trust_remote_code=False,
                    use_fast_tokenizer=True, dtype="auto", revision="", local_files_only=False,
                    model_kwargs="{}", quantization="legacy", placement="legacy", gpu_index=0,
-                   gpu_memory="", cpu_memory="", use_lora=False, lora_adapter="", adapter_revision=""):
+                   gpu_memory="", cpu_memory="", use_lora=False, lora_adapter="", adapter_revision="",
+                   model_preset=CUSTOM_MODEL):
+        model = preset_model(model_preset)
+        if model:
+            model_name_or_path, task = model['id'], model['task']
         policy = legacy_policy(model_name_or_path, task, device_mode, use_bitsandbytes, quantization_type,
             quantization, placement, dtype=dtype, revision=revision or None, trust_remote_code=trust_remote_code,
             use_fast_tokenizer=use_fast_tokenizer, local_files_only=local_files_only,
@@ -73,12 +80,22 @@ class ModelLoaderTpl:
         diagnostics = json.loads(result[1])
         actual = diagnostics.get('actual', {})
         requested = diagnostics.get('requested', {})
+        runtime = diagnostics.get('runtime', {}).get('transformers')
+        model_id = actual.get('model_id') or kwargs.get('model_name_or_path', '')
+        model = CATALOGUE.get(model_id)
         devices = ', '.join(sorted(set(actual.get('device_map', {}).values())))
         adapter = actual.get("adapter", {})
         summary = f"Model loaded with LoRA: {adapter['id']}" if adapter.get("active") else "Model loaded without LoRA."
-        text = (summary + "\n" + f"Model: {actual.get('model_id', kwargs['model_name_or_path'])}\n"
+        text = (summary + "\n" + f"Model: {model_id}\n"
+                f"Task: {actual.get('task', requested.get('task', 'unknown'))}\n"
                 f"Requested: {requested.get('mode', 'native')} / {requested.get('placement', 'unknown')}\n"
                 f"Actual: {actual.get('backend', 'unknown')} / {actual.get('mode', 'unknown')}, {actual.get('weight_dtype', 'unknown')}\n"
                 f"Placement: {devices or 'unknown'}\n"
                 'Full details: loading_diagnostics output.')
+        if runtime:
+            text += f'\nTransformers {runtime}'
+        if model:
+            text += '\n' + model_description(model)
+            if model.get('styles'):
+                text += '\nCaption Styles: ' + ', '.join(STYLE_LABELS[style] for style in model['styles'])
         return feedback(result, text)

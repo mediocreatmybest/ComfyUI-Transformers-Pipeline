@@ -6,7 +6,7 @@
       "skip_existing_captions": false
     },
     "_meta": {
-      "title": "1. Choose image directory"
+      "title": "Image Folder"
     }
   },
   "2": {
@@ -23,7 +23,7 @@
       ]
     },
     "_meta": {
-      "title": "2. Generate Florence captions"
+      "title": "Florence task tokens"
     }
   },
   "3": {
@@ -43,7 +43,7 @@
       ]
     },
     "_meta": {
-      "title": "3. Legacy TXT beside source images"
+      "title": "Write legacy TXT sidecars"
     }
   }
 }

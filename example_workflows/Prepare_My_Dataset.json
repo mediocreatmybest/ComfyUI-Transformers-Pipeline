@@ -1,0 +1,302 @@
+{
+  "last_node_id": 4,
+  "last_link_id": 3,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "RecordMergeTpl",
+      "pos": [
+        30,
+        80
+      ],
+      "size": [
+        430,
+        260
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "records_a",
+          "type": "LIST",
+          "link": null
+        },
+        {
+          "name": "records_b",
+          "type": "LIST",
+          "link": null
+        },
+        {
+          "name": "records_c",
+          "type": "LIST",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "links": [
+            1,
+            2
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "status",
+          "type": "STRING",
+          "links": null,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "RecordMergeTpl"
+      },
+      "widgets_values": [
+        "./output/transformers_pipeline/my_captions/records.jsonl",
+        ""
+      ],
+      "title": "Saved Records File"
+    },
+    {
+      "id": 2,
+      "type": "CaptionPreviewTpl",
+      "pos": [
+        1010,
+        80
+      ],
+      "size": [
+        520,
+        480
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "link": 1
+        },
+        {
+          "name": "image_paths",
+          "type": "LIST",
+          "link": null
+        },
+        {
+          "name": "captions",
+          "type": "LIST",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "preview_text",
+          "type": "STRING",
+          "links": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CaptionPreviewTpl"
+      },
+      "widgets_values": [
+        "",
+        "",
+        0,
+        4,
+        true
+      ],
+      "title": "Review all saved images"
+    },
+    {
+      "id": 3,
+      "type": "CaptionFilterTpl",
+      "pos": [
+        520,
+        80
+      ],
+      "size": [
+        430,
+        340
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Kept",
+          "type": "LIST",
+          "links": [
+            3
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "Left Out",
+          "type": "LIST",
+          "links": null,
+          "slot_index": 1
+        },
+        {
+          "name": "Needs a Look",
+          "type": "LIST",
+          "links": null,
+          "slot_index": 2
+        },
+        {
+          "name": "What Happened",
+          "type": "STRING",
+          "links": null,
+          "slot_index": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CaptionFilterTpl"
+      },
+      "widgets_values": [
+        "medium",
+        "",
+        0.0,
+        "Keep anyway"
+      ],
+      "title": "Optional filter by saved scores"
+    },
+    {
+      "id": 4,
+      "type": "SaveCaptionsTpl",
+      "pos": [
+        1010,
+        610
+      ],
+      "size": [
+        520,
+        370
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "link": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "status",
+          "type": "STRING",
+          "links": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SaveCaptionsTpl"
+      },
+      "widgets_values": [
+        false,
+        "Text Captions (TXT)",
+        "Save to a folder I choose",
+        "./output/transformers_pipeline/prepared_dataset",
+        false,
+        "Keep Existing Files",
+        "",
+        "",
+        "",
+        "{}",
+        false
+      ],
+      "title": "Save Captions"
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "LIST"
+    ],
+    [
+      2,
+      1,
+      0,
+      3,
+      0,
+      "LIST"
+    ],
+    [
+      3,
+      3,
+      0,
+      4,
+      0,
+      "LIST"
+    ]
+  ],
+  "groups": [
+    {
+      "title": "Load a saved JSONL file",
+      "bounding": [
+        0,
+        20,
+        480,
+        350
+      ],
+      "color": "#38645c",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "Filter using existing scores",
+      "bounding": [
+        490,
+        20,
+        480,
+        430
+      ],
+      "color": "#405977",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "Review and optionally save kept images",
+      "bounding": [
+        980,
+        20,
+        580,
+        990
+      ],
+      "color": "#604b73",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.65,
+      "offset": [
+        30,
+        30
+      ]
+    },
+    "transformers_pipeline": {
+      "instructions": [
+        "Choose a saved records.jsonl file. No model is required.",
+        "Preview reviews all saved records. Save receives the Kept output. To export everything, connect the saved records directly to Save Captions."
+      ]
+    }
+  },
+  "version": 0.4
+}

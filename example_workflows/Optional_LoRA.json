@@ -5,7 +5,7 @@
     {
       "id": 1,
       "type": "ModelLoaderTpl",
-      "title": "Load SmolVLM2 with optional LoRA",
+      "title": "SmolVLM2 with optional LoRA",
       "pos": [
         30,
         80
@@ -50,19 +50,20 @@
         false,
         "{}",
         "native",
-        "gpu_preferred",
+        "gpu",
         0,
         "",
         "",
         true,
         "NANI-Nithin/SmolVLM-Hallucination-Defense",
-        "0c2d9ae24395563b81290d333ccd5d40f6595790"
+        "0c2d9ae24395563b81290d333ccd5d40f6595790",
+        "Detailed and Natural Captions · SmolVLM2 2.2B Instruct"
       ]
     },
     {
       "id": 2,
       "type": "ImageLoaderTpl",
-      "title": "2. Choose image directory",
+      "title": "Image Folder",
       "pos": [
         50,
         950
@@ -102,7 +103,7 @@
     {
       "id": 3,
       "type": "CaptionRecordsTpl",
-      "title": "Describe images",
+      "title": "Generate a short description",
       "pos": [
         650,
         100
@@ -149,16 +150,18 @@
         "factual",
         "",
         "{\"schema_version\": 1, \"profiles\": [{\"id\": \"factual\", \"caption_type\": \"factual\", \"prompt\": \"Describe the image in one clear sentence.\", \"prompt_mode\": \"raw\", \"max_new_tokens\": 64}]}",
-        "{\"generate_kwargs\": {\"do_sample\": false}, \"processor_kwargs\": {\"images_kwargs\": {\"size\": {\"longest_edge\": 768}}}}",
+        "{\"generate_kwargs\": {\"do_sample\": false}}",
         "",
         "",
-        false
+        false,
+        "Use custom profiles",
+        ""
       ]
     },
     {
       "id": 4,
       "type": "CaptionPreviewTpl",
-      "title": "Inspect candidates, profiles and failures",
+      "title": "Preview caption drafts",
       "pos": [
         1250,
         100
@@ -245,12 +248,9 @@
     },
     "transformers_pipeline": {
       "instructions": [
-        "Choose an image directory and a new records_path before queueing.",
-        "Florence uses raw task tokens for brief and detailed captions. These are not instruction-following artistic-analysis profiles.",
-        "Built-in instruction profiles require an instruction-following VLM and a Transformers release supporting its architecture. Florence uses the raw task profiles shown here.",
-        "Open Dataset_Export.json to select a saved profile without repeating inference.",
-        "Requires a Transformers release with native Florence support and the florence-community checkpoint.",
-        "Preview is read-only. To inspect saved records without regenerating, use Dataset_Export or a separate Preview with records_file. Existing checkpoint protection remains enabled."
+        "This advanced workflow uses SmolVLM2 and a pinned optional adapter. It requires a compatible torchvision and num2words, plus PEFT when Use LoRA is on.",
+        "The example uses BF16 on a compatible GPU. Turn off Use LoRA to try the same base model without the adapter.",
+        "The adapter and model revisions stay explicit. The example previews captions without writing output files."
       ]
     }
   },

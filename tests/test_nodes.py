@@ -109,6 +109,12 @@ class NodesTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "Transformers 5"):
             CaptionGeneratorTpl().generate_captions(pipe, [[self.paths[0]]], pipeline_kwargs='{"enable_thinking":false}')
 
+    def test_caption_error_identifies_processor_incompatibility_and_preserves_details(self):
+        pipe = self.fake("image-text-to-text", lambda *a, **k: [])
+        del pipe.processor
+        with self.assertRaisesRegex(RuntimeError, r"Input or processor incompatibility.*processor"):
+            CaptionGeneratorTpl().generate_captions(pipe, [[self.paths[0]]])
+
     def test_inference_options_cannot_replace_images_or_output_contract(self):
         pipe = self.fake("image-text-to-text", lambda **kwargs: [])
         for value in ('[]', '{"images":"different.png"}', '{"return_full_text":true}'):

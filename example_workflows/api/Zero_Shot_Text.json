@@ -2,11 +2,11 @@
   "1": {
     "class_type": "RecordMergeTpl",
     "inputs": {
-      "records_file": "./output/transformers_pipeline/merged_records.jsonl",
+      "records_file": "./output/transformers_pipeline/merged_records/records.jsonl",
       "records_path": ""
     },
     "_meta": {
-      "title": "RecordMergeTpl"
+      "title": "Open Saved Records"
     }
   },
   "2": {
@@ -30,10 +30,11 @@
       "cpu_memory": "",
       "use_lora": false,
       "lora_adapter": "",
-      "adapter_revision": ""
+      "adapter_revision": "",
+      "model_preset": "Text Processing · XtremeDistil Zero-Shot"
     },
     "_meta": {
-      "title": "ModelLoaderTpl"
+      "title": "Text classification model"
     }
   },
   "3": {
@@ -44,7 +45,7 @@
       "source_profile": "factual",
       "multi_label": true,
       "pipeline_kwargs": "{}",
-      "records_path": "./output/transformers_pipeline/text_classification_records.jsonl",
+      "records_path": "",
       "caption_records": [
         "1",
         0
@@ -55,7 +56,7 @@
       ]
     },
     "_meta": {
-      "title": "ZeroShotTextClassificationTpl"
+      "title": "Classify caption text"
     }
   },
   "4": {
@@ -72,7 +73,30 @@
       ]
     },
     "_meta": {
-      "title": "CaptionPreviewTpl"
+      "title": "Preview images and captions"
+    }
+  },
+  "5": {
+    "class_type": "SaveCaptionsTpl",
+    "inputs": {
+      "save_output": false,
+      "file_format": "Full Records (JSONL)",
+      "save_location": "Save to a folder I choose",
+      "destination": "./output/transformers_pipeline/text_classification_records",
+      "copy_images": false,
+      "file_policy": "Keep Existing Files",
+      "records_file": "",
+      "profile_id": "",
+      "caption_type": "",
+      "candidate_ids": "{}",
+      "approved_only": false,
+      "caption_records": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Save Captions"
     }
   }
 }

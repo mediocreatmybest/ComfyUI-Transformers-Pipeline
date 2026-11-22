@@ -14,16 +14,17 @@
       "local_files_only": false,
       "model_kwargs": "{}",
       "quantization": "native",
-      "placement": "gpu_preferred",
+      "placement": "gpu",
       "gpu_index": 0,
       "gpu_memory": "",
       "cpu_memory": "",
       "use_lora": true,
       "lora_adapter": "NANI-Nithin/SmolVLM-Hallucination-Defense",
-      "adapter_revision": "0c2d9ae24395563b81290d333ccd5d40f6595790"
+      "adapter_revision": "0c2d9ae24395563b81290d333ccd5d40f6595790",
+      "model_preset": "Detailed and Natural Captions · SmolVLM2 2.2B Instruct"
     },
     "_meta": {
-      "title": "Load SmolVLM2 with optional LoRA"
+      "title": "SmolVLM2 with optional LoRA"
     }
   },
   "2": {
@@ -33,7 +34,7 @@
       "skip_existing_captions": false
     },
     "_meta": {
-      "title": "2. Choose image directory"
+      "title": "Image Folder"
     }
   },
   "3": {
@@ -42,10 +43,12 @@
       "profile_ids": "factual",
       "profiles_file": "",
       "profiles_json": "{\"schema_version\": 1, \"profiles\": [{\"id\": \"factual\", \"caption_type\": \"factual\", \"prompt\": \"Describe the image in one clear sentence.\", \"prompt_mode\": \"raw\", \"max_new_tokens\": 64}]}",
-      "pipeline_kwargs": "{\"generate_kwargs\": {\"do_sample\": false}, \"processor_kwargs\": {\"images_kwargs\": {\"size\": {\"longest_edge\": 768}}}}",
+      "pipeline_kwargs": "{\"generate_kwargs\": {\"do_sample\": false}}",
       "supplied_author": "",
       "records_path": "",
       "overwrite_records": false,
+      "caption_style": "Use custom profiles",
+      "prompt_override": "",
       "model_pipeline": [
         "1",
         0
@@ -56,7 +59,7 @@
       ]
     },
     "_meta": {
-      "title": "Describe images"
+      "title": "Generate a short description"
     }
   },
   "4": {
@@ -73,7 +76,7 @@
       ]
     },
     "_meta": {
-      "title": "Inspect candidates, profiles and failures"
+      "title": "Preview caption drafts"
     }
   }
 }

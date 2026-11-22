@@ -7,7 +7,7 @@ from .records import CaptionCandidate, CaptionRecord, ModelInfo
 from .provenance import analysis_source_issue, caption_content, is_derived, source_issue
 
 
-FIELDS = {'caption', 'tags', 'classifications', 'metadata', 'prefix', 'attributes'}
+FIELDS = {'caption', 'tags', 'labels', 'classifications', 'metadata', 'prefix', 'attributes'}
 SELECTIONS = {'profile_ids', 'candidate_ids', 'analysis_ids', 'groups', 'metadata_fields', 'top_k', 'min_score'}
 
 
@@ -33,15 +33,16 @@ def evidence(record, selection, used):
         values['tags'] = ', '.join(dict.fromkeys(t for c in candidates for t in c.tags))
         values['attributes'] = ' '.join(caption_content(c) for c in candidates if c.caption_type in {'artistic_analysis', 'style'})
         source_candidates = [c.id for c in contributors]
-    classifications, metadata = [], {}
+    classifications, labels, metadata = [], [], {}
     for analysis in analyses:
-        if analysis.kind == 'classification' and 'classifications' in used:
+        if analysis.kind == 'classification' and used & {'labels', 'classifications'}:
             issue = analysis_source_issue(analysis, record.candidates, record.analyses)
             if issue:
                 raise ValueError(issue)
             pairs = [(label, score) for label, score in zip(analysis.values['labels'], analysis.values['scores'])
                      if score >= selection['min_score']][:selection['top_k']]
             if pairs:
+                labels.extend(label for label, _ in pairs)
                 classifications.append(f'Possible {analysis.group_id}: ' + ', '.join(f'{label} (score {score:g}, uncalibrated)' for label, score in pairs))
                 source_analyses.append(analysis.id)
         if analysis.kind == 'metadata' and 'metadata' in used:
@@ -52,6 +53,7 @@ def evidence(record, selection, used):
                 metadata[key] = value
             if selected:
                 source_analyses.append(analysis.id)
+    values['labels'] = ', '.join(dict.fromkeys(labels))
     values['classifications'] = '; '.join(classifications)
     values['metadata'] = ', '.join(f'{key} {value["value"]}' for key, value in metadata.items())
     return values, source_candidates, source_analyses

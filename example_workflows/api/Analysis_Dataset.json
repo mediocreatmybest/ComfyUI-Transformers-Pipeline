@@ -13,17 +13,18 @@
       "revision": "",
       "local_files_only": false,
       "model_kwargs": "{}",
-      "quantization": "legacy",
-      "placement": "legacy",
+      "quantization": "native",
+      "placement": "gpu_preferred",
       "gpu_index": 0,
       "gpu_memory": "",
       "cpu_memory": "",
       "use_lora": false,
       "lora_adapter": "",
-      "adapter_revision": ""
+      "adapter_revision": "",
+      "model_preset": "Quick Captions · BLIP Base"
     },
     "_meta": {
-      "title": "ModelLoaderTpl"
+      "title": "Caption model"
     }
   },
   "2": {
@@ -33,7 +34,7 @@
       "skip_existing_captions": false
     },
     "_meta": {
-      "title": "ImageLoaderTpl"
+      "title": "Image Folder"
     }
   },
   "3": {
@@ -41,11 +42,13 @@
     "inputs": {
       "profile_ids": "factual",
       "profiles_file": "",
-      "profiles_json": "{\"schema_version\": 1, \"profiles\": [{\"id\": \"factual\", \"caption_type\": \"factual\", \"prompt\": \"\", \"prompt_mode\": \"raw\", \"max_new_tokens\": 64}]}",
+      "profiles_json": "",
       "pipeline_kwargs": "{}",
       "supplied_author": "",
       "records_path": "",
       "overwrite_records": false,
+      "caption_style": "Simple Description",
+      "prompt_override": "",
       "model_pipeline": [
         "1",
         0
@@ -56,7 +59,7 @@
       ]
     },
     "_meta": {
-      "title": "CaptionRecordsTpl"
+      "title": "Generate caption records"
     }
   },
   "4": {
@@ -69,7 +72,7 @@
       ]
     },
     "_meta": {
-      "title": "ImageMetadataTpl"
+      "title": "Read camera details"
     }
   },
   "5": {
@@ -91,7 +94,7 @@
       ]
     },
     "_meta": {
-      "title": "RecordMergeTpl"
+      "title": "Merge records by image"
     }
   },
   "6": {
@@ -115,10 +118,11 @@
       "cpu_memory": "",
       "use_lora": false,
       "lora_adapter": "",
-      "adapter_revision": ""
+      "adapter_revision": "",
+      "model_preset": "Image Classification · CLIP ViT-B/32"
     },
     "_meta": {
-      "title": "ModelLoaderTpl"
+      "title": "Image classification model"
     }
   },
   "7": {
@@ -138,7 +142,7 @@
       ]
     },
     "_meta": {
-      "title": "ZeroShotImageClassificationTpl"
+      "title": "Suggest image labels"
     }
   },
   "8": {
@@ -155,7 +159,7 @@
       ]
     },
     "_meta": {
-      "title": "CaptionPreviewTpl"
+      "title": "Preview images and captions"
     }
   },
   "9": {
@@ -175,7 +179,7 @@
       ]
     },
     "_meta": {
-      "title": "ZeroShotImageClassificationTpl"
+      "title": "Suggest image labels"
     }
   },
   "10": {
@@ -193,7 +197,7 @@
       ]
     },
     "_meta": {
-      "title": "RecordMergeTpl"
+      "title": "Merge records by image"
     }
   },
   "11": {
@@ -203,34 +207,37 @@
       "selection": "{}",
       "prefix": "",
       "profile_id": "composed",
-      "records_path": "./output/transformers_pipeline/integrated_records.jsonl",
+      "records_path": "",
       "caption_records": [
         "10",
         0
       ]
     },
     "_meta": {
-      "title": "CaptionComposeTpl"
+      "title": "Compose a caption from evidence"
     }
   },
   "12": {
-    "class_type": "DatasetExportTpl",
+    "class_type": "SaveCaptionsTpl",
     "inputs": {
-      "destination": "./output/transformers_pipeline/integrated_imagefolder",
-      "format": "imagefolder",
-      "profile_id": "composed",
+      "save_output": false,
+      "file_format": "Full Records (JSONL)",
+      "save_location": "Save to a folder I choose",
+      "destination": "./output/transformers_pipeline/integrated_records",
+      "copy_images": false,
+      "file_policy": "Keep Existing Files",
       "records_file": "",
+      "profile_id": "",
       "caption_type": "",
       "candidate_ids": "{}",
       "approved_only": false,
-      "overwrite_existing": false,
       "caption_records": [
         "11",
         0
       ]
     },
     "_meta": {
-      "title": "DatasetExportTpl"
+      "title": "Save Captions"
     }
   }
 }

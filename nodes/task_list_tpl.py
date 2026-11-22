@@ -1,7 +1,5 @@
-# A preset list of tasks that have been tested and seem to work with the transformers pipeline in these nodes.
-
 class TaskListTpl:
-    DESCRIPTION = "Select a Transformers task string for Model Loader. Text-only tasks remain available for general pipelines, but Caption Generator requires an image-captioning or visual-QA task."
+    DESCRIPTION = "Advanced task picker for Model Loader in Custom mode. Model Preset chooses a task automatically. The loader checks the installed Transformers runtime."
     def __init__(self):
         pass
 
@@ -11,7 +9,7 @@ class TaskListTpl:
             "required": {
                 "task_list": (cls.get_task_list(), {
                     "default": "image-to-text",
-                    "tooltip": "Tasks depend on your Transformers version. Caption Generator accepts image captioning and visual QA tasks."
+                    "tooltip": "The available tasks depend on the installed Transformers version. Text tasks do not accept images."
                 }),
             }
         }

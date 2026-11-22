@@ -1,6 +1,6 @@
 {
-  "last_node_id": 4,
-  "last_link_id": 3,
+  "last_node_id": 5,
+  "last_link_id": 4,
   "nodes": [
     {
       "id": 1,
@@ -45,7 +45,7 @@
         {
           "name": "status",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -53,9 +53,10 @@
         "Node name for S&R": "RecordMergeTpl"
       },
       "widgets_values": [
-        "./output/transformers_pipeline/merged_records.jsonl",
+        "./output/transformers_pipeline/merged_records/records.jsonl",
         ""
-      ]
+      ],
+      "title": "Open Saved Records"
     },
     {
       "id": 2,
@@ -84,7 +85,7 @@
         {
           "name": "loading_diagnostics",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -107,8 +108,13 @@
         "gpu_preferred",
         0,
         "",
-        ""
-      ]
+        "",
+        false,
+        "",
+        "",
+        "Text Processing · XtremeDistil Zero-Shot"
+      ],
+      "title": "Text classification model"
     },
     {
       "id": 3,
@@ -141,14 +147,15 @@
           "name": "caption_records",
           "type": "LIST",
           "links": [
-            3
+            3,
+            4
           ],
           "slot_index": 0
         },
         {
           "name": "status",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 1
         }
       ],
@@ -161,8 +168,9 @@
         "factual",
         true,
         "{}",
-        "./output/transformers_pipeline/text_classification_records.jsonl"
-      ]
+        ""
+      ],
+      "title": "Classify caption text"
     },
     {
       "id": 4,
@@ -199,7 +207,7 @@
         {
           "name": "preview_text",
           "type": "STRING",
-          "links": [],
+          "links": null,
           "slot_index": 0
         }
       ],
@@ -212,7 +220,55 @@
         0,
         4,
         true
-      ]
+      ],
+      "title": "Preview images and captions"
+    },
+    {
+      "id": 5,
+      "type": "SaveCaptionsTpl",
+      "pos": [
+        1650,
+        80
+      ],
+      "size": [
+        520,
+        370
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "link": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "status",
+          "type": "STRING",
+          "links": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SaveCaptionsTpl"
+      },
+      "widgets_values": [
+        false,
+        "Full Records (JSONL)",
+        "Save to a folder I choose",
+        "./output/transformers_pipeline/text_classification_records",
+        false,
+        "Keep Existing Files",
+        "",
+        "",
+        "",
+        "{}",
+        false
+      ],
+      "title": "Save Captions"
     }
   ],
   "links": [
@@ -237,6 +293,14 @@
       3,
       0,
       4,
+      0,
+      "LIST"
+    ],
+    [
+      4,
+      3,
+      0,
+      5,
       0,
       "LIST"
     ]

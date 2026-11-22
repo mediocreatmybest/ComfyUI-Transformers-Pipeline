@@ -1,0 +1,68 @@
+{
+  "1": {
+    "class_type": "RecordMergeTpl",
+    "inputs": {
+      "records_file": "./output/transformers_pipeline/my_captions/records.jsonl",
+      "records_path": ""
+    },
+    "_meta": {
+      "title": "Saved Records File"
+    }
+  },
+  "2": {
+    "class_type": "CaptionPreviewTpl",
+    "inputs": {
+      "records_file": "",
+      "profile_id": "",
+      "offset": 0,
+      "limit": 4,
+      "show_images": true,
+      "caption_records": [
+        "1",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Review all saved images"
+    }
+  },
+  "3": {
+    "class_type": "CaptionFilterTpl",
+    "inputs": {
+      "group_id": "medium",
+      "label": "",
+      "minimum_score": 0.0,
+      "no_score": "Keep anyway",
+      "caption_records": [
+        "1",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Optional filter by saved scores"
+    }
+  },
+  "4": {
+    "class_type": "SaveCaptionsTpl",
+    "inputs": {
+      "save_output": false,
+      "file_format": "Text Captions (TXT)",
+      "save_location": "Save to a folder I choose",
+      "destination": "./output/transformers_pipeline/prepared_dataset",
+      "copy_images": false,
+      "file_policy": "Keep Existing Files",
+      "records_file": "",
+      "profile_id": "",
+      "caption_type": "",
+      "candidate_ids": "{}",
+      "approved_only": false,
+      "caption_records": [
+        "3",
+        0
+      ]
+    },
+    "_meta": {
+      "title": "Save Captions"
+    }
+  }
+}

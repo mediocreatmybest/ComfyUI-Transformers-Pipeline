@@ -31,6 +31,19 @@
       "caption_type": "lora_training",
       "prompt": "Write a plain training caption of at most 60 words describing the main visible subject, setting, composition, dominant colours and broad rendering treatment. Omit uncertain small objects, identities, exact species and guessed materials. Do not invent trigger words, artist names, provenance or hidden details.",
       "max_new_tokens": 192
+    },
+    {
+      "id": "detailed_description",
+      "caption_type": "detailed_description",
+      "prompt": "Describe the main visible subjects, their positions and the setting in two to four sentences. Include significant visible details such as colours, shapes and spatial relationships. Omit uncertain or incidental details.",
+      "max_new_tokens": 256
+    },
+    {
+      "id": "keyword_caption",
+      "caption_type": "keyword_caption",
+      "prompt": "",
+      "max_new_tokens": 128,
+      "prompt_mode": "raw"
     }
   ]
 }

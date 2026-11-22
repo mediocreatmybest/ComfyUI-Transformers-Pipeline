@@ -17,7 +17,7 @@
       ]
     },
     "_meta": {
-      "title": "CaptionGeneratorTpl"
+      "title": "Generate captions (legacy)"
     }
   },
   "4": {
@@ -44,10 +44,11 @@
       "cpu_memory": "",
       "use_lora": false,
       "lora_adapter": "",
-      "adapter_revision": ""
+      "adapter_revision": "",
+      "model_preset": "Custom model and task"
     },
     "_meta": {
-      "title": "ModelLoaderTpl"
+      "title": "Caption model"
     }
   },
   "2": {
@@ -60,7 +61,7 @@
       ]
     },
     "_meta": {
-      "title": "BatchProcessorTpl"
+      "title": "Group image paths"
     }
   },
   "3": {
@@ -80,7 +81,7 @@
       ]
     },
     "_meta": {
-      "title": "CaptionExportTpl"
+      "title": "Write legacy TXT sidecars"
     }
   },
   "5": {
@@ -89,7 +90,7 @@
       "model_name": "Salesforce/blip-image-captioning-base"
     },
     "_meta": {
-      "title": "PresetModelListTpl"
+      "title": "Browse model names"
     }
   },
   "7": {
@@ -99,7 +100,7 @@
       "skip_existing_captions": false
     },
     "_meta": {
-      "title": "ImageLoaderTpl"
+      "title": "Image Folder"
     }
   },
   "8": {

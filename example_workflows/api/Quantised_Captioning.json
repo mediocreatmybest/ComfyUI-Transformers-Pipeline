@@ -20,7 +20,8 @@
       "cpu_memory": "",
       "use_lora": false,
       "lora_adapter": "",
-      "adapter_revision": ""
+      "adapter_revision": "",
+      "model_preset": "Quick Captions · BLIP Base"
     },
     "_meta": {
       "title": "1. BLIP INT8 - allow CPU offloading"
@@ -41,11 +42,13 @@
     "inputs": {
       "profile_ids": "factual",
       "profiles_file": "",
-      "profiles_json": "{\n  \"schema_version\": 1,\n  \"profiles\": [\n    {\n      \"id\": \"factual\",\n      \"caption_type\": \"factual\",\n      \"prompt\": \"\",\n      \"prompt_mode\": \"raw\",\n      \"max_new_tokens\": 64\n    }\n  ]\n}",
+      "profiles_json": "",
       "pipeline_kwargs": "{}",
       "supplied_author": "",
-      "records_path": "./output/transformers_pipeline/quantised_records.jsonl",
+      "records_path": "",
       "overwrite_records": false,
+      "caption_style": "Simple Description",
+      "prompt_override": "",
       "model_pipeline": [
         "1",
         0
@@ -60,23 +63,26 @@
     }
   },
   "4": {
-    "class_type": "DatasetExportTpl",
+    "class_type": "SaveCaptionsTpl",
     "inputs": {
+      "save_output": false,
+      "file_format": "Text Captions (TXT)",
+      "save_location": "Save to a folder I choose",
       "destination": "./output/transformers_pipeline/quantised_txt",
-      "format": "txt",
-      "profile_id": "factual",
+      "copy_images": false,
+      "file_policy": "Keep Existing Files",
       "records_file": "",
+      "profile_id": "factual",
       "caption_type": "",
       "candidate_ids": "{}",
       "approved_only": false,
-      "overwrite_existing": false,
       "caption_records": [
         "3",
         0
       ]
     },
     "_meta": {
-      "title": "4. Copy images + TXT to separate export"
+      "title": "Save Captions"
     }
   },
   "5": {

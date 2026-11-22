@@ -1,0 +1,350 @@
+{
+  "last_node_id": 9,
+  "last_link_id": 4,
+  "nodes": [
+    {
+      "id": 7,
+      "type": "ImageLoaderTpl",
+      "pos": [
+        30,
+        80
+      ],
+      "size": [
+        420,
+        230
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "image_paths",
+          "type": "LIST",
+          "links": [
+            2
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "image_directories",
+          "type": "DICT",
+          "links": null,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ImageLoaderTpl"
+      },
+      "widgets_values": [
+        "./images",
+        false
+      ],
+      "title": "Image Folder"
+    },
+    {
+      "id": 4,
+      "type": "ModelLoaderTpl",
+      "pos": [
+        30,
+        350
+      ],
+      "size": [
+        420,
+        770
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "model_pipeline",
+          "type": "MODEL",
+          "links": [
+            1
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "loading_diagnostics",
+          "type": "STRING",
+          "links": null,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ModelLoaderTpl"
+      },
+      "widgets_values": [
+        "Salesforce/blip-image-captioning-base",
+        "image-to-text",
+        "auto",
+        false,
+        "8bit",
+        false,
+        true,
+        "auto",
+        "",
+        false,
+        "{}",
+        "native",
+        "gpu_preferred",
+        0,
+        "",
+        "",
+        false,
+        "",
+        "",
+        "Quick Captions · BLIP Base"
+      ],
+      "title": "BLIP caption model"
+    },
+    {
+      "id": 6,
+      "type": "CaptionRecordsTpl",
+      "pos": [
+        510,
+        80
+      ],
+      "size": [
+        430,
+        440
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model_pipeline",
+          "type": "MODEL",
+          "link": 1
+        },
+        {
+          "name": "image_paths",
+          "type": "LIST",
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "links": [
+            3,
+            4
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "status",
+          "type": "STRING",
+          "links": null,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CaptionRecordsTpl"
+      },
+      "widgets_values": [
+        "factual",
+        "",
+        "",
+        "{}",
+        "",
+        "",
+        false,
+        "Simple Description",
+        ""
+      ],
+      "title": "Generate short captions"
+    },
+    {
+      "id": 8,
+      "type": "CaptionPreviewTpl",
+      "pos": [
+        1000,
+        80
+      ],
+      "size": [
+        520,
+        480
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "link": 3
+        },
+        {
+          "name": "image_paths",
+          "type": "LIST",
+          "link": null
+        },
+        {
+          "name": "captions",
+          "type": "LIST",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "preview_text",
+          "type": "STRING",
+          "links": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CaptionPreviewTpl"
+      },
+      "widgets_values": [
+        "",
+        "",
+        0,
+        4,
+        true
+      ],
+      "title": "Preview images and captions"
+    },
+    {
+      "id": 9,
+      "type": "SaveCaptionsTpl",
+      "pos": [
+        1000,
+        610
+      ],
+      "size": [
+        520,
+        370
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "caption_records",
+          "type": "LIST",
+          "link": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "status",
+          "type": "STRING",
+          "links": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SaveCaptionsTpl"
+      },
+      "widgets_values": [
+        false,
+        "Text Captions (TXT)",
+        "Save to a folder I choose",
+        "./output/transformers_pipeline/my_captions",
+        false,
+        "Keep Existing Files",
+        "",
+        "",
+        "",
+        "{}",
+        false
+      ],
+      "title": "Save Captions"
+    }
+  ],
+  "links": [
+    [
+      1,
+      4,
+      0,
+      6,
+      0,
+      "MODEL"
+    ],
+    [
+      2,
+      7,
+      0,
+      6,
+      1,
+      "LIST"
+    ],
+    [
+      3,
+      6,
+      0,
+      8,
+      0,
+      "LIST"
+    ],
+    [
+      4,
+      6,
+      0,
+      9,
+      0,
+      "LIST"
+    ]
+  ],
+  "groups": [
+    {
+      "title": "Image input",
+      "bounding": [
+        0,
+        20,
+        470,
+        1120
+      ],
+      "color": "#38645c",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "Generate captions",
+      "bounding": [
+        480,
+        20,
+        480,
+        540
+      ],
+      "color": "#405977",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "title": "Preview and optionally save",
+      "bounding": [
+        970,
+        20,
+        580,
+        990
+      ],
+      "color": "#604b73",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.65,
+      "offset": [
+        30,
+        30
+      ]
+    },
+    "transformers_pipeline": {
+      "instructions": [
+        "Choose an Image Folder and queue. The BLIP Base preset selects the task automatically.",
+        "Simple Description uses the image alone. Enable Save Output only when ready to write files."
+      ]
+    }
+  },
+  "version": 0.4
+}

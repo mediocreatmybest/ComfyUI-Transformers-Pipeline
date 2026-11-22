@@ -1,3 +1,4 @@
+import json
 import tempfile
 from pathlib import Path
 from types import SimpleNamespace
@@ -53,15 +54,41 @@ class CompositionTests(unittest.TestCase):
         self.assertEqual(failed[0].candidates[-1].status, 'failure')
         self.assertEqual(failed[0].candidates[0].text, 'A bird on a fence.')
 
-    def test_classifications_stay_uncertain_and_native_export_keeps_sources(self):
-        from captioning.composition import compose_records
-        from captioning.export import export_records
+    def classified_records(self):
         class Classifier:
             task = 'zero-shot-image-classification'
             model = SimpleNamespace(name_or_path='test/classifier', config=SimpleNamespace())
             def __call__(self, *a, **kw):
                 return [{'label': 'photograph', 'score': .8}, {'label': 'painting', 'score': .2}]
-        records = merge_records(self.records, classify_images(Classifier(), [self.path], ['photograph', 'painting'], 'medium'))
+        return merge_records(self.records, classify_images(Classifier(), [self.path], ['photograph', 'painting'], 'medium'))
+
+    def test_clean_caption_and_label_threshold_preserve_sources(self):
+        from test_import import load_extension
+        composer = load_extension().NODE_CLASS_MAPPINGS['CaptionComposeTpl']()
+        default = composer.INPUT_TYPES()['required']['template'][1]['default']
+        records = self.classified_records()
+        original = records[0].to_dict()
+        classification = next(a for a in original['analyses'] if a['kind'] == 'classification')
+        for template, threshold, expected, includes_labels in [
+            (default, 0, 'A bird on a fence.', False),
+            ('{caption} {labels}', 0.8, 'A bird on a fence. photograph', True),
+            ('{caption} {labels}', 0.9, 'A bird on a fence.', False),
+        ]:
+            with self.subTest(template=template, threshold=threshold):
+                result = composer.execute([original], template, selection=json.dumps({'min_score': threshold, 'top_k': 2}))
+                record, = result['result'][0]
+                self.assertEqual(record['candidates'][:-1], original['candidates'])
+                self.assertEqual(record['analyses'], original['analyses'])
+                candidate = record['candidates'][-1]
+                self.assertEqual(candidate['text'], expected)
+                transformation = candidate['generation_parameters']['transformation']
+                self.assertEqual(transformation['source_candidate_ids'], [original['candidates'][0]['id']])
+                self.assertEqual(transformation['source_analysis_snapshots'], [classification] if includes_labels else [])
+
+    def test_classifications_stay_uncertain_and_native_export_keeps_sources(self):
+        from captioning.composition import compose_records
+        from captioning.export import export_records
+        records = self.classified_records()
         result = compose_records(records, '{caption} {classifications}')
         self.assertIn('Possible medium', result[0].candidates[-1].text)
         self.assertIn('uncalibrated', result[0].candidates[-1].text)

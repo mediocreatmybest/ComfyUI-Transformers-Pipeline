@@ -1,11 +1,15 @@
 # Caption Exporter - Save captions to text file
 
 import os
+from pathlib import Path
 import re
+import tempfile
+
+from ..captioning.records import publish_file
 from .ui_feedback import feedback
 
 class CaptionExportTpl:
-    DESCRIPTION = "Legacy sidecars beside source images. Existing files and empty captions are skipped by default. Use Dataset Export for a separate output directory."
+    DESCRIPTION = "Legacy sidecars beside source images. Existing files and empty captions are skipped by default. Use Save Captions for record-based exports or a separate output directory."
     def __init__(self):
         pass
 
@@ -46,6 +50,8 @@ class CaptionExportTpl:
             if not isinstance(caption, str):
                 raise ValueError(f"Caption for {path} must be text")
             destination = (os.fspath(path) if keep_extension else os.path.splitext(path)[0]) + "." + file_extension
+            if overwrite_existing and os.path.islink(destination):
+                raise ValueError(f"Unsafe caption destination: {destination}")
             resolved = os.path.normcase(os.path.realpath(destination))
             if resolved in sources or resolved in seen:
                 raise ValueError(f"Caption destination collides with an image or another caption: {destination}")
@@ -57,9 +63,15 @@ class CaptionExportTpl:
                 skipped += 1
                 continue
             try:
-                # Exclusive creation closes the check-then-write overwrite race.
-                with open(destination, "w" if overwrite_existing else "x", encoding="utf-8") as stream:
-                    stream.write(caption + "\n")
+                if overwrite_existing:
+                    # Replacing the directory entry also protects source images with hard-link aliases.
+                    with tempfile.TemporaryDirectory(prefix='.caption-', dir=Path(destination).parent) as folder:
+                        staged = Path(folder) / 'caption'
+                        staged.write_text(caption + "\n", encoding="utf-8")
+                        publish_file(staged, destination, overwrite=True)
+                else:
+                    with open(destination, "x", encoding="utf-8") as stream:
+                        stream.write(caption + "\n")
             except FileExistsError:
                 skipped += 1
             else:

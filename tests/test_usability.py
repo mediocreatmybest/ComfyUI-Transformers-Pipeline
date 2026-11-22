@@ -89,6 +89,46 @@ class UsabilityTests(unittest.TestCase):
         self.assertIn('changed since captioning', result['result'][0])
         self.assertIn('A red study.', result['result'][0])
 
+    def test_structured_preview_formats_exif_and_preserves_aligned_warnings(self):
+        from captioning.records import AnalysisResult
+        record = self.records[0]
+        record.schema_version = 2
+        record.candidates[0].edit('<img src=x onerror=alert(1)>')
+        fields = {'Camera Model': 'Sony ILCE-7M2', 'Lens Model': '', 'Focal Length': '55/1',
+                  'F Number': '56/10', 'Exposure Time': '1/400', 'ISO': '100',
+                  'Date Taken': '2024:04:03 12:30:00'}
+        record.analyses.append(AnalysisResult('exif-id', 'metadata', 'exif', 'exif', None, {}, 'success',
+            {name: {'value': value, 'source': 'EXIF'} for name, value in fields.items()}))
+        record.analyses.append(AnalysisResult('class-id', 'classification', 'medium', 'classify', None, {}, 'success',
+            {'labels': ['painting', 'photograph'], 'scores': [0.1, 0.9]}))
+        records = [item.to_dict() for item in self.records]
+        node = self.nodes['CaptionPreviewTpl']()
+        with patch.dict('sys.modules', {'folder_paths': SimpleNamespace(get_temp_directory=lambda: str(self.root / 'temp'))}):
+            result = node.preview(caption_records=records)
+        first, second = result['ui']['tpl_cards']
+        self.assertEqual(first['filename'], 'café.png')
+        self.assertEqual(first['image'], result['ui']['tpl_images'][0])
+        self.assertEqual(len(first['captions']), 2)
+        self.assertIn('Edited', first['captions'][0]['label'])
+        self.assertEqual(first['captions'][0]['text'], '<img src=x onerror=alert(1)>')
+        self.assertEqual(first['camera'], 'Sony ILCE-7M2 · 55 mm · f/5.6 · 1/400 s · ISO 100 · 2024-04-03 12:30:00')
+        self.assertEqual(first['classifications'], ['Medium: photograph (model score 0.9)'])
+        self.assertIn('exif-id', first['details'])
+        self.assertEqual(second['filename'], 'missing.png')
+        self.assertNotIn('image', second)
+        self.assertNotIn('camera', second)
+        self.assertTrue(any('preview unavailable' in warning for warning in second['warnings']))
+        self.assertEqual(record.to_dict(), records[0])
+
+    def test_preview_queue_can_reuse_unchanged_folder_inputs(self):
+        node = self.nodes['ImageLoaderTpl']
+        first = node.IS_CHANGED(str(self.root))
+        self.image.with_suffix('.txt').write_text('Saved caption.')
+        self.assertEqual(first, node.IS_CHANGED(str(self.root)))
+        self.assertNotEqual(first, node.IS_CHANGED(str(self.root), skip_existing_captions=True))
+        Image.new('RGB', (10, 20)).save(self.image)
+        self.assertNotEqual(first, node.IS_CHANGED(str(self.root)))
+
     def test_exif_keeps_empty_and_failed_positions_and_continues(self):
         paths = [str(self.image), str(self.root / 'absent.png'), str(self.image)]
         fake = SimpleNamespace(process_file=lambda stream: {})
