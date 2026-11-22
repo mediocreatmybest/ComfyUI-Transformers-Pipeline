@@ -45,7 +45,7 @@ class RecordTests(unittest.TestCase):
 
     def test_profiles_are_editable_and_model_independent(self):
         profiles = load_profiles()
-        self.assertEqual(set(profiles), {"factual", "natural_language", "subject_tags", "artistic_analysis", "lora_training", "detailed_description"})
+        self.assertEqual(set(profiles), {"factual", "natural_language", "subject_tags", "artistic_analysis", "lora_training", "detailed_description", "keyword_caption"})
         file = self.root / "custom.json"
         file.write_text(json.dumps({"schema_version": 1, "profiles": [
             {"id": "custom", "caption_type": "style", "prompt": "Analyse edges.", "max_new_tokens": 45,

@@ -23,14 +23,14 @@ class CatalogueTests(unittest.TestCase):
                     QWEN: 'image-text-to-text', CAPRL: 'image-text-to-text', CLIP: 'zero-shot-image-classification',
                     SMOLLM: 'text-generation', DISTIL: 'zero-shot-classification'}
         self.assertEqual({name: CATALOGUE[name]['task'] for name in expected}, expected)
-        self.assertEqual(len(CATALOGUE), 23)
+        self.assertEqual(len(CATALOGUE), 30)
         self.assertEqual(len([m for m in CATALOGUE.values() if m.get('legacy')]), 18)
         self.assertEqual(model_choices()[0], CUSTOM_MODEL)
-        self.assertEqual(len(model_choices()), len(CATALOGUE) + 1)
+        self.assertEqual(len(model_choices()), 1 + sum(bool(model['task']) for model in CATALOGUE.values()))
         for model in CATALOGUE.values():
             with self.subTest(model=model['id']):
                 self.assertTrue(model['runtime_note'])
-                self.assertIn(model['evidence'], {'desktop_reported', 'upstream', 'experimental', 'legacy_incompatible'})
+                self.assertIn(model['evidence'], {'desktop_reported', 'metadata_checked', 'upstream', 'experimental', 'legacy_incompatible'})
                 self.assertIs(type(model['remote_code']), bool)
                 self.assertTrue(set(model.get('styles', {})) <= STYLE_LABELS.keys())
 

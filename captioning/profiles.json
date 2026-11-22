@@ -37,6 +37,13 @@
       "caption_type": "detailed_description",
       "prompt": "Describe the main visible subjects, their positions and the setting in two to four sentences. Include significant visible details such as colours, shapes and spatial relationships. Omit uncertain or incidental details.",
       "max_new_tokens": 256
+    },
+    {
+      "id": "keyword_caption",
+      "caption_type": "keyword_caption",
+      "prompt": "",
+      "max_new_tokens": 128,
+      "prompt_mode": "raw"
     }
   ]
 }

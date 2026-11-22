@@ -25,7 +25,7 @@ class CaptionRecordsTpl:
             "records_path": ("STRING", {"advanced": True, "default": "", "tooltip": "Optional native JSONL checkpoint for review and later export without inference. Relative paths use the ComfyUI process working directory."}),
             "overwrite_records": ("BOOLEAN", {"advanced": True, "default": False, "tooltip": "Allow replacing an existing checkpoint. Leave disabled to protect saved records."}),
             "caption_style": ([CUSTOM_PROFILES, *STYLE_LABELS.values()], {"default": CUSTOM_PROFILES,
-                "tooltip": "Choose a model-specific prompt. BLIP supports Simple Description. Florence supports Simple and Detailed. Instruction models offer additional experimental styles."}),
+                "tooltip": "Choose a model-specific prompt. Standard BLIP offers Simple Description. Standard Florence offers Simple and Detailed. Some fine-tunes offer Keyword Caption or additional styles."}),
             "prompt_override": ("STRING", {"default": "", "advanced": True, "multiline": True,
                 "tooltip": "Optional prompt for a selected Caption Style. Use BLIP prefixes, Florence caption tokens, or instructions according to the model. The exact prompt is shown after a run."}),
         }}

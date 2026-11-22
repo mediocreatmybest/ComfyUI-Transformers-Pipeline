@@ -22,6 +22,7 @@ class WorkflowTests(unittest.TestCase):
             'Caption_My_Images', 'Caption_Profiles', 'Dataset_Export', 'Florence_Caption',
             'Metadata_Merge', 'Optional_LoRA', 'Quantised_Captioning', 'Simple', 'Text_Synthesis',
             'Zero_Shot_Classification', 'Zero_Shot_Text', 'Caption_Image_Details', 'Prepare_My_Dataset',
+            'PromptGen_Captioning', 'Compare_Florence_Captions',
         )}
         self.assertTrue(expected <= {p.name for p in self.folder.glob('*.json')})
 
@@ -160,6 +161,40 @@ class WorkflowTests(unittest.TestCase):
         self.assertTrue(settings['records_file'].endswith('/records.jsonl'))
         self.assertEqual(settings['records_file'].rsplit('/', 1)[0], archive['destination'])
         self.assertIn(output['profile_id'], {p.id for p in selected})
+
+    def test_community_workflows_are_preview_first(self):
+        from captioning.catalogue import CATALOGUE, preset_model
+
+        fine_tune = 'Disty0/Florence-2-base-PromptGen-v2.0'
+        baseline = 'florence-community/Florence-2-base'
+        expected = {'PromptGen_Captioning': {fine_tune}, 'Compare_Florence_Captions': {fine_tune, baseline}}
+        for filename, models in expected.items():
+            with self.subTest(workflow=filename):
+                prompt = editor_to_api(json.loads((self.folder / (filename + '.json')).read_text()), self.definitions)
+                self.assertTrue(all(not n['inputs'].get('records_path') for n in prompt.values()))
+                self.assertFalse({'CaptionExportTpl', 'DatasetExportTpl'} & {n['class_type'] for n in prompt.values()})
+                folders = [key for key, n in prompt.items() if n['class_type'] == 'ImageLoaderTpl']
+                self.assertEqual(len(folders), 1)
+                captions = {}
+                for key, node in prompt.items():
+                    if node['class_type'] == 'SaveCaptionsTpl':
+                        self.assertFalse(node['inputs']['save_output'])
+                    if node['class_type'] != 'CaptionRecordsTpl':
+                        continue
+                    inputs = node['inputs']
+                    self.assertEqual(inputs['image_paths'], [folders[0], 0])
+                    self.assertEqual(inputs['caption_style'], 'Detailed Description')
+                    self.assertFalse(inputs['profiles_json'])
+                    loader = prompt[inputs['model_pipeline'][0]]['inputs']
+                    self.assertFalse(loader['trust_remote_code'])
+                    model = preset_model(loader['model_preset'])
+                    if model['id'] == fine_tune:
+                        self.assertEqual(loader['revision'], CATALOGUE[fine_tune]['audited_revision'])
+                    captions[key] = model['id']
+                self.assertEqual(set(captions.values()), models)
+                previews = {n['inputs']['caption_records'][0] for n in prompt.values()
+                            if n['class_type'] == 'CaptionPreviewTpl'}
+                self.assertEqual(previews, set(captions))
 
     def test_quantised_example_allows_offload_with_automatic_memory_budgets(self):
         file = self.folder / 'Quantised_Captioning.json'

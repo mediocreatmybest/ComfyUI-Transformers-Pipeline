@@ -78,6 +78,7 @@ STYLE_LABELS = {
     'detailed_description': 'Detailed Description',
     'artistic_analysis': 'Artistic Details',
     'subject_tags': 'Tags',
+    'keyword_caption': 'Keyword Caption',
 }
 FLORENCE_CAPTION_TOKENS = ('<CAPTION>', '<DETAILED_CAPTION>', '<MORE_DETAILED_CAPTION>')
 
@@ -108,6 +109,7 @@ def profiles_for_pipeline(pipe, caption_style, *, profile_ids='factual,artistic_
     prompt = prompt_override if prompt_override.strip() else styles[style_id]
     if model['prompt_mode'] == 'florence':
         prompt = prompt.strip()
-        if prompt not in FLORENCE_CAPTION_TOKENS:
-            raise ValueError('Florence expects a caption task token: ' + ', '.join(FLORENCE_CAPTION_TOKENS))
+        tokens = dict.fromkeys((*FLORENCE_CAPTION_TOKENS, *styles.values(), *model.get('extra_caption_tokens', ())))
+        if prompt not in tokens:
+            raise ValueError('Florence expects a caption task token for this checkpoint: ' + ', '.join(tokens))
     return [replace(profile, prompt=prompt, prompt_mode='raw', max_new_tokens=75 if style_id == 'factual' else profile.max_new_tokens)]

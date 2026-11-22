@@ -12,6 +12,7 @@ GROUPS = ('Quick Captions', 'Detailed and Natural Captions', 'Image Classificati
           'Advanced Models')
 EVIDENCE_LABELS = {
     'desktop_reported': 'Desktop reported',
+    'metadata_checked': 'Configuration and processor checked',
     'upstream': 'Upstream documented',
     'experimental': 'Experimental',
     'legacy_incompatible': 'Legacy integration',
@@ -22,7 +23,7 @@ CATALOGUE = {model['id']: model for model in json.loads(
 
 _PRESETS = {
     f"{group} · {model['name']}": model
-    for group in GROUPS for model in CATALOGUE.values() if model['group'] == group
+    for group in GROUPS for model in CATALOGUE.values() if model['group'] == group and model['task']
 }
 
 _MODEL_TASKS = {'image-to-text', 'image-text-to-text', 'zero-shot-image-classification',
@@ -42,21 +43,28 @@ def preset_model(preset):
 
 
 def model_description(model):
-    detail = f"{model['name']} uses {model['task']}. {model['runtime_note']}"
+    name, task = model['name'], model['task']
+    detail = f"{name} uses {task}." if task else f"{name} has no native caption preset."
+    detail += f" {model['runtime_note']}"
     if model.get('reported_runtime'):
         detail += f" Reported runtime: {model['reported_runtime']}."
     return f"{EVIDENCE_LABELS[model['evidence']]} · {detail}"
 
 
-def resolve_task(model_id, task, tasks, version, *, trust_remote_code=False):
+def resolve_task(model_id, task, tasks, version, *, trust_remote_code=False, revision=None):
     """Resolve the legacy task alias against the actual registry and validate known combinations."""
     model = CATALOGUE.get(model_id)
+    if (model and model['task'] is None
+            and revision in (None, '', 'main', 'refs/heads/main', model['audited_revision'])
+            and task in {'image-to-text', 'image-text-to-text', 'any-to-any', 'visual-question-answering'}):
+        raise ValueError(f"{model['name']} is incompatible with the native Florence image-text-to-text pipeline. "
+                         f"The model card uses a legacy processor and explicit remote code. {model['runtime_note']}")
     effective = 'image-text-to-text' if task == 'image-to-text' and task not in tasks and 'image-text-to-text' in tasks else task
     if effective not in tasks:
         suggestion = f" {model_description(model)}" if model else ''
         raise ValueError(f'Unsupported task {task!r} in Transformers {version}.{suggestion} '
                          'Choose a task available in the installed runtime.')
-    if not model:
+    if not model or model['task'] is None:
         return effective
     recommended = model['task']
     compatible = {recommended, *model.get('additional_tasks', ())}

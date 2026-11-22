@@ -328,7 +328,7 @@ def pipeline_task(policy):
     from transformers.pipelines import get_supported_tasks
 
     task = resolve_task(policy.model_id, policy.task, get_supported_tasks(), __version__,
-                        trust_remote_code=policy.trust_remote_code)
+                        trust_remote_code=policy.trust_remote_code, revision=policy.revision)
     check_model_dependencies(policy.model_id)
     return task
 

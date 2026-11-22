@@ -23,13 +23,35 @@ Choose **Custom model and task** to enter any Hugging Face model ID or local pat
 | **SmolLM2 135M Instruct** | [HuggingFaceTB/SmolLM2-135M-Instruct](https://huggingface.co/HuggingFaceTB/SmolLM2-135M-Instruct) | `text-generation` | Text-only. The existing synthesis example produces drafts from saved captions. | Upstream documented. The repository's real offline text-generation test uses a tiny local GPT-2 fixture. |
 | **XtremeDistil Zero-Shot** | [MoritzLaurer/xtremedistil-l6-h256-zeroshot-v1.1-all-33](https://huggingface.co/MoritzLaurer/xtremedistil-l6-h256-zeroshot-v1.1-all-33) | `zero-shot-classification` | Saved caption text plus candidate labels. | Upstream documented. Desktop inference pending. |
 | **Qwen3.5 4B** | [Qwen/Qwen3.5-4B](https://huggingface.co/Qwen/Qwen3.5-4B) | `image-text-to-text` | Advanced. Requires Transformers 5.2.0+ for the architecture. An isolated 5.22.2 setup was previously cited. | Upstream architecture mapping. Desktop inference pending. |
-| **CapRL Qwen3-VL 4B** | [internlm/CapRL-Qwen3VL-4B](https://huggingface.co/internlm/CapRL-Qwen3VL-4B) | `image-text-to-text` | Advanced. Based on Qwen3-VL, which is available in the 4.57.3 runtime. Uses image-plus-instruction input. | Upstream checkpoint and architecture. Processor and Desktop inference pending. |
+| **CapRL Qwen3-VL 4B** | [internlm/CapRL-Qwen3VL-4B](https://huggingface.co/internlm/CapRL-Qwen3VL-4B) | `image-text-to-text` | Advanced. Uses Qwen3-VL image-plus-instruction input and requires compatible `torchvision`. | Native configuration and processor checked on 4.57.3 and 5.22.2. Desktop inference pending. |
 
 The extension's minimum Transformers version is 4.57.3. A registered task or recognised architecture establishes that the runtime can attempt loading. Checkpoint loading, processor support, memory and useful output each need verification. The native choices above do not require **Trust Remote Code**. The original Microsoft Florence checkpoint uses a legacy remote-code path. Use Community Florence for the extension's native path. All 18 original IDs, including BLIP-2, GIT, ViT-GPT2 and InstructBLIP, remain available for advanced use. [Model catalogue](captioning/model_catalogue.json) · [Original Microsoft Florence model card](https://huggingface.co/microsoft/Florence-2-base) · [Earlier Desktop evidence](https://github.com/mediocreatmybest/ComfyUI-Transformers-Pipeline/blob/ae524dee03997f40508649187151b5cab7ca188d/nodes/preset_model_list_tpl.py)
 
 In **Caption Records**, **Simple Description** keeps the existing `factual` profile ID. **Natural Description**, **Artistic Details** and **Tags** use `natural_language`, `artistic_analysis` and `subject_tags`. **Detailed Description** adds `detailed_description`. BLIP offers Simple. Florence offers Simple and Detailed using `<CAPTION>` and `<DETAILED_CAPTION>`. The instruction VLM presets offer all five as prompts to try. Artistic analysis can be speculative, and Tags requires a valid JSON list from the model.
 
 Open **Prompt Override** to edit a selected style. BLIP expects an optional prefix, Florence expects a caption task token and instruction models receive your instruction with the profile's grounded-description guidance. After a run, Caption Records shows the effective prompt. Choose **Use custom profiles** and edit **Profiles and Prompts (JSON)** to use multiple profiles or a custom checkpoint. Existing custom profiles keep their prompts and IDs. [Default prompts](captioning/profiles.json)
+
+## Community fine-tuned caption models
+
+The extension's Transformers minimum is 4.57.3. The native candidates below used the exact revision's configuration, processor and tokenizer in the real Transformers pipeline on 4.57.3 and 5.22.2. The tests initialized the model architecture without checkpoint weights and mocked generation. They verified image and prompt routing plus output parsing. Desktop still needs to verify weight loading and generated captions. All four native candidates completed these checks with **Trust Remote Code** off.
+
+| Checkpoint | Architecture and processor | Task and prompts |
+| --- | --- | --- |
+| [Candra BLIP fine-tune](https://huggingface.co/candra/blip-image-captioning-finetuned/tree/b74cf52679bfd5de937433e6f4ec07edbfff9b33) | Native BLIP conditional generator and `BlipProcessor` | `image-to-text` where available and `image-text-to-text` on 5.22.2. **Keyword Caption** sends the image alone. Comma-separated keywords stay in the caption text. |
+| [CapRL Qwen3-VL 4B](https://huggingface.co/internlm/CapRL-Qwen3VL-4B/tree/1db1c1dd241e2df95b59846a94cdee5300de9ef9) | Native Qwen3-VL conditional generator, `Qwen3VLProcessor` and checkpoint chat template. Requires compatible `torchvision` for the processor, including still images. | `image-text-to-text`. Start with **Detailed Description** for image-plus-instruction input. Other instruction styles are experimental. |
+| [PromptGen v2 Base, Disty0 conversion](https://huggingface.co/Disty0/Florence-2-base-PromptGen-v2.0/tree/0b58321ae6633d6934addcca33533a78cb2ce338) | Native Florence conditional generator and `Florence2Processor`. The publisher identifies the MiaoshouAI Base fine-tune as the source. | `image-text-to-text`. Simple and Detailed use standard Florence caption tokens. Keyword Caption uses `<GENERATE_TAGS>`, and Artistic Details uses `<ANALYZE>`. |
+| [PromptGen v2 Large, Disty0 conversion](https://huggingface.co/Disty0/Florence-2-large-PromptGen-v2.0/tree/5bfa6a1d1601b0f5e257aed175287ebb79606b59) | Native Florence conditional generator and `Florence2Processor`. The publisher identifies the MiaoshouAI Large fine-tune as the source. | `image-text-to-text`. Same PromptGen styles, with a larger checkpoint. |
+
+The converted PromptGen presets also accept `<MIXED_CAPTION>` and `<MIXED_CAPTION_PLUS>` in **Prompt Override**. The processor passes the PromptGen-specific tokens through as written. These tasks return plain caption text, including keyword lists. Standard Community Florence styles accept the standard caption tokens only.
+
+The four exact older Florence repositories use a legacy CausalLM auto-map, a repository processor, and legacy weight names. Their model cards use explicit remote-code loading and direct generation. The native Florence path is incompatible on both checked runtimes, and the loader blocks native caption attempts against their default branches and audited revisions before loading. The `4.41.0.dev0` stamp in the original configs describes their source environment. A supported runtime for the originals in this extension has yet to be established.
+
+| Exact legacy checkpoint | Documented prompts | Native compatibility |
+| --- | --- | --- |
+| [gokaygokay/Florence-2-Flux](https://huggingface.co/gokaygokay/Florence-2-Flux/tree/d017473928f3a53495ff6cc2f071c2ca12d01bd7) | `<DESCRIPTION>` with an instruction | The native processor lacks the required image token. |
+| [gokaygokay/Florence-2-Flux-Large](https://huggingface.co/gokaygokay/Florence-2-Flux-Large/tree/a828167bee1befbf73c9d384f7da04743d830232) | `<DESCRIPTION>` with an instruction | The native processor lacks the image token and the config resolves to Base vision dimensions. |
+| [MiaoshouAI/Florence-2-base-PromptGen-v2.0](https://huggingface.co/MiaoshouAI/Florence-2-base-PromptGen-v2.0/tree/59b6e4bf75d0f3e8a6b1a14211f6a50fcdd48d63) | Standard captions, `<GENERATE_TAGS>`, `<ANALYZE>`, and mixed captions | The native config rejects `florence2_language` and the processor lacks the image token. The separate Disty0 Base conversion passed configuration and processor checks. |
+| [MiaoshouAI/Florence-2-large-PromptGen-v2.0](https://huggingface.co/MiaoshouAI/Florence-2-large-PromptGen-v2.0/tree/4aa33eaf50aab040fe8523312ff52eb53322c220) | Standard captions, `<GENERATE_TAGS>`, `<ANALYZE>`, and mixed captions | Same native config and processor failures. The separate Disty0 Large conversion passed configuration and processor checks. |
 
 ## Example workflows
 
@@ -41,12 +63,14 @@ Open the editor JSON in ComfyUI. The matching files under [`example_workflows/ap
 | --- | --- |
 | [Caption My Images](example_workflows/Caption_My_Images.json) | Choose an **Image Folder**, generate a short caption per image with BLIP, and preview the results. Turn on **Save Output** when you want files. |
 | [Caption + Image Details](example_workflows/Caption_Image_Details.json) | Preview captions and available EXIF together. Merging adds metadata to the records and leaves the caption text unchanged. To add suggested labels, copy the CLIP loader and classifier from **Metadata and Labels**. Send the same image paths to the classifier and connect its records to `records_c` on the merge node. |
+| [PromptGen Captioning](example_workflows/PromptGen_Captioning.json) | Preview detailed captions with the pinned Disty0 PromptGen Base conversion. Try **Keyword Caption** for raw keyword text. Saving starts off. |
 | [Prepare My Dataset](example_workflows/Prepare_My_Dataset.json) | Set **Saved Records File** to a native JSONL archive. Review the complete input and optionally use saved classification scores to filter it. **Save Captions** receives the **Kept** output. Connect the loader directly to Save to export all records. This workflow runs without models. |
 
 ### Building Blocks
 
 | Workflow | What it teaches |
 | --- | --- |
+| [Compare Florence Captions](example_workflows/Compare_Florence_Captions.json) | Run standard Florence and the Disty0 PromptGen Base conversion on one image folder with the same caption style. The two previews are read-only. Both models can stay loaded, so use a small folder and sufficient memory. |
 | [Caption Profiles](example_workflows/Caption_Profiles.json) | Generate and compare two Florence caption styles. Optionally save a Full Records archive to reuse in Dataset Export. |
 | [Zero-Shot Image Classification](example_workflows/Zero_Shot_Classification.json) | Suggest labels and inspect the original model scores. |
 | [Metadata and Labels](example_workflows/Metadata_Merge.json) | Merge EXIF, captions and zero-shot labels by image identity. Optionally save a Full Records archive for the composition and text examples. |
@@ -91,6 +115,12 @@ Saved workflows can still use **Caption Generator**, **Caption Export**, and **D
 1. Update the extension on `feature/ux-first-impression`, restart Desktop and refresh the frontend. Open **Caption My Images**, choose several local images and leave saving off. Queue **BLIP Base** with **Simple Description**. Verify that Model Loader reports the runtime's task and Caption Records reports an image-only prompt.
 2. In the same workflow, choose **Florence-2 Base (Community)** and **Detailed Description**. Leave Trust Remote Code off. Queue and check that Model Loader reports `image-text-to-text`, Caption Records reports `<DETAILED_CAPTION>`, and Preview contains captions from Florence. Open **Caption Profiles** to compare its two Florence tokens.
 3. With compatible PyTorch/torchvision, `num2words` and enough memory, choose **SmolVLM2 2.2B Instruct** and **Natural Description**. Queue and check that the loader selects `image-text-to-text` and Caption Records shows an instruction prompt. Compare captions against the source images. In a copy of the workflow, choose **Custom model and task** with the same SmolVLM2 ID and a text-only task, then verify the loader recommends the image-plus-text task before reading weights.
+
+## Desktop acceptance for community fine-tunes
+
+1. Open **PromptGen Captioning** and choose a small image folder. Leave saving and **Trust Remote Code** off. Queue **Detailed Description**, **Keyword Caption**, and **Artistic Details** and check for usable text and the expected tokens. To try the Large conversion, select its preset and use revision `5bfa6a1d1601b0f5e257aed175287ebb79606b59` instead of the Base revision.
+2. Open **Compare Florence Captions** with the same folder. Queue both branches and compare the same images and offset in the named Preview nodes. Standard BLIP and Community Florence also remain available in the original starters.
+3. In **Caption My Images**, try **BLIP Keyword Captions (Candra)** with **Keyword Caption**. Then try **CapRL Qwen3-VL 4B** with **Detailed Description** in an environment with matching `torchvision`. Confirm output matches the image and record the Transformers version and revision. If switching from a pinned workflow, clear **Revision** or set the revision for the newly selected checkpoint.
 
 ## ComfyUI Desktop acceptance
 
