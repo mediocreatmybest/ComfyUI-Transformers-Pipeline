@@ -10,13 +10,16 @@ function element(tag) {
         setAttribute(name, value) { this[name] = value; } };
 }
 const nodes = new Map();
+const events = new EventTarget();
 const app = { registerExtension(value) { extension = value; },
     graph: { getNodeById(id) { return nodes.get(String(id)); } }, nodeOutputs: {} };
 const source = fs.readFileSync(new URL('../web/feedback.js', import.meta.url), 'utf8');
 vm.runInNewContext(source.replace(/^import .*;$/gm, ''), {
-    app, api: { apiURL: path => path }, document: { createElement: element }, URLSearchParams,
+    app, api: { apiURL: path => path, addEventListener: events.addEventListener.bind(events) }, document: { createElement: element }, URLSearchParams,
 });
-const node = { id: 1, comfyClass: 'CaptionPreviewTpl', widgets: [],
+let forwarded, redraws = 0;
+const node = { onExecuted(...args) { forwarded = [this, ...args]; return 17; },
+    setDirtyCanvas() { redraws++; }, id: 1, comfyClass: 'CaptionPreviewTpl', widgets: [],
     addDOMWidget(name, type, element, options) {
         const widget = { name, type, element, options };
         this.widgets.push(widget);
@@ -66,13 +69,14 @@ extension.onNodeOutputsUpdated({ '1': {
 assert.equal(text.hidden, true);
 assert.equal(gallery.children.length, 3);
 const [, first, second] = gallery.children;
+const [image, captionList] = first.children[1].children;
 assert.equal(first.children[0].textContent, 'first.png');
-assert.match(first.children[1].src, /subfolder=temp\+%26\+folder/);
-assert.equal(first.children[2].children[1].textContent, unsafeCaption);
+assert.match(image.src, /subfolder=temp\+%26\+folder/);
+assert.equal(captionList.children[0].children[1].textContent, unsafeCaption);
 assert.equal(first.children.at(-1).tag, 'details');
 assert.equal(first.children.at(-1).children[0].textContent, 'Show Details');
 assert.equal(second.children[0].textContent, 'second.png');
-assert.equal(second.children[1].textContent, 'Image unavailable');
+assert.equal(second.children.at(-1).textContent, 'Image unavailable');
 extension.onNodeOutputsUpdated({ '1': { text: ['Fallback again'] } });
 assert.equal(text.hidden, false);
 assert.equal(text.value, 'Fallback again');
@@ -87,3 +91,37 @@ const records = { ...node, id: 4, comfyClass: 'CaptionRecordsTpl',
     widgets: ['caption_style', 'profile_ids', 'prompt_override'].map(name => ({ name })) };
 extension.nodeCreated(records);
 assert.deepEqual(records.widgets.slice(0, 3).map(w => w.label), ['Caption Style', 'Custom Profile IDs', 'Prompt Override']);
+
+// Live execution mutates one output entry and calls the node, bypassing the bulk hook.
+const live = { text: ['live caption'], tpl_cards: [{ filename: 'live.png' }] };
+app.nodeOutputs['1'] = live;
+assert.equal(node.onExecuted(live, 'extra'), 17);
+assert.deepEqual(forwarded, [node, live, 'extra']);
+assert.equal(text.value, 'live caption');
+assert.equal(gallery.children.at(-1).children[0].textContent, 'live.png');
+assert.ok(redraws > 0);
+
+// Vue frontends with a registered customtext renderer use an empty native textarea
+// for that type. A bespoke DOM type mounts the supplied gallery in both renderers.
+assert.notEqual(widget.type, 'customtext');
+assert.equal(widget.options.hideOnZoom, false);
+assert.equal(widget.element['data-capture-wheel'], 'true');
+
+// A cache notification only contains IDs. Read the active graph's existing output.
+extension.setup();
+const cached = { text: ['cached caption'], tpl_cards: [{ filename: 'cached.png' }] };
+app.nodeOutputs = { '1': cached };
+events.dispatchEvent(Object.assign(new Event('execution_cached'), { detail: { nodes: ['1'] } }));
+assert.equal(text.value, 'cached caption');
+const cachedCard = gallery.children.at(-1);
+extension.onNodeOutputsUpdated(structuredClone(app.nodeOutputs));
+assert.equal(gallery.children.at(-1), cachedCard, 'replay must retain the mounted card and disclosure state');
+
+// Workflow activation can finish after graph configuration.
+app.nodeOutputs = { '1': { text: ['restored from history'] } };
+extension.afterLoadGraph();
+assert.equal(text.value, 'restored from history');
+
+extension.onNodeOutputsUpdated({ '1': { text: ['No captions on this page'], tpl_cards: [] } });
+assert.equal(text.hidden, false);
+assert.equal(text.value, 'No captions on this page');
